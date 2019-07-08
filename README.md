@@ -1,2 +1,2 @@
-# lightning-store
-A simple backend for running a e-commerce store accepting lightning
+# Lightning store
+Denne appen tilbyr en mock for btsys for å tillate oss å teste selv om den er nede 
