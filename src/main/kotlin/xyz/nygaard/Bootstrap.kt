@@ -1,6 +1,7 @@
 package xyz.nygaard
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import io.ktor.application.call
 import io.ktor.http.ContentType
 import io.ktor.response.respondText
@@ -18,6 +19,8 @@ fun main() {
     val logger = LoggerFactory.getLogger("xyz.nygaard.lightnig-store")
     embeddedServer(Netty, 8080) {
         val objectMapper = ObjectMapper()
+            .registerModule(KotlinModule())
+
         val environment = objectMapper.readValue(File("src/main/resources/config.json"), Config::class.java)
 
         val syncApi = SynchronousLndAPI(
