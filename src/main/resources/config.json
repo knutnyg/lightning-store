@@ -1,0 +1,7 @@
+{
+  "hostUrl": "localhost",
+  "hostPort": 10009,
+  "macaroonPath": "path_to_macaroon",
+  "tlscertPath": "path_to_cert"
+}
+
