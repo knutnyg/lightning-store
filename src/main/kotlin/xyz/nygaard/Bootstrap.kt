@@ -3,31 +3,29 @@ package xyz.nygaard
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import io.ktor.application.call
-import io.ktor.http.ContentType
 import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import org.slf4j.LoggerFactory
 import org.lightningj.lnd.wrapper.SynchronousLndAPI
 import org.lightningj.lnd.wrapper.message.GetInfoRequest
 import java.io.File
 
 
 fun main() {
-    val logger = LoggerFactory.getLogger("xyz.nygaard.lightnig-store")
+//    val logger = LoggerFactory.getLogger("xyz.nygaard.lightning-store")
     embeddedServer(Netty, 8080) {
         val objectMapper = ObjectMapper()
-            .registerModule(KotlinModule())
+                .registerModule(KotlinModule())
 
         val environment = objectMapper.readValue(File("src/main/resources/config.json"), Config::class.java)
 
         val syncApi = SynchronousLndAPI(
-            environment.hostUrl,
-            environment.hostPort,
-            File(environment.tlscertPath),
-            File(environment.macaroonPath)
+                environment.hostUrl,
+                environment.hostPort,
+                File(environment.tlscertPath),
+                File(environment.macaroonPath)
         )
         routing {
             get("/status") {
@@ -46,8 +44,8 @@ fun main() {
 }
 
 data class Config(
-    val hostUrl: String,
-    val hostPort: Int,
-    val macaroonPath: String,
-    val tlscertPath: String
+        val hostUrl: String,
+        val hostPort: Int,
+        val macaroonPath: String,
+        val tlscertPath: String
 )
