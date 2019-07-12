@@ -9,7 +9,7 @@ val kotlinVersion = "1.3.40"
 val jacksonVersion = "2.9.7"
 
 group = "xyz.nygaard"
-version = "1.0"
+version = "1.1"
 
 plugins {
     java

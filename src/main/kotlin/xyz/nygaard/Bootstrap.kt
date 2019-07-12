@@ -1,32 +1,42 @@
 package xyz.nygaard
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
+import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts
+import io.grpc.netty.shaded.io.netty.handler.ssl.SslProvider
 import io.ktor.application.call
 import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import org.lightningj.lnd.wrapper.MacaroonContext
 import org.lightningj.lnd.wrapper.SynchronousLndAPI
 import org.lightningj.lnd.wrapper.message.GetInfoRequest
-import java.io.File
+import java.io.ByteArrayInputStream
+import java.util.*
+import javax.xml.bind.DatatypeConverter
 
 
 fun main() {
-//    val logger = LoggerFactory.getLogger("xyz.nygaard.lightning-store")
-    embeddedServer(Netty, 8080) {
-        val objectMapper = ObjectMapper()
-                .registerModule(KotlinModule())
+    embeddedServer(Netty, System.getenv("PORT").toInt()) {
+        val environment = Config(
+                hostUrl = System.getenv("lshost"),
+                hostPort = System.getenv("lsport").toInt(),
+                macaroon = Base64.getDecoder().decode(System.getenv("macaroon")),
+                cert = String(Base64.getDecoder().decode(System.getenv("tls_cert")))
+        )
 
-        val environment = objectMapper.readValue(File("src/main/resources/config.json"), Config::class.java)
+        val cert = GrpcSslContexts.configure(io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder.forClient(), SslProvider.OPENSSL)
+                .trustManager(ByteArrayInputStream(environment.cert.toByteArray()))
+                .build()
+
+        val macaroon = EnvironmentMacaroonContext(currentMacaroonData = environment.macaroon)
 
         val syncApi = SynchronousLndAPI(
                 environment.hostUrl,
                 environment.hostPort,
-                File(environment.tlscertPath),
-                File(environment.macaroonPath)
-        )
+                cert,
+                macaroon)
+
         routing {
             get("/status") {
                 val request = GetInfoRequest()
@@ -46,6 +56,13 @@ fun main() {
 data class Config(
         val hostUrl: String,
         val hostPort: Int,
-        val macaroonPath: String,
-        val tlscertPath: String
+        val macaroon: ByteArray,
+        val cert: String
 )
+
+class EnvironmentMacaroonContext(var currentMacaroonData: ByteArray) : MacaroonContext {
+
+    override fun getCurrentMacaroonAsHex(): String {
+        return DatatypeConverter.printHexBinary(currentMacaroonData)
+    }
+}
