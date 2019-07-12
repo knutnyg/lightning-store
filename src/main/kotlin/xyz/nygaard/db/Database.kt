@@ -11,8 +11,8 @@ import java.sql.ResultSet
 class Database : DatabaseInterface {
     private val dataSource: HikariDataSource
 
-    private val username:String
-    private val password:String?
+    private val postgresUsername:String
+    private val postgresPassword:String?
     private val dbUrl:String
 
     private val log = LoggerFactory.getLogger("Database")
@@ -24,25 +24,23 @@ class Database : DatabaseInterface {
         val dbUri = URI(System.getenv("DATABASE_URL"))
         when (isProduction(dbUri)) {
             true -> {
-                username = dbUri.userInfo.split(":")[0]
-                password = dbUri.userInfo.split(":")[1]
-                log.info("username: {} | password: {}", username, password)
+                postgresUsername = dbUri.userInfo.split(":")[0]
+                postgresPassword = dbUri.userInfo.split(":")[1]
                 dbUrl = "jdbc:postgresql://" + dbUri.host + ':' + dbUri.port + dbUri.path + "?sslmode=require"
-
             }
             else -> {
-                username = dbUri.userInfo.split(":")[0]
-                password = null
+                postgresUsername = dbUri.userInfo.split(":")[0]
+                postgresPassword = null
                 dbUrl = "jdbc:postgresql://" + dbUri.host + ":" + dbUri.port + dbUri.path
             }
         }
 
-        runFlywayMigrations(dbUrl, username, password ?: "")
+        runFlywayMigrations(dbUrl, postgresUsername, postgresPassword ?: "")
 
         dataSource = HikariDataSource(HikariConfig().apply {
             jdbcUrl = dbUrl
-            username = username
-            password = password
+            username = postgresUsername
+            password = postgresPassword
             maximumPoolSize = 3
             isAutoCommit = false
             transactionIsolation = "TRANSACTION_REPEATABLE_READ"
