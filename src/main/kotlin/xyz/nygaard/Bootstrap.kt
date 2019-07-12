@@ -11,6 +11,7 @@ import io.ktor.server.netty.Netty
 import org.lightningj.lnd.wrapper.MacaroonContext
 import org.lightningj.lnd.wrapper.SynchronousLndAPI
 import org.lightningj.lnd.wrapper.message.GetInfoRequest
+import xyz.nygaard.db.Database
 import java.io.ByteArrayInputStream
 import java.util.*
 import javax.xml.bind.DatatypeConverter
@@ -24,6 +25,8 @@ fun main() {
                 macaroon = Base64.getDecoder().decode(System.getenv("macaroon")),
                 cert = String(Base64.getDecoder().decode(System.getenv("tls_cert")))
         )
+
+        val database = Database()
 
         val cert = GrpcSslContexts.configure(io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder.forClient(), SslProvider.OPENSSL)
                 .trustManager(ByteArrayInputStream(environment.cert.toByteArray()))

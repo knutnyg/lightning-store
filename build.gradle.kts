@@ -7,6 +7,10 @@ val logbackVersion = "1.2.3"
 val logstashEncoderVersion = "5.1"
 val kotlinVersion = "1.3.40"
 val jacksonVersion = "2.9.7"
+val postgresVersion = "42.2.5"
+val h2Version = "1.4.197"
+val flywayVersion = "5.2.4"
+val hikariVersion = "3.3.0"
 
 group = "xyz.nygaard"
 version = "1.1"
@@ -46,6 +50,11 @@ dependencies {
     implementation ("ch.qos.logback:logback-classic:$logbackVersion")
     implementation ("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
 
+    //Database
+    implementation("org.postgresql:postgresql:$postgresVersion")
+    implementation("com.h2database:h2:$h2Version")
+    implementation("com.zaxxer:HikariCP:$hikariVersion")
+    implementation("org.flywaydb:flyway-core:$flywayVersion")
 }
 
 tasks {
