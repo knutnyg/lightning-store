@@ -3,6 +3,8 @@ package xyz.nygaard
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslProvider
 import io.ktor.application.call
+import io.ktor.application.install
+import io.ktor.features.CORS
 import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.routing
@@ -11,11 +13,13 @@ import io.ktor.server.netty.Netty
 import org.lightningj.lnd.wrapper.MacaroonContext
 import org.lightningj.lnd.wrapper.SynchronousLndAPI
 import org.lightningj.lnd.wrapper.message.GetInfoRequest
+import org.slf4j.LoggerFactory
 import xyz.nygaard.db.Database
 import java.io.ByteArrayInputStream
-import java.util.*
+import java.util.Base64
 import javax.xml.bind.DatatypeConverter
 
+val log = LoggerFactory.getLogger("Bootstrap")
 
 fun main() {
     embeddedServer(Netty, System.getenv("PORT").toInt()) {
@@ -25,6 +29,11 @@ fun main() {
                 macaroon = Base64.getDecoder().decode(System.getenv("macaroon")),
                 cert = String(Base64.getDecoder().decode(System.getenv("tls_cert")))
         )
+
+        //TODO: Denne må bort...
+        install(CORS) {
+            anyHost()
+        }
 
         val database = Database()
 
@@ -42,6 +51,7 @@ fun main() {
 
         routing {
             get("/status") {
+                log.info("Requesting Status")
                 val request = GetInfoRequest()
                 call.respondText(syncApi.getInfo(request).toJsonAsString(true))
             }
