@@ -32,7 +32,7 @@ fun main() {
 
         //TODO: Denne må bort...
         install(CORS) {
-            anyHost()
+            host("nygaard.xyz", listOf("https"), listOf("store"))
         }
 
         val database = Database()
