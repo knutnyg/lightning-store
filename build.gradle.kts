@@ -41,12 +41,14 @@ dependencies {
 
     implementation ("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation ("io.ktor:ktor-server-netty:$ktorVersion")
+    implementation("io.ktor:ktor-client-jackson:$ktorVersion")
+    implementation("io.ktor:ktor-jackson:$ktorVersion")
 
     implementation ("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:$jacksonVersion")
     implementation ("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation ("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
     implementation ("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
-    
+
     implementation ("ch.qos.logback:logback-classic:$logbackVersion")
     implementation ("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
 
@@ -55,6 +57,24 @@ dependencies {
     implementation("com.h2database:h2:$h2Version")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
+
+    //Test
+    testImplementation("org.amshove.kluent:kluent:1.49")
+    testImplementation("io.mockk:mockk:1.9")
+    testImplementation("org.spekframework.spek2:spek-dsl-jvm:2.0.2")
+    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
+        exclude(group = "org.eclipse.jetty") // conflicts with WireMock
+    }
+    testImplementation("com.opentable.components:otj-pg-embedded:0.13.1")
+
+    testImplementation("org.spekframework.spek2:spek-dsl-jvm:2.0.2") {
+        exclude(group = "org.jetbrains.kotlin")
+    }
+    testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:2.0.2") {
+        exclude(group = "org.jetbrains.kotlin")
+    }
+
+
 }
 
 tasks {
