@@ -43,9 +43,9 @@ fun main() {
         val environment = Config(
             hostUrl = System.getenv("lshost"),
             hostPort = System.getenv("lsport").toInt(),
-            readOnlyMacaroon = Base64.getDecoder().decode(System.getenv("readonly_macaroon")),
-            invoiceMacaroon = Base64.getDecoder().decode(System.getenv("invoice_macaroon")),
-            cert = String(Base64.getDecoder().decode(System.getenv("tls_cert")))
+            readOnlyMacaroon = System.getenv("readonly_macaroon"),
+            invoiceMacaroon = System.getenv("invoice_macaroon"),
+            cert = System.getenv("tls_cert")
         )
 
         val database = Database()
@@ -54,7 +54,8 @@ fun main() {
 
         installContentNegotiation()
         install(CORS) {
-            host("nygaard.xyz", listOf("https"), listOf("store"))
+            host("store.nygaard.xyz", listOf("https"))
+            host("localhost:3000", listOf("http"))
         }
 
         routing {
@@ -65,18 +66,12 @@ fun main() {
 }
 
 private fun Routing.registerSelftestApi(lndClient: LndClient) {
-    //TODO: Depricated
     get("/nodeInfo") {
-        log.info("Requesting Status")
-        call.respond(lndClient.getInfo())
-    }
-    get("/status") {
         log.info("Requesting Status")
         call.respond(lndClient.getInfo())
     }
     get("/isAlive") {
         call.respondText("I'm alive! :)")
-
     }
 }
 
@@ -111,14 +106,13 @@ fun Routing.registerInvoiceApi(invoiceService: InvoiceService) {
 data class Config(
     val hostUrl: String,
     val hostPort: Int,
-    val readOnlyMacaroon: ByteArray,
-    val invoiceMacaroon: ByteArray,
+    val readOnlyMacaroon: String,
+    val invoiceMacaroon: String,
     val cert: String
 )
 
-class EnvironmentMacaroonContext(var currentMacaroonData: ByteArray) : MacaroonContext {
-
+class EnvironmentMacaroonContext(var currentMacaroonData: String) : MacaroonContext {
     override fun getCurrentMacaroonAsHex(): String {
-        return DatatypeConverter.printHexBinary(currentMacaroonData)
+        return DatatypeConverter.printHexBinary(Base64.getDecoder().decode(currentMacaroonData))
     }
 }

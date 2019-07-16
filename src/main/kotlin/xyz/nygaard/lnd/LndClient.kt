@@ -11,6 +11,7 @@ import xyz.nygaard.Config
 import xyz.nygaard.EnvironmentMacaroonContext
 import xyz.nygaard.store.invoice.Invoice
 import java.io.ByteArrayInputStream
+import java.util.Base64
 
 class LndClient(environment: Config) {
 
@@ -18,7 +19,7 @@ class LndClient(environment: Config) {
         io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder.forClient(),
         SslProvider.OPENSSL
     )
-        .trustManager(ByteArrayInputStream(environment.cert.toByteArray()))
+        .trustManager(ByteArrayInputStream(Base64.getDecoder().decode(environment.cert)))
         .build()
 
     private val readonlyMacaroon = EnvironmentMacaroonContext(currentMacaroonData = environment.readOnlyMacaroon)
