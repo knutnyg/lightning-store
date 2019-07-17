@@ -13,7 +13,7 @@ import xyz.nygaard.store.invoice.Invoice
 import java.io.ByteArrayInputStream
 import java.util.Base64
 
-class LndClient(environment: Config) {
+class LndClient(environment: Config) : LndApiWrapper {
 
     private val cert = GrpcSslContexts.configure(
         io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder.forClient(),
@@ -38,7 +38,7 @@ class LndClient(environment: Config) {
         invoiceMacaroon
     )
 
-    fun addInvoice(value: Long, memo: String): Invoice =
+    override fun addInvoice(value: Long, memo: String): Invoice =
         lndInvoiceApi.addInvoice(org.lightningj.lnd.wrapper.message.Invoice()
             .apply {
                 this.value = value
@@ -47,7 +47,7 @@ class LndClient(environment: Config) {
             .map2()
 
 
-    fun lookupInvoice(invoice:Invoice) : LndInvoice =
+    override fun lookupInvoice(invoice:Invoice) : LndInvoice =
         lndInvoiceApi.lookupInvoice(PaymentHash()
             .apply {
                 rHashStr = invoice.rhash
@@ -55,7 +55,7 @@ class LndClient(environment: Config) {
             .map2()
 
 
-    fun getInfo(): NodeInfo =
+    override fun getInfo(): NodeInfo =
         readOnlyApi.getInfo(GetInfoRequest()).map2()
 }
 
@@ -79,3 +79,9 @@ fun org.lightningj.lnd.wrapper.message.Invoice.map2() =
         settled = this.settled,
         paymentRequest = this.paymentRequest
     )
+
+interface LndApiWrapper {
+    fun addInvoice(value: Long, memo: String): Invoice
+    fun lookupInvoice(invoice:Invoice) : LndInvoice
+    fun getInfo(): NodeInfo
+}

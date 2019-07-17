@@ -23,7 +23,9 @@ import io.ktor.server.netty.Netty
 import org.lightningj.lnd.wrapper.MacaroonContext
 import org.slf4j.LoggerFactory
 import xyz.nygaard.db.Database
+import xyz.nygaard.lnd.LndApiWrapper
 import xyz.nygaard.lnd.LndClient
+import xyz.nygaard.lnd.LndClientMock
 import xyz.nygaard.store.invoice.InvoiceService
 import java.util.Base64
 import java.util.UUID
@@ -45,11 +47,16 @@ fun main() {
             hostPort = System.getenv("lsport").toInt(),
             readOnlyMacaroon = System.getenv("readonly_macaroon"),
             invoiceMacaroon = System.getenv("invoice_macaroon"),
-            cert = System.getenv("tls_cert")
+            cert = System.getenv("tls_cert"),
+            mocks = System.getenv("lsmocks")?.toBoolean() ?: false
         )
 
         val database = Database()
-        val lndClient = LndClient(environment)
+
+        val lndClient = when (environment.mocks) {
+            true -> LndClientMock()
+            else -> LndClient(environment)
+        }
         val invoiceService = InvoiceService(database, lndClient)
 
         installContentNegotiation()
@@ -65,7 +72,7 @@ fun main() {
     }.start(wait = true)
 }
 
-private fun Routing.registerSelftestApi(lndClient: LndClient) {
+private fun Routing.registerSelftestApi(lndClient: LndApiWrapper) {
     get("/nodeInfo") {
         log.info("Requesting Status")
         call.respond(lndClient.getInfo())
@@ -108,7 +115,8 @@ data class Config(
     val hostPort: Int,
     val readOnlyMacaroon: String,
     val invoiceMacaroon: String,
-    val cert: String
+    val cert: String,
+    val mocks: Boolean
 )
 
 class EnvironmentMacaroonContext(var currentMacaroonData: String) : MacaroonContext {

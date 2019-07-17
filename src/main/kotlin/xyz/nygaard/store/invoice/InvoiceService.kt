@@ -2,14 +2,14 @@ package xyz.nygaard.store.invoice
 
 import xyz.nygaard.db.DatabaseInterface
 import xyz.nygaard.db.toList
-import xyz.nygaard.lnd.LndClient
+import xyz.nygaard.lnd.LndApiWrapper
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.UUID
 
 class InvoiceService(
     private val database: DatabaseInterface,
-    private val lndClient: LndClient
+    private val lndClient: LndApiWrapper
 ) {
     fun getInvoice(uuid: UUID): Invoice? {
         val invoiceFromDb: Invoice? = database.connection.use { connection ->

@@ -3,7 +3,6 @@ package xyz.nygaard.db
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
-import org.slf4j.LoggerFactory
 import java.net.URI
 import java.sql.Connection
 import java.sql.ResultSet
@@ -14,8 +13,6 @@ class Database : DatabaseInterface {
     private val postgresUsername:String
     private val postgresPassword:String?
     private val dbUrl:String
-
-    private val log = LoggerFactory.getLogger("Database")
 
     override val connection: Connection
         get() = dataSource.connection
