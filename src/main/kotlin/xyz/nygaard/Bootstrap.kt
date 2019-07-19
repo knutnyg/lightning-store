@@ -16,6 +16,7 @@ import io.ktor.features.CORS
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.XForwardedHeaderSupport
 import io.ktor.http.Cookie
+import io.ktor.http.CookieEncoding
 import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
 import io.ktor.request.header
@@ -170,7 +171,9 @@ fun Routing.registerLoginApi(loginService: LoginService, isProd: Boolean) {
                     value = request.key,
                     secure = isProd,
                     httpOnly = true,
-                    domain = if (isProd) "store.nygaard.xyz" else "localhost:3000"
+                    domain = if (isProd) "store.nygaard.xyz" else "localhost:3000",
+                    encoding = CookieEncoding.RAW
+
                 )
             )
             call.respond(LoginResponse(status = "LOGGED_IN", key = request.key))
@@ -183,7 +186,8 @@ fun Routing.registerLoginApi(loginService: LoginService, isProd: Boolean) {
                     value = key,
                     secure = isProd,
                     httpOnly = true,
-                    domain = if (isProd) "store.nygaard.xyz" else "localhost:3000"
+                    domain = if (isProd) "store.nygaard.xyz" else "localhost:3000",
+                    encoding = CookieEncoding.RAW
                 )
             )
             call.respond(LoginResponse(status = "LOGGED_IN", key = key))
