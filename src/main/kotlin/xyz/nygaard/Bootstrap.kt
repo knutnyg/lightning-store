@@ -111,7 +111,7 @@ fun main() {
             get("/login") {
                 val key = loginService.createPrivateKey()
                 call.response.cookies.append(Cookie(
-                    name = "key", value = key, secure = isProduction(), httpOnly = true, encoding = CookieEncoding.BASE64_ENCODING
+                    name = "key", value = key, secure = isProduction(), httpOnly = true, encoding = CookieEncoding.RAW
                 ))
                 call.respond(Login(key))
             }
