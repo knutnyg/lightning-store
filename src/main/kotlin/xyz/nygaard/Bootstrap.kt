@@ -171,7 +171,6 @@ fun Routing.registerLoginApi(loginService: LoginService, isProd: Boolean) {
                     value = request.key,
                     secure = isProd,
                     httpOnly = true,
-                    domain = if (isProd) "store.nygaard.xyz" else "localhost:3000",
                     encoding = CookieEncoding.RAW
 
                 )
@@ -186,7 +185,6 @@ fun Routing.registerLoginApi(loginService: LoginService, isProd: Boolean) {
                     value = key,
                     secure = isProd,
                     httpOnly = true,
-                    domain = if (isProd) "store.nygaard.xyz" else "localhost:3000",
                     encoding = CookieEncoding.RAW
                 )
             )
