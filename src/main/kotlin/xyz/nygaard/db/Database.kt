@@ -3,6 +3,7 @@ package xyz.nygaard.db
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
+import xyz.nygaard.isProduction
 import java.net.URI
 import java.sql.Connection
 import java.sql.ResultSet
@@ -19,7 +20,7 @@ class Database : DatabaseInterface {
 
     init {
         val dbUri = URI(System.getenv("DATABASE_URL"))
-        when (isProduction(dbUri)) {
+        when (isProduction()) {
             true -> {
                 postgresUsername = dbUri.userInfo.split(":")[0]
                 postgresPassword = dbUri.userInfo.split(":")[1]
@@ -44,8 +45,6 @@ class Database : DatabaseInterface {
             validate()
         })
     }
-
-    private fun isProduction(dbUrl:URI) = !dbUrl.toString().contains("localhost")
 
     private fun runFlywayMigrations(dburl:String, username:String, password:String) = Flyway.configure().run {
         dataSource(dburl, username, password)

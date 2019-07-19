@@ -14,6 +14,7 @@ import io.ktor.auth.authenticate
 import io.ktor.auth.basic
 import io.ktor.features.CORS
 import io.ktor.features.ContentNegotiation
+import io.ktor.http.Cookie
 import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
 import io.ktor.request.header
@@ -36,7 +37,10 @@ import xyz.nygaard.lnd.LndClientMock
 import xyz.nygaard.store.article.ArticleService
 import xyz.nygaard.store.article.NewArticle
 import xyz.nygaard.store.invoice.InvoiceService
+import xyz.nygaard.store.login.LoginService
 import java.io.IOException
+import java.net.URI
+import java.net.URLEncoder
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Base64
@@ -51,6 +55,9 @@ val objectMapper: ObjectMapper = ObjectMapper().apply {
     configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
 }
+
+// TODO: This should be a env.variable
+fun isProduction() = !URI(System.getenv("DATABASE_URL")).toString().contains("localhost")
 
 fun main() {
     embeddedServer(Netty, System.getenv("PORT").toInt()) {
@@ -73,6 +80,7 @@ fun main() {
         }
         val invoiceService = InvoiceService(database, lndClient)
         val articleService = ArticleService(database)
+        val loginService = LoginService()
 
         installContentNegotiation()
         install(CORS) {
@@ -95,6 +103,15 @@ fun main() {
         routing {
             registerSelftestApi(lndClient)
             registerInvoiceApi(invoiceService)
+
+            get("/login") {
+                val key = loginService.createPrivateKey()
+                call.response.cookies.append(Cookie(
+                    name = "key", value = key, secure = isProduction(), httpOnly = true
+                ))
+                call.respond(Login(URLEncoder.encode(key, Charsets.UTF_8)))
+            }
+
             get("/images/{name}") {
                 val name = call.parameters["name"] ?: RuntimeException("Must specify resource")
                 try {
@@ -135,6 +152,8 @@ fun main() {
         }
     }.start(wait = true)
 }
+
+data class Login(val key:String)
 
 private fun Routing.registerSelftestApi(lndClient: LndApiWrapper) {
     get("/nodeInfo") {
