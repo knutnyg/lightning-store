@@ -1,8 +1,10 @@
 package xyz.nygaard.store.login
 
+import xyz.nygaard.db.DatabaseInterface
+import xyz.nygaard.db.toList
 import java.util.Base64
 
-class LoginService {
+class LoginService(val database: DatabaseInterface) {
 
     private val secureRandom = java.security.SecureRandom()
 
@@ -13,7 +15,14 @@ class LoginService {
         return String(Base64.getUrlEncoder().withoutPadding().encode(array))
     }
 
-    fun login(key: String) {
+    fun isValidToken(key: String? = ""): Boolean {
 
+        return database.connection.use { connection ->
+            connection.prepareStatement("SELECT * FROM USERS WHERE privatekey = ?")
+                .use {
+                    it.setString(1, key)
+                    it.executeQuery()
+                }
+        }.next()
     }
 }

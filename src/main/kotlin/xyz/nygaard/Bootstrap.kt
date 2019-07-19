@@ -42,7 +42,6 @@ import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.login.LoginService
 import java.io.IOException
 import java.net.URI
-import java.net.URLEncoder
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Base64
@@ -82,7 +81,7 @@ fun main() {
         }
         val invoiceService = InvoiceService(database, lndClient)
         val articleService = ArticleService(database)
-        val loginService = LoginService()
+        val loginService = LoginService(database)
 
         installContentNegotiation()
         install(CORS) {
@@ -109,11 +108,13 @@ fun main() {
             registerInvoiceApi(invoiceService)
 
             get("/login") {
-                val key = loginService.createPrivateKey()
-                call.response.cookies.append(Cookie(
-                    name = "key", value = key, secure = isProduction(), httpOnly = true, encoding = CookieEncoding.RAW
-                ))
-                call.respond(Login(key))
+                val maybeKey = call.request.cookies["key"]
+
+                if (loginService.isValidToken(maybeKey)) {
+                    call.respond(RSLogin(status = "LOGGED_IN", key = maybeKey))
+                } else {
+                    call.respond(RSLogin("NOT_LOGGED_IN"))
+                }
             }
 
             get("/images/{name}") {
@@ -141,7 +142,7 @@ fun main() {
             }
             authenticate("basic") {
                 put("/articles/{uuid?}") {
-                    val article:NewArticle = call.receive()
+                    val article: NewArticle = call.receive()
 
                     when (call.parameters["uuid"]) {
                         null -> {
@@ -157,7 +158,7 @@ fun main() {
     }.start(wait = true)
 }
 
-data class Login(val key:String)
+data class RSLogin(val status: String, val key: String? = null)
 
 private fun Routing.registerSelftestApi(lndClient: LndApiWrapper) {
     get("/nodeInfo") {
