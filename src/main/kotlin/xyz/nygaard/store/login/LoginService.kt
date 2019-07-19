@@ -10,7 +10,7 @@ class LoginService {
         val array = ByteArray(32)
         secureRandom.nextBytes(array)
 
-        return String(Base64.getUrlEncoder().encode(array))
+        return String(Base64.getUrlEncoder().withoutPadding().encode(array))
     }
 
     fun login(key: String) {
