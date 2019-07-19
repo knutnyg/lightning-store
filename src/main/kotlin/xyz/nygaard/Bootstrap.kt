@@ -14,6 +14,7 @@ import io.ktor.auth.authenticate
 import io.ktor.auth.basic
 import io.ktor.features.CORS
 import io.ktor.features.ContentNegotiation
+import io.ktor.features.XForwardedHeaderSupport
 import io.ktor.http.Cookie
 import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
@@ -88,6 +89,7 @@ fun main() {
             host("store.nygaard.xyz", listOf("https"))
             host("localhost:3000", listOf("http"))
         }
+        install(XForwardedHeaderSupport)
         install(Authentication) {
             basic(name = "basic") {
                 realm = "Ktor Server"
