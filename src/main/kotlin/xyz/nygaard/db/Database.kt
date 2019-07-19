@@ -3,12 +3,11 @@ package xyz.nygaard.db
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
-import xyz.nygaard.isProduction
 import java.net.URI
 import java.sql.Connection
 import java.sql.ResultSet
 
-class Database : DatabaseInterface {
+class Database(val isProd:Boolean) : DatabaseInterface {
     private val dataSource: HikariDataSource
 
     private val postgresUsername:String
@@ -20,7 +19,7 @@ class Database : DatabaseInterface {
 
     init {
         val dbUri = URI(System.getenv("DATABASE_URL"))
-        when (isProduction()) {
+        when (isProd) {
             true -> {
                 postgresUsername = dbUri.userInfo.split(":")[0]
                 postgresPassword = dbUri.userInfo.split(":")[1]

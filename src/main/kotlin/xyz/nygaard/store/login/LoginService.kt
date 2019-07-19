@@ -5,7 +5,7 @@ import xyz.nygaard.db.toList
 import java.util.Base64
 import java.util.UUID
 
-class LoginService(val database: DatabaseInterface) {
+class LoginService(private val database: DatabaseInterface) {
 
     private val secureRandom = java.security.SecureRandom()
 

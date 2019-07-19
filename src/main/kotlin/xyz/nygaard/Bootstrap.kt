@@ -56,9 +56,6 @@ val objectMapper: ObjectMapper = ObjectMapper().apply {
     configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
 }
 
-// TODO: This should be a env.variable
-fun isProduction() = !URI(System.getenv("DATABASE_URL")).toString().contains("localhost")
-
 fun main() {
     embeddedServer(Netty, System.getenv("PORT").toInt()) {
         val environment = Config(
@@ -69,10 +66,11 @@ fun main() {
             cert = System.getenv("tls_cert"),
             mocks = System.getenv("lsmocks")?.toBoolean() ?: false,
             adminUser = System.getenv("lsadminuser"),
-            adminPass = System.getenv("lsadminpass")
+            adminPass = System.getenv("lsadminpass"),
+            isProd = System.getenv("lnIsProd")?.toBoolean() ?: true
         )
 
-        val database = Database()
+        val database = Database(environment.isProd)
 
         val lndClient = when (environment.mocks) {
             true -> LndClientMock()
@@ -105,7 +103,7 @@ fun main() {
         routing {
             registerSelftestApi(lndClient)
             registerInvoiceApi(invoiceService)
-            registerLoginApi(loginService)
+            registerLoginApi(loginService, environment.isProd)
 
             get("/images/{name}") {
                 val name = call.parameters["name"] ?: RuntimeException("Must specify resource")
@@ -148,13 +146,15 @@ fun main() {
     }.start(wait = true)
 }
 
-fun Routing.registerLoginApi(loginService: LoginService) {
+fun Routing.registerLoginApi(loginService: LoginService, isProd: Boolean) {
     get("/login") {
         val maybeKey = call.request.cookies["key"]
 
         if (loginService.isValidToken(maybeKey)) {
+            log.info("User is already logged in")
             call.respond(LoginResponse(status = "LOGGED_IN", key = maybeKey))
         } else {
+            log.info("User is not logged in")
             call.respond(LoginResponse("NOT_LOGGED_IN"))
         }
     }
@@ -163,25 +163,27 @@ fun Routing.registerLoginApi(loginService: LoginService) {
         val request:LoginRequest = call.receive()
 
         if (loginService.isValidToken(request.key)) {
+            log.info("User has a existing key -> returning this in a cookie")
             call.response.cookies.append(
                 Cookie(
                     name = "key",
                     value = request.key,
-                    secure = isProduction(),
+                    secure = isProd,
                     httpOnly = true,
-                    domain = if (isProduction()) "store.nygaard.xyz" else "localhost:3000"
+                    domain = if (isProd) "store.nygaard.xyz" else "localhost:3000"
                 )
             )
             call.respond(LoginResponse(status = "LOGGED_IN", key = request.key))
         } else {
+            log.info("Creating new key for user")
             val key = loginService.createAndSavePrivateKey()
             call.response.cookies.append(
                 Cookie(
                     name = "key",
                     value = key,
-                    secure = isProduction(),
+                    secure = isProd,
                     httpOnly = true,
-                    domain = if (isProduction()) "store.nygaard.xyz" else "localhost:3000"
+                    domain = if (isProd) "store.nygaard.xyz" else "localhost:3000"
                 )
             )
             call.respond(LoginResponse(status = "LOGGED_IN", key = key))
@@ -238,7 +240,8 @@ data class Config(
     val cert: String,
     val mocks: Boolean,
     val adminUser: String,
-    val adminPass: String
+    val adminPass: String,
+    val isProd: Boolean
 )
 
 class EnvironmentMacaroonContext(var currentMacaroonData: String) : MacaroonContext {
