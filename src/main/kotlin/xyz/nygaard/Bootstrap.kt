@@ -16,6 +16,7 @@ import io.ktor.features.CORS
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.XForwardedHeaderSupport
 import io.ktor.http.Cookie
+import io.ktor.http.CookieEncoding
 import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
 import io.ktor.request.header
@@ -110,9 +111,9 @@ fun main() {
             get("/login") {
                 val key = loginService.createPrivateKey()
                 call.response.cookies.append(Cookie(
-                    name = "key", value = key, secure = isProduction(), httpOnly = true
+                    name = "key", value = key, secure = isProduction(), httpOnly = true, encoding = CookieEncoding.BASE64_ENCODING
                 ))
-                call.respond(Login(URLEncoder.encode(key, Charsets.UTF_8)))
+                call.respond(Login(key))
             }
 
             get("/images/{name}") {
