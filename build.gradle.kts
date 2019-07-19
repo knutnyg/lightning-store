@@ -31,26 +31,27 @@ buildscript {
 repositories {
     mavenCentral()
     jcenter()
-    maven ( url = "https://dl.bintray.com/kotlin/ktor" )
+    maven(url = "https://dl.bintray.com/kotlin/ktor")
 }
 
 dependencies {
-    compile ("org.lightningj:lightningj:0.7.0-Beta")
-    compile ("javax.xml.bind:jaxb-api:2.3.1")
-    runtime ("javax.json:javax.json-api:1.1.2")
+    compile("org.lightningj:lightningj:0.7.0-Beta")
+    compile("javax.xml.bind:jaxb-api:2.3.1")
+    runtime("javax.json:javax.json-api:1.1.2")
 
-    implementation ("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation ("io.ktor:ktor-server-netty:$ktorVersion")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-client-jackson:$ktorVersion")
     implementation("io.ktor:ktor-jackson:$ktorVersion")
+    implementation("io.ktor:ktor-auth:$ktorVersion")
 
-    implementation ("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:$jacksonVersion")
-    implementation ("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-    implementation ("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
-    implementation ("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
+    implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:$jacksonVersion")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
 
-    implementation ("ch.qos.logback:logback-classic:$logbackVersion")
-    implementation ("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
 
     //Database
     implementation("org.postgresql:postgresql:$postgresVersion")
