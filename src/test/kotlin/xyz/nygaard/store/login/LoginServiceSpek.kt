@@ -5,7 +5,6 @@ import org.flywaydb.core.Flyway
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import xyz.nygaard.TestDatabase
-import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.login.LoginService
 
 object LoginServiceSpek : Spek({
@@ -20,8 +19,8 @@ object LoginServiceSpek : Spek({
     describe("LoginService") {
         val loginService = LoginService(testDatabase)
         it("Creates new user token") {
-            val userToken = loginService.createPrivateKey()
-            val userToken1 = loginService.createPrivateKey()
+            val userToken = loginService.createAndSavePrivateKey()
+            val userToken1 = loginService.createAndSavePrivateKey()
             userToken.shouldNotBeNullOrBlank()
             userToken.shouldNotEqual(userToken1)
         }

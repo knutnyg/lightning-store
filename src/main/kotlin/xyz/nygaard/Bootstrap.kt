@@ -16,7 +16,6 @@ import io.ktor.features.CORS
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.XForwardedHeaderSupport
 import io.ktor.http.Cookie
-import io.ktor.http.CookieEncoding
 import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
 import io.ktor.request.header
@@ -114,6 +113,22 @@ fun main() {
                     call.respond(RSLogin(status = "LOGGED_IN", key = maybeKey))
                 } else {
                     call.respond(RSLogin("NOT_LOGGED_IN"))
+                }
+            }
+
+            post("/login") {
+                val maybeKey = call.request.cookies["key"]
+
+                if (loginService.isValidToken(maybeKey)) {
+                    call.respond(RSLogin(status = "LOGGED_IN", key = maybeKey))
+                } else {
+                    val key = loginService.createAndSavePrivateKey()
+                    call.response.cookies.append(
+                        Cookie(
+                            name = "key", value = key, secure = isProduction(), httpOnly = true, domain = if (isProduction()) "store.nygaard.xyz" else "localhost:3000"
+                        )
+                    )
+                    call.respond(RSLogin(status = "LOGGED_IN", key = key))
                 }
             }
 
