@@ -84,6 +84,7 @@ fun main() {
 
         installContentNegotiation()
         install(CORS) {
+            allowCredentials = true
             host("store.nygaard.xyz", listOf("https"))
             host("localhost:3000", listOf("http"))
         }
