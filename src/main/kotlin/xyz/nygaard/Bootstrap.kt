@@ -68,7 +68,7 @@ fun main() {
             mocks = System.getenv("lsmocks")?.toBoolean() ?: false,
             adminUser = System.getenv("lsadminuser"),
             adminPass = System.getenv("lsadminpass"),
-            isProd = System.getenv("lnIsProd")?.toBoolean() ?: true
+            isProd = System.getenv("lsIsProd")?.toBoolean() ?: true
         )
 
         val database = Database(environment.isProd)
@@ -171,7 +171,8 @@ fun Routing.registerLoginApi(loginService: LoginService, isProd: Boolean) {
                     value = request.key,
                     secure = isProd,
                     httpOnly = true,
-                    encoding = CookieEncoding.RAW
+                    encoding = CookieEncoding.RAW,
+                    domain = "nygaard.xyz"
 
                 )
             )
@@ -185,7 +186,8 @@ fun Routing.registerLoginApi(loginService: LoginService, isProd: Boolean) {
                     value = key,
                     secure = isProd,
                     httpOnly = true,
-                    encoding = CookieEncoding.RAW
+                    encoding = CookieEncoding.RAW,
+                    domain = "nygaard.xyz"
                 )
             )
             call.respond(LoginResponse(status = "LOGGED_IN", key = key))
