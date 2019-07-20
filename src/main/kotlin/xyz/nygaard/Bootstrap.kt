@@ -30,6 +30,7 @@ import io.ktor.routing.put
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.util.date.GMTDate
 import org.lightningj.lnd.wrapper.MacaroonContext
 import org.slf4j.LoggerFactory
 import xyz.nygaard.db.Database
@@ -44,6 +45,7 @@ import java.io.IOException
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
+import java.time.LocalDate
 import java.util.Base64
 import java.util.UUID
 import javax.xml.bind.DatatypeConverter
@@ -172,8 +174,8 @@ fun Routing.registerLoginApi(loginService: LoginService, isProd: Boolean) {
                     secure = isProd,
                     httpOnly = true,
                     encoding = CookieEncoding.RAW,
-                    domain = "nygaard.xyz"
-
+                    domain = "nygaard.xyz",
+                    expires = GMTDate(LocalDate.now().plusDays(14).toEpochDay())
                 )
             )
             call.respond(LoginResponse(status = "LOGGED_IN", key = request.key))
