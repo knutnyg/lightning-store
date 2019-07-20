@@ -14,6 +14,7 @@ import io.ktor.auth.authenticate
 import io.ktor.auth.basic
 import io.ktor.features.CORS
 import io.ktor.features.ContentNegotiation
+import io.ktor.features.HttpsRedirect
 import io.ktor.features.XForwardedHeaderSupport
 import io.ktor.http.Cookie
 import io.ktor.http.CookieEncoding
@@ -42,10 +43,8 @@ import xyz.nygaard.store.article.NewArticle
 import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.login.LoginService
 import java.io.IOException
-import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
-import java.time.LocalDate
 import java.util.Base64
 import java.util.UUID
 import javax.xml.bind.DatatypeConverter
@@ -90,6 +89,7 @@ fun main() {
             host("localhost:3000", listOf("http"))
         }
         install(XForwardedHeaderSupport)
+        install(HttpsRedirect)
         install(Authentication) {
             basic(name = "basic") {
                 realm = "Ktor Server"
@@ -155,6 +155,9 @@ fun Routing.registerLoginApi(loginService: LoginService, isProd: Boolean) {
 
         if (loginService.isValidToken(maybeKey)) {
             log.info("User is already logged in")
+            call.response.cookies.append(
+                cookie(maybeKey!!, isProd)
+            )
             call.respond(LoginResponse(status = "LOGGED_IN", key = maybeKey))
         } else {
             log.info("User is not logged in")
@@ -163,39 +166,30 @@ fun Routing.registerLoginApi(loginService: LoginService, isProd: Boolean) {
     }
 
     post("/login") {
-        val request:LoginRequest = call.receive()
-
-        if (loginService.isValidToken(request.key)) {
-            log.info("User has a existing key -> returning this in a cookie")
-            call.response.cookies.append(
-                Cookie(
-                    name = "key",
-                    value = request.key,
-                    secure = isProd,
-                    httpOnly = true,
-                    encoding = CookieEncoding.RAW,
-                    domain = "nygaard.xyz",
-                    expires = GMTDate(LocalDate.now().plusDays(14).toEpochDay())
-                )
-            )
-            call.respond(LoginResponse(status = "LOGGED_IN", key = request.key))
-        } else {
-            log.info("Creating new key for user")
-            val key = loginService.createAndSavePrivateKey()
-            call.response.cookies.append(
-                Cookie(
-                    name = "key",
-                    value = key,
-                    secure = isProd,
-                    httpOnly = true,
-                    encoding = CookieEncoding.RAW,
-                    domain = "nygaard.xyz",
-                    expires = GMTDate(LocalDate.now().plusDays(14).toEpochDay())
-                )
-            )
-            call.respond(LoginResponse(status = "LOGGED_IN", key = key))
-        }
+        val request: LoginRequest = call.receive()
+        val key: String =
+            when (loginService.isValidToken(request.key)) {
+                false ->
+                    loginService.createAndSavePrivateKey()
+                        .also { log.info("Creating new key for user") }
+                else -> request.key
+                    .also { log.info("User has a existing key -> returning this in a cookie") }
+            }
+        call.response.cookies.append(cookie(key, isProd))
+        call.respond(LoginResponse(status = "LOGGED_IN", key = key))
     }
+}
+
+private fun cookie(key: String, isProd: Boolean): Cookie {
+    return Cookie(
+        name = "key",
+        value = key,
+        secure = isProd,
+        httpOnly = true,
+        encoding = CookieEncoding.RAW,
+        domain = if (isProd) "nygaard.xyz" else "localhost",
+        expires = GMTDate(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)) // 7 days
+    )
 }
 
 data class LoginRequest(val key: String)
