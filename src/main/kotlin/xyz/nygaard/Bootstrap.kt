@@ -189,7 +189,8 @@ fun Routing.registerLoginApi(loginService: LoginService, isProd: Boolean) {
                     secure = isProd,
                     httpOnly = true,
                     encoding = CookieEncoding.RAW,
-                    domain = "nygaard.xyz"
+                    domain = "nygaard.xyz",
+                    expires = GMTDate(LocalDate.now().plusDays(14).toEpochDay())
                 )
             )
             call.respond(LoginResponse(status = "LOGGED_IN", key = key))
