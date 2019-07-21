@@ -1,4 +1,6 @@
-
+## Running locally
+Lighting store can now be run through `LocalBootstrap.main()`. This will by default mock out the LND 
+instance and run with an embedded database.
 
 ##Runtime Environment:
 Lightning store assumes you have the following runtime environment variables:
