@@ -108,7 +108,7 @@ data class ArticleTeaser(
 
 
 data class NewArticle(
-    val uuid: String?,
+    val uuid: String? = null,
     val title: String,
     val teaser: String,
     val content: String

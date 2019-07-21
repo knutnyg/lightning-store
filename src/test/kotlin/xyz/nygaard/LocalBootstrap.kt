@@ -26,8 +26,12 @@ import io.ktor.util.date.GMTDate
 import org.flywaydb.core.Flyway
 import xyz.nygaard.lnd.LndClientMock
 import xyz.nygaard.store.article.ArticleService
+import xyz.nygaard.store.article.NewArticle
 import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.login.LoginService
+import java.nio.file.Files
+import java.nio.file.Path
+import java.util.Base64
 
 
 val objectMapper: ObjectMapper = ObjectMapper().apply {
@@ -65,8 +69,16 @@ fun main() {
         val articleService = ArticleService(localDb)
         val loginService = LoginService(localDb)
 
+        articleService.createArticle(
+            NewArticle(
+                title = "Title",
+                teaser = Base64.getEncoder().encodeToString(Files.readString(Path.of("src/test/resources/article01-teaser.html")).toByteArray()),
+                content = Base64.getEncoder().encodeToString(Files.readString(Path.of("src/test/resources/article01.html")).toByteArray())
+            )
+        )
+
         installContentNegotiation()
-        install(CORS){
+        install(CORS) {
             host("localhost:3000", listOf("http"))
             allowCredentials = true
         }
