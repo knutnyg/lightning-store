@@ -11,6 +11,7 @@ import io.ktor.application.install
 import io.ktor.auth.Authentication
 import io.ktor.auth.UserIdPrincipal
 import io.ktor.auth.basic
+import io.ktor.features.CORS
 import io.ktor.http.Cookie
 import io.ktor.http.CookieEncoding
 import io.ktor.request.receive
@@ -65,6 +66,10 @@ fun main() {
         val loginService = LoginService(localDb)
 
         installContentNegotiation()
+        install(CORS){
+            host("localhost:3000", listOf("http"))
+            allowCredentials = true
+        }
 
         install(Authentication) {
             basic(name = "basic") {
