@@ -214,10 +214,36 @@ fun Application.installContentNegotiation() {
     }
 }
 
+data class CreateInvoiceRequest(val memo : String)
+data class CreateInvoiceResponse(
+        val id: String,
+        val memo: String?,
+        val rhash: String,
+        val paymentRequest: String
+)
+
+
 fun Routing.registerInvoiceApi(invoiceService: InvoiceService) {
     post("/invoices") {
-        log.info("Creating invoice")
-        call.respond(invoiceService.createInvoice())
+        val req = call.receive(CreateInvoiceRequest::class)
+
+        log.info("Creating invoice req={}", req)
+
+        val inv = invoiceService.createInvoice(
+                amount = 500L,
+                memo = req.memo
+        )
+
+        log.info("Created invoice inv={}", inv)
+
+        val response = CreateInvoiceResponse(
+                id = inv.id.toString(),
+                memo = inv.memo,
+                rhash = inv.rhash,
+                paymentRequest = inv.paymentRequest
+        )
+
+        call.respond(response)
     }
 
     get("/invoices/{uuid}") {

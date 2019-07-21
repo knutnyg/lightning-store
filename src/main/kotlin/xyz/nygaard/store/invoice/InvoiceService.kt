@@ -42,8 +42,11 @@ class InvoiceService(
         return invoiceFromDb
     }
 
-    fun createInvoice(): Invoice {
-        val lndInvoice = lndClient.addInvoice(500L, "test")
+    fun createInvoice(
+            amount : Long = 500L,
+            memo : String = ""
+    ): Invoice {
+        val lndInvoice = lndClient.addInvoice(amount, memo)
         val uuid = newInvoice(lndInvoice)
 
         return lndInvoice.copy(id = uuid)
