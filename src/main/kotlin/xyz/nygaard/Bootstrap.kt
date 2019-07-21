@@ -51,13 +51,6 @@ import javax.xml.bind.DatatypeConverter
 
 val log = LoggerFactory.getLogger("Bootstrap")
 
-val objectMapper: ObjectMapper = ObjectMapper().apply {
-    registerKotlinModule()
-    registerModule(JavaTimeModule())
-    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-}
-
 fun main() {
     embeddedServer(Netty, System.getenv("PORT").toInt()) {
         val environment = Config(
@@ -107,46 +100,52 @@ fun main() {
             registerSelftestApi(lndClient)
             registerInvoiceApi(invoiceService)
             registerLoginApi(loginService, environment.isProd)
-
-            get("/images/{name}") {
-                val name = call.parameters["name"] ?: RuntimeException("Must specify resource")
-                try {
-                    call.respond(Files.readAllBytes(Path.of("src/main/resources/images/$name")))
-                } catch (e: IOException) {
-                    log.error(e.toString())
-                    call.respond(HttpStatusCode.NotFound, "Resource not found")
-                }
-            }
-            get("/articles") {
-                call.respond(articleService.getLimitedArticles())
-            }
-            get("/articles/{uuid}") {
-                val uuid: String = call.parameters["uuid"] ?: throw RuntimeException("Missing uuid param")
-                val key: String = call.request.header("key") ?: throw RuntimeException("Missing key header")
-
-                val article = articleService.getFullArticle(uuid, key)
-                if (article != null) {
-                    call.respond(article)
-                } else {
-                    call.respond(HttpStatusCode.NotFound, "Article not found")
-                }
-            }
-            authenticate("basic") {
-                put("/articles/{uuid?}") {
-                    val article: NewArticle = call.receive()
-
-                    when (call.parameters["uuid"]) {
-                        null -> {
-                            val uuid = articleService.createArticle(article)
-                            call.respond(uuid)
-                        }
-                        else -> articleService.updateArticle(article)
-                    }
-                }
-            }
-
+            registerArticlesApi(articleService)
+            registerResourcesApi()
         }
     }.start(wait = true)
+}
+
+fun Routing.registerResourcesApi() {
+    get("/images/{name}") {
+        val name = call.parameters["name"] ?: RuntimeException("Must specify resource")
+        try {
+            call.respond(Files.readAllBytes(Path.of("src/main/resources/images/$name")))
+        } catch (e: IOException) {
+            log.error(e.toString())
+            call.respond(HttpStatusCode.NotFound, "Resource not found")
+        }
+    }
+}
+
+fun Routing.registerArticlesApi(articleService: ArticleService) {
+    get("/articles") {
+        call.respond(articleService.getLimitedArticles())
+    }
+    get("/articles/{uuid}") {
+        val uuid: String = call.parameters["uuid"] ?: throw RuntimeException("Missing uuid param")
+        val key: String = call.request.header("key") ?: throw RuntimeException("Missing key header")
+
+        val article = articleService.getFullArticle(uuid, key)
+        if (article != null) {
+            call.respond(article)
+        } else {
+            call.respond(HttpStatusCode.NotFound, "Article not found")
+        }
+    }
+    authenticate("basic") {
+        put("/articles/{uuid?}") {
+            val article: NewArticle = call.receive()
+
+            when (call.parameters["uuid"]) {
+                null -> {
+                    val uuid = articleService.createArticle(article)
+                    call.respond(uuid)
+                }
+                else -> articleService.updateArticle(article)
+            }
+        }
+    }
 }
 
 fun Routing.registerLoginApi(loginService: LoginService, isProd: Boolean) {
@@ -195,7 +194,7 @@ private fun cookie(key: String, isProd: Boolean): Cookie {
 data class LoginRequest(val key: String)
 data class LoginResponse(val status: String, val key: String? = null)
 
-private fun Routing.registerSelftestApi(lndClient: LndApiWrapper) {
+fun Routing.registerSelftestApi(lndClient: LndApiWrapper) {
     get("/nodeInfo") {
         log.info("Requesting Status")
         call.respond(lndClient.getInfo())
