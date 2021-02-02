@@ -46,8 +46,6 @@ fun main() {
                 invoiceMacaroon = System.getenv("invoice_macaroon"),
                 cert = System.getenv("tls_cert"),
                 mocks = System.getenv("lsmocks")?.toBoolean() ?: false,
-                adminUser = System.getenv("lsadminuser"),
-                adminPass = System.getenv("lsadminpass"),
                 isProd = System.getenv("lsIsProd")?.toBoolean() ?: true
         )
 
@@ -67,18 +65,6 @@ fun main() {
         }
         install(XForwardedHeaderSupport)
         install(HttpsRedirect)
-        install(Authentication) {
-            basic(name = "basic") {
-                realm = "Ktor Server"
-                validate { credentials ->
-                    if (credentials.name == environment.adminUser && credentials.password == environment.adminPass) {
-                        UserIdPrincipal(credentials.name)
-                    } else {
-                        null
-                    }
-                }
-            }
-        }
 
         routing {
             registerSelftestApi(lndClient)
@@ -158,8 +144,6 @@ data class Config(
         val invoiceMacaroon: String,
         val cert: String,
         val mocks: Boolean,
-        val adminUser: String,
-        val adminPass: String,
         val isProd: Boolean
 )
 

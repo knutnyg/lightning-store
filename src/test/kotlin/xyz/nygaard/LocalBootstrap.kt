@@ -16,9 +16,12 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import org.flywaydb.core.Flyway
 import xyz.nygaard.db.DatabaseInterface
+import xyz.nygaard.lnd.LndClient
 import xyz.nygaard.lnd.LndClientMock
 import xyz.nygaard.store.invoice.InvoiceService
+import java.io.FileInputStream
 import java.sql.Connection
+import java.util.*
 import javax.sql.DataSource
 
 
@@ -31,19 +34,19 @@ val objectMapper: ObjectMapper = ObjectMapper().apply {
 
 fun main() {
     embeddedServer(Netty, 8081) {
+        val props = Properties()
+        props.load(FileInputStream("src/test/resources/local.properties"))
         val environment = Config(
-                hostUrl = System.getenv("lshost"),
-                hostPort = System.getenv("lsport").toInt(),
-                readOnlyMacaroon = System.getenv("readonly_macaroon"),
-                invoiceMacaroon = System.getenv("invoice_macaroon"),
-                cert = System.getenv("tls_cert"),
-                mocks = System.getenv("lsmocks")?.toBoolean() ?: false,
-                adminUser = System.getenv("lsadminuser"),
-                adminPass = System.getenv("lsadminpass"),
-                isProd = System.getenv("lsIsProd")?.toBoolean() ?: true
+                hostUrl = props.getProperty("lshost"),
+                hostPort = props.getProperty("lsport").toInt(),
+                readOnlyMacaroon = props.getProperty("readonly_macaroon"),
+                invoiceMacaroon = props.getProperty("invoice_macaroon"),
+                cert = props.getProperty("tls_cert"),
+                mocks = props.getProperty("lsmocks")?.toBoolean() ?: false,
+                isProd = props.getProperty("lsIsProd")?.toBoolean() ?: true
         )
 
-        val embeddedPostgres = EmbeddedPostgres.start()
+        val embeddedPostgres = EmbeddedPostgres.builder().setPort(5532).start()
         val localDb = TestDatabase(embeddedPostgres.postgresDatabase)
 
         Flyway.configure().run {
@@ -51,27 +54,13 @@ fun main() {
         }
 
         /* We run with a mock of LndClient. Can be exchanged with the proper implementation to run against a LND */
-        val lndClient = LndClientMock()
-
+        val lndClient = LndClient(environment) //LndClientMock()
         val invoiceService = InvoiceService(localDb, lndClient)
 
         installContentNegotiation()
         install(CORS) {
             host("localhost:3000", listOf("http"))
             allowCredentials = true
-        }
-
-        install(Authentication) {
-            basic(name = "basic") {
-                realm = "Ktor Server"
-                validate { credentials ->
-                    if (credentials.name == environment.adminUser && credentials.password == environment.adminPass) {
-                        UserIdPrincipal(credentials.name)
-                    } else {
-                        null
-                    }
-                }
-            }
         }
 
         routing {
