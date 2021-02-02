@@ -13,6 +13,4 @@ src/generated
 # OS specific
 .DS_Store
 
-readonly.macaroon
-tls.cert
-node_modules
+local.properties
