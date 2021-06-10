@@ -3,41 +3,22 @@ package xyz.nygaard.db
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
-import java.net.URI
 import java.sql.Connection
 import java.sql.ResultSet
 
-class Database(val isProd:Boolean) : DatabaseInterface {
+class Database(val url:String) : DatabaseInterface {
     private val dataSource: HikariDataSource
-
-    private val postgresUsername:String
-    private val postgresPassword:String?
-    private val dbUrl:String
 
     override val connection: Connection
         get() = dataSource.connection
 
     init {
-        val dbUri = URI(System.getenv("DATABASE_URL"))
-        when (isProd) {
-            true -> {
-                postgresUsername = dbUri.userInfo.split(":")[0]
-                postgresPassword = dbUri.userInfo.split(":")[1]
-                dbUrl = "jdbc:postgresql://" + dbUri.host + ':' + dbUri.port + dbUri.path + "?sslmode=require"
-            }
-            else -> {
-                postgresUsername = dbUri.userInfo.split(":")[0]
-                postgresPassword = null
-                dbUrl = "jdbc:postgresql://" + dbUri.host + ":" + dbUri.port + dbUri.path
-            }
-        }
-
-        runFlywayMigrations(dbUrl, postgresUsername, postgresPassword ?: "")
+        runFlywayMigrations(url, "knut", "")
 
         dataSource = HikariDataSource(HikariConfig().apply {
-            jdbcUrl = dbUrl
-            username = postgresUsername
-            password = postgresPassword
+            jdbcUrl = url
+            username = "knut"
+            password = ""
             maximumPoolSize = 3
             isAutoCommit = false
             transactionIsolation = "TRANSACTION_REPEATABLE_READ"

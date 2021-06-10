@@ -38,41 +38,33 @@ import javax.xml.bind.DatatypeConverter
 val log = LoggerFactory.getLogger("Bootstrap")
 
 fun main() {
-    embeddedServer(Netty, System.getenv("PORT").toInt()) {
+    embeddedServer(Netty, port = 8000, host="localhost") {
+
         val environment = Config(
-                hostUrl = System.getenv("lshost"),
-                hostPort = System.getenv("lsport").toInt(),
-                readOnlyMacaroon = System.getenv("readonly_macaroon"),
-                invoiceMacaroon = System.getenv("invoice_macaroon"),
-                cert = System.getenv("tls_cert"),
-                mocks = System.getenv("lsmocks")?.toBoolean() ?: false,
-                isProd = System.getenv("lsIsProd")?.toBoolean() ?: true
+            hostUrl = System.getenv("LS_HOST_URL"),
+            hostPort = System.getenv("LS_HOST_PORT").toInt(),
+            readOnlyMacaroon = System.getenv("LS_READONLY_MACAROON"),
+            invoiceMacaroon = System.getenv("LS_INVOICES_MACAROON"),
+            cert = System.getenv("LS_TLS_CERT"),
+            mocks = false
         )
 
-        val database = Database(environment.isProd)
-
-        val lndClient = when (environment.mocks) {
-            true -> LndClientMock()
-            else -> LndClient(environment)
-        }
-        val invoiceService = InvoiceService(database, lndClient)
+        val database = Database("jdbc:postgresql://localhost:5432/knut")
+        val lndClient = LndClient(environment)
 
         installContentNegotiation()
-        install(CORS) {
-            allowCredentials = true
-            host("store.nygaard.xyz", listOf("https"))
-            host("localhost:3000", listOf("http"))
-        }
-        install(XForwardedHeaderSupport)
-        install(HttpsRedirect)
 
         routing {
+            get ("/") {
+                log.info("lol")
+                call.respondText("Hello, world!")
+            }
             registerSelftestApi(lndClient)
-            registerInvoiceApi(invoiceService)
         }
+
+
     }.start(wait = true)
 }
-
 
 fun Routing.registerSelftestApi(lndClient: LndApiWrapper) {
     get("/nodeInfo") {
@@ -143,8 +135,7 @@ data class Config(
         val readOnlyMacaroon: String,
         val invoiceMacaroon: String,
         val cert: String,
-        val mocks: Boolean,
-        val isProd: Boolean
+        val mocks: Boolean
 )
 
 class EnvironmentMacaroonContext(var currentMacaroonData: String) : MacaroonContext {
