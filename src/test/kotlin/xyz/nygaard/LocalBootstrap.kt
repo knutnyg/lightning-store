@@ -42,8 +42,7 @@ fun main() {
                 readOnlyMacaroon = props.getProperty("readonly_macaroon"),
                 invoiceMacaroon = props.getProperty("invoice_macaroon"),
                 cert = props.getProperty("tls_cert"),
-                mocks = props.getProperty("lsmocks")?.toBoolean() ?: false,
-                isProd = props.getProperty("lsIsProd")?.toBoolean() ?: true
+                mocks = props.getProperty("lsmocks")?.toBoolean() ?: false
         )
 
         val embeddedPostgres = EmbeddedPostgres.builder().setPort(5532).start()
