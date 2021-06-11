@@ -8,6 +8,8 @@ import org.junit.jupiter.api.TestInstance
 import xyz.nygaard.TestDatabase
 import xyz.nygaard.lnd.LndClientMock
 import java.util.*
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -30,5 +32,14 @@ internal class InvoiceServiceTest {
     @Test
     fun `unknown uuid`() {
         assertNull(invoiceService.getInvoice(UUID.randomUUID()))
+    }
+
+    @Test
+    fun `create and fetch invoice`() {
+        val invoice = invoiceService.createInvoice(amount = 500L, memo = "best invoice")
+        val storedInvoice = invoiceService.getInvoice(invoice.id!!)
+
+        assertEquals(invoice, storedInvoice)
+        assertNotNull(invoice.id)
     }
 }
