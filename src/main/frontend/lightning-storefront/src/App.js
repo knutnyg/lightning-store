@@ -13,15 +13,14 @@ function App() {
                     Welcome to the my store
                 </p>
                 <button onClick={() => {
-                    fetch('http://localhost:8000/invoices/8f9ade7c-6006-4869-b785-95322f954057', {
-                        method: 'GET',
+                    fetch('http://localhost:8000/invoices', {
+                        method: 'POST',
                         headers: {
                             'Access-Control-Allow-Origin': '*',
-                            // 'Content-Type': 'application/json',
-                            // 'Accept': 'application/json'
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
                         },
-                        // body: { memo: 'Chancellor on brink of second bailout for banks'}
-
+                        body: JSON.stringify({memo: "Chancellor on brink of second bailout for banks"})
                     })
                         .then(response => response.json())
                         .then(data => setInvoice(data))
