@@ -68,7 +68,7 @@ fun GetInfoResponse.map2(): NodeInfo =
 
 fun AddInvoiceResponse.map2(): Invoice =
     Invoice(
-        rhash = rHash.decodeToString(),
+        rhash = Base64.getEncoder().encodeToString(rHash),
         paymentRequest = paymentRequest,
     )
 
