@@ -59,6 +59,7 @@ internal class InvoiceServiceTest {
     }
 
     @Test
+    // Failing test
     fun `create and fetch invoice`() {
         val invoice = invoiceService.createInvoice(amount = 500L, memo = "best invoice")
         val storedInvoice = requireNotNull(invoiceService.getInvoice(invoice.id!!))
@@ -69,10 +70,24 @@ internal class InvoiceServiceTest {
     }
 
     @Test
-    fun `update settled`() {
+    fun `lookup updated settled`() {
         val invoice = invoiceService.createInvoice(amount = 500L, memo = "best invoice")
 
         val updatedInvoice = invoiceService.lookupAndUpdate(invoice.id!!)
         assertNotNull(updatedInvoice.settled)
+    }
+
+    @Test
+    fun `lookup not settled`() {
+        every { lndClientMock2.lookupInvoice(any()) } returns LndInvoice(
+            memo = "memo",
+            rhash = "/jmv5V9elr3JnMSrzflPDJtymyopSxieKCjK10jdb9E=",
+            settled = false,
+            paymentRequest = "lnbc5u1pwjefggpp5lcu6le2lt6ttmjvucj4um720pjdh9xe29993383g9r9dwjxadlgsdq523jhxapqf9h8vmmfvdjscqzpgj5cqeemavasg8uqu7ec85k3792q02czxzregkdae5ylqvytgvrcsq4t2spjzrnv3sh8pkckv4y04urwzmzsu9h8kthcvwk3evr4z8ksqkdj8c0"
+        )
+        val invoice = invoiceService.createInvoice(amount = 500L, memo = "best invoice")
+
+        val updatedInvoice = invoiceService.lookupAndUpdate(invoice.id!!)
+        assertNull(updatedInvoice.settled)
     }
 }

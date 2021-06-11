@@ -35,9 +35,12 @@ class InvoiceService(
             ?.let { invoiceFromDB ->
                 val updatedLndInvoice = lndClient.lookupInvoice(invoiceFromDB)
 
-                if (updatedLndInvoice.settled && invoiceFromDB.settled == null) {
+                return if (updatedLndInvoice.settled && invoiceFromDB.settled == null) {
                     val settledTimestamp = updateSettled(invoiceFromDB)
-                    return invoiceFromDB.copy(settled = settledTimestamp, id = invoiceFromDB.id)
+                    invoiceFromDB.copy(settled = settledTimestamp, id = invoiceFromDB.id)
+                } else {
+                    updateLookup(invoiceFromDB)
+                    invoiceFromDB.copy(id = invoiceFromDB.id)
                 }
             }
         throw RuntimeException("Could not find invoice")
@@ -80,18 +83,38 @@ class InvoiceService(
         database.connection.use { connection ->
             connection.prepareStatement(
                 """
-                UPDATE INVOICES
-                SET SETTLED = ?
+                UPDATE invoices
+                SET settled = ?, last_lookup = ?
                 WHERE id = ? 
             """
             ).use {
                 it.setTimestamp(1, Timestamp.valueOf(settled))
-                it.setString(2, invoice.id.toString())
+                it.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()))
+                it.setString(3, invoice.id.toString())
                 it.executeUpdate()
             }
             connection.commit()
         }
         return settled
+    }
+
+    private fun updateLookup(invoice: Invoice): LocalDateTime {
+        val lookup = LocalDateTime.now()
+        database.connection.use { connection ->
+            connection.prepareStatement(
+                """
+                UPDATE invoices
+                SET last_lookup = ?
+                WHERE id = ? 
+            """
+            ).use {
+                it.setTimestamp(1, Timestamp.valueOf(lookup))
+                it.setString(2, invoice.id.toString())
+                it.executeUpdate()
+            }
+            connection.commit()
+        }
+        return lookup
     }
 }
 
