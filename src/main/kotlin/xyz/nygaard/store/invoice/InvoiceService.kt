@@ -4,6 +4,7 @@ import xyz.nygaard.db.DatabaseInterface
 import xyz.nygaard.db.toList
 import xyz.nygaard.lnd.LndApiWrapper
 import java.sql.Timestamp
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -11,8 +12,8 @@ class InvoiceService(
     private val database: DatabaseInterface,
     private val lndClient: LndApiWrapper
 ) {
-    fun getInvoice(uuid: UUID): Invoice? {
-        val invoiceFromDb: Invoice? = database.connection.use { connection ->
+    internal fun getInvoice(uuid: UUID): Invoice? {
+        return database.connection.use { connection ->
             connection.prepareStatement("SELECT * FROM INVOICES WHERE ID = ?")
                 .use {
                     it.setString(1, uuid.toString())
@@ -25,26 +26,27 @@ class InvoiceService(
                                 paymentRequest = getString("payment_req"),
                                 settled = if (getTimestamp("settled") != null) (getTimestamp("settled").toLocalDateTime()) else null
                             )
-                        }.first()
+                        }.firstOrNull()
                 }
         }
+    }
 
-        // Update persisted invoice if settlement has changed
-        if (invoiceFromDb != null) {
-            val updatedLndInvoice = lndClient.lookupInvoice(invoiceFromDb)
+    fun lookupAndUpdate(uuid: UUID): Invoice? {
+        getInvoice(uuid)
+            ?.let { invoiceFromDB ->
+                val updatedLndInvoice = lndClient.lookupInvoice(invoiceFromDB)
 
-            if (updatedLndInvoice.settled && invoiceFromDb.settled != null) {
-                val settledTimestamp = updateSettled(invoiceFromDb)
-                return invoiceFromDb.copy(settled = settledTimestamp)
+                if (updatedLndInvoice.settled && invoiceFromDB.settled != null) {
+                    val settledTimestamp = updateSettled(invoiceFromDB)
+                    return invoiceFromDB.copy(settled = settledTimestamp)
+                }
             }
-        }
-
-        return invoiceFromDb
+        return null
     }
 
     fun createInvoice(
-            amount : Long = 500L,
-            memo : String = ""
+        amount: Long = 500L,
+        memo: String = ""
     ): Invoice {
         val lndInvoice = lndClient.addInvoice(amount, memo)
         val uuid = newInvoice(lndInvoice)
@@ -84,7 +86,7 @@ class InvoiceService(
                 WHERE id = ? 
             """
             ).use {
-                it.setTimestamp(1, Timestamp.valueOf(settled))
+                it.setTimestamp(1, Timestamp.from(Instant.now()))
                 it.setString(2, invoice.id.toString())
                 it.executeUpdate()
             }

@@ -51,6 +51,7 @@ fun main() {
 
         val database = Database("jdbc:postgresql://localhost:5432/knut")
         val lndClient = LndClient(environment)
+        val invoiceService = InvoiceService(database = database, lndClient = lndClient)
 
         installContentNegotiation()
 
@@ -59,6 +60,7 @@ fun main() {
                 call.respondText("Hello, world!")
             }
             registerSelftestApi(lndClient)
+            registerInvoiceApi(invoiceService)
         }
 
 
@@ -96,7 +98,6 @@ data class CreateInvoiceResponse(
 fun Routing.registerInvoiceApi(invoiceService: InvoiceService) {
     post("/invoices") {
         val req = call.receive(CreateInvoiceRequest::class)
-
         log.info("Creating invoice req={}", req)
 
         val inv = invoiceService.createInvoice(
