@@ -3,27 +3,13 @@ package xyz.nygaard
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.ktor.application.Application
-import io.ktor.application.call
-import io.ktor.application.install
-import io.ktor.auth.Authentication
-import io.ktor.auth.UserIdPrincipal
-import io.ktor.auth.basic
-import io.ktor.features.CORS
-import io.ktor.features.ContentNegotiation
-import io.ktor.features.HttpsRedirect
-import io.ktor.features.XForwardedHeaderSupport
-import io.ktor.http.HttpStatusCode
-import io.ktor.jackson.jackson
-import io.ktor.request.receive
-import io.ktor.response.respond
-import io.ktor.response.respondText
-import io.ktor.routing.Routing
-import io.ktor.routing.get
-import io.ktor.routing.post
-import io.ktor.routing.routing
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
+import io.ktor.application.*
+import io.ktor.features.*
+import io.ktor.jackson.*
+import io.ktor.response.*
+import io.ktor.routing.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
 import org.lightningj.lnd.wrapper.MacaroonContext
 import org.slf4j.LoggerFactory
 import xyz.nygaard.db.Database
@@ -31,7 +17,7 @@ import xyz.nygaard.lnd.LndApiWrapper
 import xyz.nygaard.lnd.LndClient
 import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.invoice.registerInvoiceApi
-import java.util.Base64
+import java.util.*
 import javax.xml.bind.DatatypeConverter
 
 val log = LoggerFactory.getLogger("Bootstrap")
