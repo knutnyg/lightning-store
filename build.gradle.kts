@@ -27,9 +27,9 @@ repositories {
 }
 
 dependencies {
-    compile("org.lightningj:lightningj:0.12.0-Beta")
-    compile("javax.xml.bind:jaxb-api:2.3.1")
-    runtime("javax.json:javax.json-api:1.1.2")
+    implementation("org.lightningj:lightningj:0.12.1-Beta")
+    implementation("javax.xml.bind:jaxb-api:2.3.1")
+    runtimeOnly("javax.json:javax.json-api:1.1.2")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
