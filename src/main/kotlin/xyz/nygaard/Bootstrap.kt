@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory
 import xyz.nygaard.db.Database
 import xyz.nygaard.lnd.LndApiWrapper
 import xyz.nygaard.lnd.LndClient
-import xyz.nygaard.lnd.LndClientMock
 import xyz.nygaard.store.invoice.InvoiceService
 import java.util.Base64
 import java.util.UUID
