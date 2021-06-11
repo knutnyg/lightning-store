@@ -30,7 +30,7 @@ class InvoiceService(
         }
     }
 
-    fun lookupAndUpdate(uuid: UUID): Invoice {
+    fun lookupAndUpdate(uuid: UUID): Invoice? {
         getInvoice(uuid)
             ?.let { invoiceFromDB ->
                 val updatedLndInvoice = lndClient.lookupInvoice(invoiceFromDB)
@@ -43,11 +43,11 @@ class InvoiceService(
                     invoiceFromDB.copy(id = invoiceFromDB.id)
                 }
             }
-        throw RuntimeException("Could not find invoice")
+        return null
     }
 
     fun createInvoice(
-        amount: Long = 500L,
+        amount: Long = 10L,
         memo: String = ""
     ): Invoice {
         val lndInvoice = lndClient.addInvoice(amount, memo)

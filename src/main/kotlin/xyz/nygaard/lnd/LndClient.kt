@@ -50,7 +50,7 @@ class LndClient(environment: Config) : LndApiWrapper {
     override fun lookupInvoice(invoice:Invoice) : LndInvoice =
         lndInvoiceApi.lookupInvoice(PaymentHash()
             .apply {
-                rHashStr = invoice.rhash
+                rHash = Base64.getDecoder().decode(invoice.rhash)
             })
             .map2()
 
@@ -68,7 +68,7 @@ fun GetInfoResponse.map2(): NodeInfo =
 
 fun AddInvoiceResponse.map2(): Invoice =
     Invoice(
-        rhash = Base64.getEncoder().encodeToString(rHash),
+        rhash = rHash.decodeToString(),
         paymentRequest = paymentRequest,
     )
 

@@ -16,7 +16,7 @@ fun Routing.registerInvoiceApi(invoiceService: InvoiceService) {
         log.info("Creating invoice req={}", req)
 
         val inv = invoiceService.createInvoice(
-            amount = 500L,
+            amount = 10L,
             memo = req.memo
         )
 
@@ -34,7 +34,7 @@ fun Routing.registerInvoiceApi(invoiceService: InvoiceService) {
 
     get("/invoices/{uuid}") {
         val uuid = call.parameters["uuid"] ?: throw RuntimeException("Missing invoice uuid")
-        val invoice = invoiceService.getInvoice(UUID.fromString(uuid))
+        val invoice = invoiceService.lookupAndUpdate(UUID.fromString(uuid))
 
         if (invoice != null) {
             call.respond(invoice)
