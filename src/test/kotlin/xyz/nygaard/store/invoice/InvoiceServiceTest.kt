@@ -37,9 +37,10 @@ internal class InvoiceServiceTest {
     @Test
     fun `create and fetch invoice`() {
         val invoice = invoiceService.createInvoice(amount = 500L, memo = "best invoice")
-        val storedInvoice = invoiceService.getInvoice(invoice.id!!)
+        val storedInvoice = requireNotNull(invoiceService.getInvoice(invoice.id!!))
 
         assertEquals(invoice, storedInvoice)
         assertNotNull(invoice.id)
+        assertEquals("best invoice", storedInvoice.memo)
     }
 }
