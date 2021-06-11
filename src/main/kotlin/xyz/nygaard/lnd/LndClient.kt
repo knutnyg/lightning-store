@@ -11,7 +11,7 @@ import xyz.nygaard.Config
 import xyz.nygaard.EnvironmentMacaroonContext
 import xyz.nygaard.store.invoice.Invoice
 import java.io.ByteArrayInputStream
-import java.util.Base64
+import java.util.*
 
 class LndClient(environment: Config) : LndApiWrapper {
 
@@ -68,16 +68,16 @@ fun GetInfoResponse.map2(): NodeInfo =
 
 fun AddInvoiceResponse.map2(): Invoice =
     Invoice(
-        rhash = String(rHash),
-        paymentRequest = paymentRequest
+        rhash = Base64.getEncoder().encodeToString(rHash),
+        paymentRequest = paymentRequest,
     )
 
 fun org.lightningj.lnd.wrapper.message.Invoice.map2() =
     LndInvoice(
-        memo = this.memo,
-        rhash = String(this.rHash),
-        settled = this.settled,
-        paymentRequest = this.paymentRequest
+        memo = memo,
+        rhash = Base64.getEncoder().encodeToString(rHash),
+        settled = settled,
+        paymentRequest = paymentRequest
     )
 
 interface LndApiWrapper {
