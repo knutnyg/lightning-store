@@ -1,33 +1,33 @@
 import './App.css';
-
-const getInvoice = () => {
-    console.log("calling")
-    fetch('http://localhost:8000/invoices/8f9ade7c-6006-4869-b785-95322f954057', {
-        method: 'Get',
-        mode: 'cors',
-        headers: {
-            'Access-Control-Allow-Origin': '*'
-        }
-
-    })
-        .then(response => response.json())
-        .then(data => state.invoice = data)
-        .catch(err => console.log(err));
-}
-
-let state = {
-    invoice: undefined
-}
+import {useState} from "react";
+import QRCode from "qrcode.react"
 
 function App() {
+    const [invoice, setInvoice] = useState(undefined);
+
     return (
         <div className="Lightning Store">
             <header className="App-header">
-                {state.invoice && <p>{state.invoice.paymentRequest}</p>}
+                {invoice && <QRCode value={invoice.paymentRequest}/>}
                 <p>
                     Welcome to the my store
                 </p>
-                <button onClick={getInvoice}>Donate</button>
+                <button onClick={() => {
+                    fetch('http://localhost:8000/invoices/8f9ade7c-6006-4869-b785-95322f954057', {
+                        method: 'GET',
+                        headers: {
+                            'Access-Control-Allow-Origin': '*',
+                            // 'Content-Type': 'application/json',
+                            // 'Accept': 'application/json'
+                        },
+                        // body: { memo: 'Chancellor on brink of second bailout for banks'}
+
+                    })
+                        .then(response => response.json())
+                        .then(data => setInvoice(data))
+                        .catch(err => console.log(err));
+                }}>Donate 10 sats
+                </button>
             </header>
 
         </div>

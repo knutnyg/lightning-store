@@ -43,8 +43,11 @@ fun main() {
         install(XForwardedHeaderSupport)
         install(CORS) {
             method(HttpMethod.Options)
+            method(HttpMethod.Post)
+            method(HttpMethod.Get)
             header(HttpHeaders.Authorization)
             header(HttpHeaders.AccessControlAllowOrigin)
+            header(HttpHeaders.ContentType)
             allowSameOrigin = true
             host("localhost:8080", listOf("http", "https")) // frontendHost might be "*"
             log.info("CORS enabled for $hosts")
