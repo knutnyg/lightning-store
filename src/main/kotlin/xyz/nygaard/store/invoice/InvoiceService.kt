@@ -4,9 +4,8 @@ import xyz.nygaard.db.DatabaseInterface
 import xyz.nygaard.db.toList
 import xyz.nygaard.lnd.LndApiWrapper
 import java.sql.Timestamp
-import java.time.Instant
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 class InvoiceService(
     private val database: DatabaseInterface,
@@ -31,17 +30,17 @@ class InvoiceService(
         }
     }
 
-    fun lookupAndUpdate(uuid: UUID): Invoice? {
+    fun lookupAndUpdate(uuid: UUID): Invoice {
         getInvoice(uuid)
             ?.let { invoiceFromDB ->
                 val updatedLndInvoice = lndClient.lookupInvoice(invoiceFromDB)
 
-                if (updatedLndInvoice.settled && invoiceFromDB.settled != null) {
+                if (updatedLndInvoice.settled && invoiceFromDB.settled == null) {
                     val settledTimestamp = updateSettled(invoiceFromDB)
-                    return invoiceFromDB.copy(settled = settledTimestamp)
+                    return invoiceFromDB.copy(settled = settledTimestamp, id = invoiceFromDB.id)
                 }
             }
-        return null
+        throw RuntimeException("Could not find invoice")
     }
 
     fun createInvoice(
@@ -86,7 +85,7 @@ class InvoiceService(
                 WHERE id = ? 
             """
             ).use {
-                it.setTimestamp(1, Timestamp.from(Instant.now()))
+                it.setTimestamp(1, Timestamp.valueOf(settled))
                 it.setString(2, invoice.id.toString())
                 it.executeUpdate()
             }
