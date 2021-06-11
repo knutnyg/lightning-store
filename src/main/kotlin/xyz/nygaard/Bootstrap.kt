@@ -56,7 +56,6 @@ fun main() {
 
         routing {
             get ("/") {
-                log.info("lol")
                 call.respondText("Hello, world!")
             }
             registerSelftestApi(lndClient)
