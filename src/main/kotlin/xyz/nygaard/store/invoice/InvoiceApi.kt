@@ -34,6 +34,7 @@ fun Routing.registerInvoiceApi(invoiceService: InvoiceService) {
 
     get("/invoices/{uuid}") {
         val uuid = call.parameters["uuid"] ?: throw RuntimeException("Missing invoice uuid")
+        log.info("Lookup on invoice: $uuid")
         val invoice = invoiceService.lookupAndUpdate(UUID.fromString(uuid))
 
         if (invoice != null) {

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.application.*
 import io.ktor.features.*
+import io.ktor.http.*
 import io.ktor.jackson.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -23,7 +24,7 @@ import javax.xml.bind.DatatypeConverter
 val log = LoggerFactory.getLogger("Bootstrap")
 
 fun main() {
-    embeddedServer(Netty, port = 8000, host="localhost") {
+    embeddedServer(Netty, port = 8000, host = "localhost") {
 
         val environment = Config(
             hostUrl = System.getenv("LS_HOST_URL"),
@@ -39,9 +40,18 @@ fun main() {
         val invoiceService = InvoiceService(database = database, lndClient = lndClient)
 
         installContentNegotiation()
-
+        install(XForwardedHeaderSupport)
+        install(CORS) {
+            method(HttpMethod.Options)
+            header(HttpHeaders.Authorization)
+            header(HttpHeaders.AccessControlAllowOrigin)
+            allowSameOrigin = true
+            host("localhost:8080", listOf("http", "https")) // frontendHost might be "*"
+            log.info("CORS enabled for $hosts")
+        }
+        install(CallLogging)
         routing {
-            get ("/") {
+            get("/") {
                 call.respondText("Hello, world!")
             }
             registerSelftestApi(lndClient)
@@ -72,21 +82,20 @@ fun Application.installContentNegotiation() {
 
 data class CreateInvoiceRequest(val memo: String)
 data class CreateInvoiceResponse(
-        val id: String,
-        val memo: String?,
-        val rhash: String,
-        val paymentRequest: String
+    val id: String,
+    val memo: String?,
+    val rhash: String,
+    val paymentRequest: String
 )
 
 
-
 data class Config(
-        val hostUrl: String,
-        val hostPort: Int,
-        val readOnlyMacaroon: String,
-        val invoiceMacaroon: String,
-        val cert: String,
-        val mocks: Boolean
+    val hostUrl: String,
+    val hostPort: Int,
+    val readOnlyMacaroon: String,
+    val invoiceMacaroon: String,
+    val cert: String,
+    val mocks: Boolean
 )
 
 class EnvironmentMacaroonContext(var currentMacaroonData: String) : MacaroonContext {
