@@ -30,8 +30,8 @@ import xyz.nygaard.db.Database
 import xyz.nygaard.lnd.LndApiWrapper
 import xyz.nygaard.lnd.LndClient
 import xyz.nygaard.store.invoice.InvoiceService
+import xyz.nygaard.store.invoice.registerInvoiceApi
 import java.util.Base64
-import java.util.UUID
 import javax.xml.bind.DatatypeConverter
 
 val log = LoggerFactory.getLogger("Bootstrap")
@@ -61,8 +61,6 @@ fun main() {
             registerSelftestApi(lndClient)
             registerInvoiceApi(invoiceService)
         }
-
-
     }.start(wait = true)
 }
 
@@ -94,39 +92,7 @@ data class CreateInvoiceResponse(
         val paymentRequest: String
 )
 
-fun Routing.registerInvoiceApi(invoiceService: InvoiceService) {
-    post("/invoices") {
-        val req = call.receive(CreateInvoiceRequest::class)
-        log.info("Creating invoice req={}", req)
 
-        val inv = invoiceService.createInvoice(
-                amount = 500L,
-                memo = req.memo
-        )
-
-        log.info("Created invoice inv={}", inv)
-
-        val response = CreateInvoiceResponse(
-                id = inv.id.toString(),
-                memo = inv.memo,
-                rhash = inv.rhash,
-                paymentRequest = inv.paymentRequest
-        )
-
-        call.respond(response)
-    }
-
-    get("/invoices/{uuid}") {
-        val uuid = call.parameters["uuid"] ?: throw RuntimeException("Missing invoice uuid")
-        val invoice = invoiceService.getInvoice(UUID.fromString(uuid))
-
-        if (invoice != null) {
-            call.respond(invoice)
-        } else {
-            call.respond(HttpStatusCode.NotFound)
-        }
-    }
-}
 
 data class Config(
         val hostUrl: String,
