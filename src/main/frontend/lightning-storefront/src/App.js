@@ -2,21 +2,18 @@ import './App.css';
 import {useState} from "react";
 import QRCode from "qrcode.react"
 import {createInvoice, updateInvoice} from "./io/invoices";
-
-const poll = () => {
-
-}
+import useInterval from "./hooks/useInterval";
 
 function App() {
     const [invoice, setInvoice] = useState(undefined);
-    const [status, setStatus] = useState({
-        inFlow: false,
-        settled: false,
-    });
 
-
-    console.log(invoice)
-    console.log(status)
+    useInterval(() => {
+        console.log('checking hook')
+        if (invoice && invoice.inFlow) {
+            console.log('should update invoice')
+            updateInvoice(invoice, setInvoice)
+        }
+    }, 500)
 
     return (
         <div className="Lightning Store">
@@ -28,11 +25,10 @@ function App() {
                 </p>
                 <button onClick={() => {
                     createInvoice(setInvoice)
-                    setStatus({...status, inFlow: true})
                 }}>Donate 10 sats
                 </button>
                 {invoice && <button onClick={() => {
-                    updateInvoice(invoice.id, setInvoice)
+                    updateInvoice(invoice, setInvoice)
                 }}>Update
                 </button>}
                 {invoice?.settled && <p>Thank you!😎</p>}

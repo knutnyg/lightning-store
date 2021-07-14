@@ -1,5 +1,5 @@
-export const updateInvoice = (id, handler) => {
-    fetch(`http://localhost:8000/invoices/${id}`, {
+export const updateInvoice = (invoice, setInvoice) => {
+    fetch(`http://localhost:8000/invoices/${invoice.id}`, {
         method: 'GET',
         headers: {
             'Access-Control-Allow-Origin': '*',
@@ -7,11 +7,11 @@ export const updateInvoice = (id, handler) => {
         },
     })
         .then(response => response.json())
-        .then(data => handler(data))
+        .then(data => processInvoice(data, setInvoice))
         .catch(err => console.log(err));
 }
 
-export const createInvoice = (handler) => {
+export const createInvoice = (setInvoice) => {
     fetch('http://localhost:8000/invoices', {
         method: 'POST',
         headers: {
@@ -22,6 +22,14 @@ export const createInvoice = (handler) => {
         body: JSON.stringify({memo: "Chancellor on brink of second bailout for banks"})
     })
         .then(response => response.json())
-        .then(data => handler(data))
+        .then(invoice => processInvoice(invoice, setInvoice))
         .catch(err => console.log(err));
+}
+
+const processInvoice = (invoice, setInvoice) => {
+    console.log('processing invoice')
+    if (invoice.settled) {
+        console.log('invoice settled!')
+    }
+    setInvoice({...invoice, inFlow: !invoice.settled})
 }
