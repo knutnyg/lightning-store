@@ -4,12 +4,18 @@ import QRCode from "qrcode.react"
 import {createInvoice, updateInvoice} from "./io/invoices";
 import useInterval from "./hooks/useInterval";
 
+interface Invoice {
+    inFlow: boolean,
+    paymentRequest: string,
+    settled: string
+}
+
 function App() {
-    const [invoice, setInvoice] = useState(undefined);
+    const [invoice, setInvoice] = useState<Invoice | undefined>(undefined);
 
     useInterval(() => {
         console.log('checking hook')
-        if (invoice && invoice.inFlow) {
+        if (invoice && invoice?.inFlow) {
             console.log('should update invoice')
             updateInvoice(invoice, setInvoice)
         }
@@ -19,7 +25,7 @@ function App() {
         <div className="Lightning Store">
             <header className="App-header">
                 {invoice && <QRCode value={invoice.paymentRequest}/>}
-                {invoice && invoice?.settled === false && <p>Please scan code with your device</p>}
+                {invoice && invoice?.settled && <p>Please scan code with your device</p>}
                 <p>
                     Welcome to the my store
                 </p>
