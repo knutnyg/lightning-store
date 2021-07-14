@@ -13,7 +13,7 @@ group = "xyz.nygaard"
 version = "1.1"
 
 plugins {
-    kotlin("jvm") version "1.4.0"
+    kotlin("jvm") version "1.5.0"
 }
 
 buildscript {
@@ -27,11 +27,12 @@ repositories {
 }
 
 dependencies {
-    implementation("org.lightningj:lightningj:0.12.1-Beta")
+    implementation("org.lightningj:lightningj:0.13.0-Beta")
     implementation("javax.xml.bind:jaxb-api:2.3.1")
     runtimeOnly("javax.json:javax.json-api:1.1.2")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.0")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-client-jackson:$ktorVersion")
     implementation("io.ktor:ktor-jackson:$ktorVersion")
@@ -50,10 +51,9 @@ dependencies {
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
 
-    //Test
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
-    testImplementation("io.mockk:mockk:1.10.5")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
+    testImplementation("io.mockk:mockk:1.12.0")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty") // conflicts with WireMock
         exclude(group = "junit")
@@ -63,10 +63,10 @@ dependencies {
 
 tasks {
     compileKotlin {
-        kotlinOptions.jvmTarget = "14"
+        kotlinOptions.jvmTarget = "16"
     }
     compileTestKotlin {
-        kotlinOptions.jvmTarget = "14"
+        kotlinOptions.jvmTarget = "16"
     }
 
     named<Jar>("jar") {
@@ -96,6 +96,6 @@ tasks {
     }
 
     withType<Wrapper> {
-        gradleVersion = "6.8.1"
+        gradleVersion = "7.1.1"
     }
 }
