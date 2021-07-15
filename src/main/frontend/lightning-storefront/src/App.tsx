@@ -1,7 +1,7 @@
 import './App.css';
 import {useState} from "react";
 import QRCode from "qrcode.react"
-import {createInvoice, Invoice, updateInvoice} from "./io/invoices";
+import {createInvoice, Invoice, updateInvoice} from "./invoice/invoices";
 import useInterval from "./hooks/useInterval";
 
 function App() {
