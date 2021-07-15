@@ -13,7 +13,7 @@ export const DonateView = () => {
     const [invoice, setInvoice] = useState<Invoice | undefined>(undefined);
     const {register, handleSubmit, watch, formState: {errors}} = useForm<FormData>();
     const onSubmit: SubmitHandler<FormData> = (data) => {
-        createInvoice(data.amount)
+        createInvoice(data.amount, data.memo)
             .then(_invoice => setInvoice(_invoice))
     }
 
