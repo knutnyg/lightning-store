@@ -13,6 +13,12 @@ import java.util.*
 fun Routing.registerInvoiceApi(invoiceService: InvoiceService) {
     post("/invoices") {
         val req = call.receive(CreateInvoiceRequest::class)
+        if (req.amount < 1) return@post call.respond(HttpStatusCode.BadRequest, "amount cannot be below 1 satoshi")
+        if (req.memo.length > 200) return@post call.respond(
+            HttpStatusCode.BadRequest,
+            "memo got a max length of 200 characters"
+        )
+
         log.info("Creating invoice req={}", req)
 
         val inv = invoiceService.createInvoice(
