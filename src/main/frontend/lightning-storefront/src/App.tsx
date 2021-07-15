@@ -21,18 +21,15 @@ function App() {
             <header className="App-header">
                 {invoice && <QRCode value={invoice.paymentRequest}/>}
                 {invoice && invoice?.settled && <p>Please scan code with your device</p>}
-                <p>
+                {!invoice ? <p>
                     Welcome to the my store
-                </p>
-                <button onClick={() => {
+                </p> : <p>
+                    Please scan QR code with your phone
+                </p>}
+                {!invoice && <button onClick={() => {
                     createInvoice()
                         .then(_invoice => setInvoice(_invoice))
                 }}>Donate 10 sats
-                </button>
-                {invoice && <button onClick={() => {
-                    updateInvoice(invoice)
-                        .then(_invoice => setInvoice(_invoice))
-                }}>Update
                 </button>}
                 {invoice?.settled && <p>Thank you!😎</p>}
             </header>
