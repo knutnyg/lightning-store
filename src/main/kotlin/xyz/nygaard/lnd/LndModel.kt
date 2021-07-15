@@ -15,3 +15,8 @@ data class LndInvoice(
     val settled: Boolean = false,
     val paymentRequest: String
 )
+
+data class LndCreatedInvoice(
+    val rhash: String,
+    val paymentRequest: String
+)

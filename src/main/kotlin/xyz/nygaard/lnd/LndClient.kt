@@ -38,7 +38,7 @@ class LndClient(environment: Config) : LndApiWrapper {
         invoiceMacaroon
     )
 
-    override fun addInvoice(value: Long, memo: String): Invoice =
+    override fun addInvoice(value: Long, memo: String): LndCreatedInvoice =
         lndInvoiceApi.addInvoice(org.lightningj.lnd.wrapper.message.Invoice()
             .apply {
                 this.value = value
@@ -66,8 +66,8 @@ fun GetInfoResponse.map2(): NodeInfo =
         uri = uris.firstOrNull()
     )
 
-fun AddInvoiceResponse.map2(): Invoice =
-    Invoice(
+fun AddInvoiceResponse.map2(): LndCreatedInvoice =
+    LndCreatedInvoice(
         rhash = Base64.getEncoder().encodeToString(rHash),
         paymentRequest = paymentRequest,
     )
@@ -81,7 +81,7 @@ fun org.lightningj.lnd.wrapper.message.Invoice.map2() =
     )
 
 interface LndApiWrapper {
-    fun addInvoice(value: Long, memo: String): Invoice
-    fun lookupInvoice(invoice:Invoice) : LndInvoice
+    fun addInvoice(value: Long, memo: String): LndCreatedInvoice
+    fun lookupInvoice(invoice: Invoice): LndInvoice
     fun getInfo(): NodeInfo
 }

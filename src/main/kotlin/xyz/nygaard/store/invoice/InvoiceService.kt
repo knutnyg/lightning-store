@@ -3,6 +3,7 @@ package xyz.nygaard.store.invoice
 import xyz.nygaard.db.DatabaseInterface
 import xyz.nygaard.db.toList
 import xyz.nygaard.lnd.LndApiWrapper
+import xyz.nygaard.lnd.LndCreatedInvoice
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
@@ -51,13 +52,17 @@ class InvoiceService(
         memo: String = ""
     ): Invoice {
         val lndInvoice = lndClient.addInvoice(amount, memo)
-        val uuid = newInvoice(lndInvoice)
+        val uuid = newInvoice(lndInvoice, memo)
 
-        return lndInvoice.copy(id = uuid)
+        return Invoice(
+            id = uuid,
+            memo = memo,
+            rhash = lndInvoice.rhash,
+            paymentRequest = lndInvoice.paymentRequest
+        )
     }
 
-
-    private fun newInvoice(invoice: Invoice): UUID {
+    private fun newInvoice(createdInvoice: LndCreatedInvoice, memo: String): UUID {
         val uuid = UUID.randomUUID()
         database.connection.use { connection ->
             connection.prepareStatement(
@@ -67,10 +72,10 @@ class InvoiceService(
             """
             ).use {
                 it.setString(1, uuid.toString())
-                it.setString(2, invoice.rhash)
-                it.setString(3, invoice.paymentRequest)
-                it.setTimestamp(4, if (invoice.settled != null) Timestamp.valueOf(invoice.settled) else null)
-                it.setString(5, invoice.memo)
+                it.setString(2, createdInvoice.rhash)
+                it.setString(3, createdInvoice.paymentRequest)
+                it.setTimestamp(4, null)
+                it.setString(5, memo)
                 it.executeUpdate()
             }
             connection.commit()
