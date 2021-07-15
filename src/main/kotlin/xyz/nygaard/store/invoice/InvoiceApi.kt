@@ -16,7 +16,7 @@ fun Routing.registerInvoiceApi(invoiceService: InvoiceService) {
         log.info("Creating invoice req={}", req)
 
         val inv = invoiceService.createInvoice(
-            amount = 10L,
+            amount = req.amount.toLong(),
             memo = req.memo
         )
 

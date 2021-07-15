@@ -83,7 +83,7 @@ fun Application.installContentNegotiation() {
     }
 }
 
-data class CreateInvoiceRequest(val memo: String)
+data class CreateInvoiceRequest(val memo: String, val amount: Int)
 data class CreateInvoiceResponse(
     val id: String,
     val memo: String?,
