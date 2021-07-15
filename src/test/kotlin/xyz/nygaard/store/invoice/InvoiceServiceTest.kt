@@ -60,7 +60,6 @@ internal class InvoiceServiceTest {
     }
 
     @Test
-    // Failing test
     fun `create and fetch invoice`() {
         val invoice = invoiceService.createInvoice(amount = 10L, memo = "memo")
         val storedInvoice = requireNotNull(invoiceService.getInvoice(invoice.id!!))
