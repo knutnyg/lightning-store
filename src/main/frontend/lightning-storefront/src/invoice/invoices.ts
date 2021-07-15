@@ -30,7 +30,7 @@ export const updateInvoice = (invoice: Invoice): Promise<Invoice> => {
         });
 }
 
-export const createInvoice = (): Promise<Invoice> => {
+export const createInvoice = (amount: number): Promise<Invoice> => {
     return fetch('http://localhost:8000/invoices', {
         method: 'POST',
         headers: {
@@ -38,7 +38,10 @@ export const createInvoice = (): Promise<Invoice> => {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         },
-        body: JSON.stringify({memo: "Chancellor on brink of second bailout for banks"})
+        body: JSON.stringify({
+            memo: "Chancellor on brink of second bailout for banks",
+            amount: amount
+        })
     })
         .then(response => (response.json() as Promise<InvoiceRaw>))
         .then(raw =>
