@@ -7,9 +7,7 @@ export const DonateView = () => {
     const [invoice, setInvoice] = useState<Invoice | undefined>(undefined);
 
     useInterval(() => {
-        console.log('checking hook')
         if (invoice && invoice?.inProgress) {
-            console.log('should update invoice')
             updateInvoice(invoice)
                 .then(_invoice => setInvoice(_invoice))
         }
@@ -25,8 +23,14 @@ export const DonateView = () => {
             }}>Donate 10 sats
             </button>
         </div>
-    } else if (invoice.settled !== null) {
-        component = <p>Thank you!😎</p>;
+    } else if (invoice.settled) {
+        component = <div className={"invoice-view"}>
+            <p>Thank you!😎</p>
+            <button onClick={() => {
+                setInvoice(undefined)
+            }}>Again!! 🤠
+            </button>
+        </div>;
     } else {
         component = <div className={"invoice-view"}>
             <QRCode value={invoice!.paymentRequest}/>
