@@ -68,7 +68,7 @@ class InvoiceService(
             connection.prepareStatement(
                 """
                INSERT INTO INVOICES(id, rhash, payment_req, settled, memo)
-                VALUES (?, ?, ?,? ,?)
+                VALUES (?, ?, ?, ?, ?)
             """
             ).use {
                 it.setString(1, uuid.toString())
