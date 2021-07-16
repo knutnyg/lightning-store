@@ -61,7 +61,7 @@ fun main() {
 
         routing {
             registerSelftestApi(lndClient)
-            registerInvoiceApi(invoiceService)
+            registerInvoiceApi(invoiceService, MacaroonService())
         }
     }.start(wait = true)
 }

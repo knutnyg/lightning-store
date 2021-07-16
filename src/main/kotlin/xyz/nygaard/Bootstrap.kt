@@ -58,7 +58,7 @@ fun main() {
                 call.respondText("Hello, world!")
             }
             registerSelftestApi(lndClient)
-            registerInvoiceApi(invoiceService)
+            registerInvoiceApi(invoiceService, MacaroonService())
         }
     }.start(wait = true)
 }

@@ -1,16 +1,20 @@
 package xyz.nygaard.store.invoice
 
+import com.github.nitram509.jmacaroons.MacaroonsBuilder
 import io.ktor.application.*
+import io.ktor.auth.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import xyz.nygaard.CreateInvoiceRequest
 import xyz.nygaard.CreateInvoiceResponse
+import xyz.nygaard.MacaroonService
 import xyz.nygaard.log
 import java.util.*
 
-fun Routing.registerInvoiceApi(invoiceService: InvoiceService) {
+fun Routing.registerInvoiceApi(invoiceService: InvoiceService, macaroonService: MacaroonService) {
+
     post("/invoices") {
         val req = call.receive(CreateInvoiceRequest::class)
         if (req.amount < 1) return@post call.respond(HttpStatusCode.BadRequest, "amount cannot be below 1 satoshi")
@@ -48,5 +52,17 @@ fun Routing.registerInvoiceApi(invoiceService: InvoiceService) {
         } else {
             call.respond(HttpStatusCode.NotFound)
         }
+    }
+
+    get("/invoices/forbidden") {
+        val userId = UUID.randomUUID()
+        val invoice = invoiceService.createInvoice(1, userId.toString())
+        val macaroon = macaroonService.createMacaroon(invoice)
+        call.response.headers.append(
+            "WWW-Authenticate",
+            "LSAT macaroon=\"${macaroon.serialize()}\", invoice=\"${invoice.paymentRequest}\""
+        )
+        call.respond(HttpStatusCode.PaymentRequired)
+
     }
 }
