@@ -96,4 +96,18 @@ internal class InvoiceApiKtTest {
             }
         }
     }
+
+    @Test
+    fun `metered endpoints returns 200 given valid macaroon`() {
+        withTestApplication({
+            installContentNegotiation()
+            routing {
+                registerInvoiceApi(invoiceService, MacaroonService())
+            }
+        }) {
+            with(handleRequest(HttpMethod.Get, "/invoices/forbidden")) {
+                assertEquals(response.status(), HttpStatusCode.OK)
+            }
+        }
+    }
 }
