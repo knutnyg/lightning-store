@@ -90,4 +90,10 @@ internal class InvoiceServiceTest {
         val updatedInvoice = invoiceService.lookupAndUpdate(invoice.id!!)
         assertNull(updatedInvoice?.settled)
     }
+
+    @Test
+    fun `rhash is hexencoded string`() {
+        val invoice = invoiceService.createInvoice()
+
+    }
 }

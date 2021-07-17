@@ -11,6 +11,7 @@ import xyz.nygaard.CreateInvoiceRequest
 import xyz.nygaard.CreateInvoiceResponse
 import xyz.nygaard.MacaroonService
 import xyz.nygaard.log
+import xyz.nygaard.util.sha256
 import java.util.*
 
 fun Routing.registerInvoiceApi(invoiceService: InvoiceService, macaroonService: MacaroonService) {
@@ -55,14 +56,36 @@ fun Routing.registerInvoiceApi(invoiceService: InvoiceService, macaroonService: 
     }
 
     get("/invoices/forbidden") {
-        val userId = UUID.randomUUID()
-        val invoice = invoiceService.createInvoice(1, userId.toString())
-        val macaroon = macaroonService.createMacaroon(invoice)
-        call.response.headers.append(
-            "WWW-Authenticate",
-            "LSAT macaroon=\"${macaroon.serialize()}\", invoice=\"${invoice.paymentRequest}\""
-        )
-        call.respond(HttpStatusCode.PaymentRequired)
+        val authHeader = call.request.header("Authorization")
+        if (authHeader == null) {
+            log.info("Call missing authentication")
+            val userId = UUID.randomUUID()
+            val invoice = invoiceService.createInvoice(1, userId.toString())
+            val macaroon = macaroonService.createMacaroon(invoice)
+            call.response.headers.append(
+                "WWW-Authenticate",
+                "LSAT macaroon=\"${macaroon.serialize()}\", invoice=\"${invoice.paymentRequest}\""
+            )
+            return@get call.respond(HttpStatusCode.PaymentRequired)
+        }
+
+        val (type, rest) = authHeader.split(" ").let { it.first() to it.last() }
+        val (incomingMacaroon, preimage) = rest.split(":")
+            .let { split -> split.first().let { MacaroonsBuilder.deserialize(it) } to split.last() }
+
+        if (type != "LSAT") return@get call.respond(HttpStatusCode.BadRequest, "Authentication digest must be LSAT")
+            .also {
+                log.info("Caller using wrong authentication type, got $type")
+            }
+        if (!macaroonService.isValid(incomingMacaroon)) return@get call.respond(HttpStatusCode.Unauthorized)
+
+        if (preimage.sha256() != macaroonService.extractPaymentHash(incomingMacaroon)) return@get call.respond(
+            HttpStatusCode.BadRequest, "Preimage does not correspond to payment hash"
+        ).also {
+            log.info("Preimage does not correspond to payment hash")
+        }
+
+        call.respond(HttpStatusCode.OK)
 
     }
 }

@@ -10,6 +10,8 @@ import org.lightningj.lnd.wrapper.message.PaymentHash
 import xyz.nygaard.Config
 import xyz.nygaard.EnvironmentMacaroonContext
 import xyz.nygaard.store.invoice.Invoice
+import xyz.nygaard.util.decodeHex
+import xyz.nygaard.util.toHex
 import java.io.ByteArrayInputStream
 import java.util.*
 
@@ -50,7 +52,7 @@ class LndClient(environment: Config) : LndApiWrapper {
     override fun lookupInvoice(invoice:Invoice) : LndInvoice =
         lndInvoiceApi.lookupInvoice(PaymentHash()
             .apply {
-                rHash = Base64.getDecoder().decode(invoice.rhash)
+                rHash = invoice.rhash.decodeHex()
             })
             .map2()
 
@@ -68,14 +70,14 @@ fun GetInfoResponse.map2(): NodeInfo =
 
 fun AddInvoiceResponse.map2(): LndCreatedInvoice =
     LndCreatedInvoice(
-        rhash = Base64.getEncoder().encodeToString(rHash),
+        rhash = rHash.toHex(),
         paymentRequest = paymentRequest,
     )
 
 fun org.lightningj.lnd.wrapper.message.Invoice.map2() =
     LndInvoice(
         memo = memo,
-        rhash = Base64.getEncoder().encodeToString(rHash),
+        rhash = rHash.toHex(),
         settled = settled,
         paymentRequest = paymentRequest
     )

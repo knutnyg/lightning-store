@@ -1,0 +1,5 @@
+ALTER TABLE invoices
+    ALTER COLUMN rhash TYPE VARCHAR(100);
+
+
+
