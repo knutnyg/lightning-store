@@ -21,7 +21,7 @@ import kotlin.test.assertNull
 internal class InvoiceServiceTest {
 
     val embeddedPostgres = EmbeddedPostgres.builder()
-        .setPort(5533).start()
+        .setPort(5534).start()
 
     val lndClientMock2 = mockk<LndClient> {
         every { addInvoice(any(), any()) } returns LndCreatedInvoice(

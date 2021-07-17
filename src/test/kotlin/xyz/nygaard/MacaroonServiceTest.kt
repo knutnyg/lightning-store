@@ -1,7 +1,5 @@
 package xyz.nygaard
 
-import com.github.nitram509.jmacaroons.MacaroonsBuilder
-import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import xyz.nygaard.store.invoice.Invoice

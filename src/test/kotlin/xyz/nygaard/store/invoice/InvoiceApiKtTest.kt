@@ -4,7 +4,6 @@ import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import io.ktor.http.*
 import io.ktor.routing.*
 import io.ktor.server.testing.*
-import io.mockk.mockk
 import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
@@ -13,18 +12,21 @@ import org.junit.jupiter.api.TestInstance
 import xyz.nygaard.MacaroonService
 import xyz.nygaard.TestDatabase
 import xyz.nygaard.installContentNegotiation
+import xyz.nygaard.installLsatInterceptor
 import xyz.nygaard.lnd.LndClientMock
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class InvoiceApiKtTest {
 
-    val embeddedPostgres = EmbeddedPostgres.builder()
-        .setPort(5533).start()
+    private val embeddedPostgres: EmbeddedPostgres = EmbeddedPostgres.builder()
+        .setPort(5534).start()
 
-    val invoiceService = InvoiceService(
+    private val invoiceService = InvoiceService(
         TestDatabase(embeddedPostgres.postgresDatabase),
         LndClientMock()
     )
+
+    private val macaroonService = MacaroonService()
 
     @BeforeAll
     fun test() {
@@ -36,7 +38,7 @@ internal class InvoiceApiKtTest {
         withTestApplication({
             installContentNegotiation()
             routing {
-                registerInvoiceApi(invoiceService, MacaroonService())
+                registerInvoiceApi(invoiceService)
             }
         }) {
             with(handleRequest(HttpMethod.Post, "/invoices") {
@@ -53,7 +55,7 @@ internal class InvoiceApiKtTest {
         withTestApplication({
             installContentNegotiation()
             routing {
-                registerInvoiceApi(invoiceService, MacaroonService())
+                registerInvoiceApi(invoiceService)
             }
         }) {
             with(handleRequest(HttpMethod.Post, "/invoices") {
@@ -70,7 +72,7 @@ internal class InvoiceApiKtTest {
         withTestApplication({
             installContentNegotiation()
             routing {
-                registerInvoiceApi(invoiceService, MacaroonService())
+                registerInvoiceApi(invoiceService)
             }
         }) {
             with(handleRequest(HttpMethod.Post, "/invoices") {
@@ -86,8 +88,9 @@ internal class InvoiceApiKtTest {
     fun `metered endpoints returns 402 given no macaroon`() {
         withTestApplication({
             installContentNegotiation()
+            installLsatInterceptor(invoiceService, macaroonService)
             routing {
-                registerInvoiceApi(invoiceService, MacaroonService())
+                registerInvoiceApi(invoiceService)
             }
         }) {
             with(handleRequest(HttpMethod.Get, "/invoices/forbidden")) {
@@ -101,8 +104,9 @@ internal class InvoiceApiKtTest {
     fun `valid macaroon invoice paid and valid preimage`() {
         withTestApplication({
             installContentNegotiation()
+            installLsatInterceptor(invoiceService, macaroonService)
             routing {
-                registerInvoiceApi(invoiceService, MacaroonService())
+                registerInvoiceApi(invoiceService)
             }
         }) {
             with(handleRequest(HttpMethod.Get, "/invoices/forbidden") {
