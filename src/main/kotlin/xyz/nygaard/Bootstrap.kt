@@ -44,27 +44,49 @@ fun main() {
         val invoiceService = InvoiceService(database = database, lndClient = lndClient)
         val macaroonService = MacaroonService()
 
-        installLsatInterceptor(invoiceService, macaroonService)
         installContentNegotiation()
         install(XForwardedHeaderSupport)
         install(CORS) {
             method(HttpMethod.Options)
             method(HttpMethod.Post)
             method(HttpMethod.Get)
+            method(HttpMethod.Put)
             header(HttpHeaders.Authorization)
             header(HttpHeaders.AccessControlAllowOrigin)
             header(HttpHeaders.ContentType)
+            header(HttpHeaders.AccessControlExposeHeaders)
             allowSameOrigin = true
             host("localhost:8080", listOf("http", "https")) // frontendHost might be "*"
             log.info("CORS enabled for $hosts")
         }
         install(CallLogging)
+        installLsatInterceptor(invoiceService, macaroonService)
         routing {
             get("/") {
                 call.respondText("Hello, world!")
             }
             registerSelftestApi(lndClient)
             registerInvoiceApi(invoiceService)
+            put("/register") {
+                val authHeader = call.request.header("Authorization")
+                if (authHeader == null) {
+                    log.info("Caller missing authentication")
+                    val userId = UUID.randomUUID()
+                    val invoice = invoiceService.createInvoice(1, userId.toString())
+                    val macaroon = macaroonService.createMacaroon(invoice)
+                    call.response.headers.append(
+                        "WWW-Authenticate",
+                        "LSAT macaroon=\"${macaroon.serialize()}\", invoice=\"${invoice.paymentRequest}\""
+                    )
+                    call.response.headers.append(
+                        "Access-Control-Expose-Headers", "WWW-Authenticate"
+                    )
+                    call.respond(HttpStatusCode.PaymentRequired, "Payment Required")
+                    return@put
+                }
+                call.respond("Ok")
+
+            }
         }
     }.start(wait = true)
 }
@@ -102,9 +124,8 @@ fun Application.installLsatInterceptor(invoiceService: InvoiceService, macaroonS
                     "WWW-Authenticate",
                     "LSAT macaroon=\"${macaroon.serialize()}\", invoice=\"${invoice.paymentRequest}\""
                 )
-                call.respond(HttpStatusCode.PaymentRequired)
+                call.respond(HttpStatusCode.PaymentRequired, "Payment Required")
                 return@intercept finish()
-
             }
 
             val (type, rest) = authHeader.split(" ").let { it.first() to it.last() }
@@ -131,6 +152,7 @@ fun Application.installLsatInterceptor(invoiceService: InvoiceService, macaroonS
             // the route /book will still respond to the processing, and the pipeline will be unwritable.
             return@intercept
         }
+        return@intercept
     }
 }
 
