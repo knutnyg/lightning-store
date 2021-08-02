@@ -39,7 +39,7 @@ fun main() {
             mocks = false
         )
 
-        val database = Database("jdbc:postgresql://localhost:5432/knut")
+        val database = Database("jdbc:postgresql://localhost:5432/knutnygaard")
         val lndClient = LndClient(environment)
         val invoiceService = InvoiceService(database = database, lndClient = lndClient)
         val macaroonService = MacaroonService()
@@ -60,33 +60,33 @@ fun main() {
             log.info("CORS enabled for $hosts")
         }
         install(CallLogging)
-        installLsatInterceptor(invoiceService, macaroonService)
+//        installLsatInterceptor(invoiceService, macaroonService)
         routing {
             get("/") {
                 call.respondText("Hello, world!")
             }
             registerSelftestApi(lndClient)
             registerInvoiceApi(invoiceService)
-            put("/register") {
-                val authHeader = call.request.header("Authorization")
-                if (authHeader == null) {
-                    log.info("Caller missing authentication")
-                    val userId = UUID.randomUUID()
-                    val invoice = invoiceService.createInvoice(1, userId.toString())
-                    val macaroon = macaroonService.createMacaroon(invoice)
-                    call.response.headers.append(
-                        "WWW-Authenticate",
-                        "LSAT macaroon=\"${macaroon.serialize()}\", invoice=\"${invoice.paymentRequest}\""
-                    )
-                    call.response.headers.append(
-                        "Access-Control-Expose-Headers", "WWW-Authenticate"
-                    )
-                    call.respond(HttpStatusCode.PaymentRequired, "Payment Required")
-                    return@put
-                }
-                call.respond("Ok")
-
-            }
+//            put("/register") {
+//                val authHeader = call.request.header("Authorization")
+//                if (authHeader == null) {
+//                    log.info("Caller missing authentication")
+//                    val userId = UUID.randomUUID()
+//                    val invoice = invoiceService.createInvoice(1, userId.toString())
+//                    val macaroon = macaroonService.createMacaroon(invoice)
+//                    call.response.headers.append(
+//                        "WWW-Authenticate",
+//                        "LSAT macaroon=\"${macaroon.serialize()}\", invoice=\"${invoice.paymentRequest}\""
+//                    )
+//                    call.response.headers.append(
+//                        "Access-Control-Expose-Headers", "WWW-Authenticate"
+//                    )
+//                    call.respond(HttpStatusCode.PaymentRequired, "Payment Required")
+//                    return@put
+//                }
+//                call.respond("Ok")
+//
+//            }
         }
     }.start(wait = true)
 }
@@ -113,7 +113,7 @@ fun Application.installContentNegotiation() {
 
 fun Application.installLsatInterceptor(invoiceService: InvoiceService, macaroonService: MacaroonService) {
     intercept(ApplicationCallPipeline.Setup) {
-        if (call.request.path() == "/invoices/forbidden") {
+        if (call.request.path() == "/register") {
             val authHeader = call.request.header("Authorization")
             if (authHeader == null) {
                 log.info("Caller missing authentication")
@@ -150,9 +150,9 @@ fun Application.installLsatInterceptor(invoiceService: InvoiceService, macaroonS
             }
             // Truncate the route response. If there is no finish() function,
             // the route /book will still respond to the processing, and the pipeline will be unwritable.
-            return@intercept
+            return@intercept finish()
         }
-        return@intercept
+        return@intercept proceed()
     }
 }
 

@@ -13,11 +13,11 @@ class Database(val url:String) : DatabaseInterface {
         get() = dataSource.connection
 
     init {
-        runFlywayMigrations(url, "knut", "")
+        runFlywayMigrations(url, "knutnygaard", "")
 
         dataSource = HikariDataSource(HikariConfig().apply {
             jdbcUrl = url
-            username = "knut"
+            username = "knutnygaard"
             password = ""
             maximumPoolSize = 3
             isAutoCommit = false
