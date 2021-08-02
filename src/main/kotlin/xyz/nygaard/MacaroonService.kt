@@ -35,11 +35,11 @@ class MacaroonService {
 
     val secret = "mysecret"
 
-    fun createMacaroon(invoice: Invoice, userId: UUID = UUID.randomUUID()): Macaroon {
+    fun createMacaroon(invoiceRhash: String, userId: UUID = UUID.randomUUID()): Macaroon {
         return MacaroonsBuilder(
             "localhost:8000",
             secret,
-            Identifier(0, userId, invoice.rhash).serialize()
+            Identifier(0, userId, invoiceRhash).serialize()
         )
             .add_first_party_caveat("services = invoices:0")
             .macaroon
@@ -51,3 +51,5 @@ class MacaroonService {
         .satisfyExact("services = invoices:0")
         .isValid(secret)
 }
+
+fun Macaroon.extractUserId() = Identifier.deserialize(this.identifier).userId

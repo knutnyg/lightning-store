@@ -11,7 +11,7 @@ internal class MacaroonServiceTest {
 
     @Test
     fun getMacaroon() {
-        val macaroon = macaroonService.createMacaroon(validInvoice())
+        val macaroon = macaroonService.createMacaroon(validInvoice().rhash)
         println(macaroon.serialize())
         assertNotNull(macaroon)
         assertTrue(macaroonService.isValid(macaroon))
@@ -20,7 +20,7 @@ internal class MacaroonServiceTest {
     @Test
     fun `deserialize identifier`() {
         val userId = UUID.randomUUID()
-        val macaroon = macaroonService.createMacaroon(validInvoice(), userId)
+        val macaroon = macaroonService.createMacaroon(validInvoice().rhash, userId)
         val identifier = Identifier.deserialize(macaroon.identifier)
         assertEquals(0, identifier.version)
         assertEquals(userId, identifier.userId)

@@ -4,6 +4,7 @@ import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import io.mockk.every
 import io.mockk.mockk
 import org.flywaydb.core.Flyway
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -52,6 +53,11 @@ internal class InvoiceServiceTest {
     @BeforeAll
     fun test() {
         Flyway.configure().dataSource(embeddedPostgres.postgresDatabase).load().migrate()
+    }
+
+    @AfterAll
+    fun tearDown() {
+        embeddedPostgres.close()
     }
 
     @Test

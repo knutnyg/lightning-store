@@ -6,7 +6,7 @@ import org.flywaydb.core.Flyway
 import java.sql.Connection
 import java.sql.ResultSet
 
-class Database(val url:String) : DatabaseInterface {
+class Database(val url: String) : DatabaseInterface {
     private val dataSource: HikariDataSource
 
     override val connection: Connection
@@ -26,7 +26,7 @@ class Database(val url:String) : DatabaseInterface {
         })
     }
 
-    private fun runFlywayMigrations(dburl:String, username:String, password:String) = Flyway.configure().run {
+    private fun runFlywayMigrations(dburl: String, username: String, password: String) = Flyway.configure().run {
         dataSource(dburl, username, password)
         load().migrate()
     }

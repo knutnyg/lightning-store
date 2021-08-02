@@ -17,7 +17,7 @@ fun Routing.registerSignpostApi(invoiceService: InvoiceService, macaroonService:
             log.info("Caller missing authentication")
             val userId = UUID.randomUUID()
             val invoice = invoiceService.createInvoice(1, userId.toString())
-            val macaroon = macaroonService.createMacaroon(invoice)
+            val macaroon = macaroonService.createMacaroon(invoice.rhash)
             call.response.headers.append(
                 "WWW-Authenticate",
                 "LSAT macaroon=\"${macaroon.serialize()}\", invoice=\"${invoice.paymentRequest}\""

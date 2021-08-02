@@ -119,7 +119,7 @@ fun Application.installLsatInterceptor(invoiceService: InvoiceService, macaroonS
                 log.info("Caller missing authentication")
                 val userId = UUID.randomUUID()
                 val invoice = invoiceService.createInvoice(1, userId.toString())
-                val macaroon = macaroonService.createMacaroon(invoice)
+                val macaroon = macaroonService.createMacaroon(invoice.rhash)
                 call.response.headers.append(
                     "WWW-Authenticate",
                     "LSAT macaroon=\"${macaroon.serialize()}\", invoice=\"${invoice.paymentRequest}\""
