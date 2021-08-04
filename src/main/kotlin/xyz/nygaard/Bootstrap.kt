@@ -64,7 +64,7 @@ fun main() {
             header(HttpHeaders.AccessControlExposeHeaders)
             allowSameOrigin = true
             host("localhost:8080", listOf("http", "https")) // frontendHost might be "*"
-            host("store-api.nygaard.xyz", listOf("http", "https")) // frontendHost might be "*"
+            host("store.nygaard.xyz", listOf("http", "https")) // frontendHost might be "*"
             log.info("CORS enabled for $hosts")
         }
         install(CallLogging)
