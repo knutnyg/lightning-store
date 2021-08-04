@@ -84,21 +84,21 @@ internal class InvoiceApiKtTest {
         }
     }
 
-    @Test
-    fun `metered endpoints returns 402 given no macaroon`() {
-        withTestApplication({
-            installContentNegotiation()
-            installLsatInterceptor(invoiceService, macaroonService)
-            routing {
-                registerInvoiceApi(invoiceService)
-            }
-        }) {
-            with(handleRequest(HttpMethod.Get, "/invoices/forbidden")) {
-                assertEquals(response.status(), HttpStatusCode.PaymentRequired)
-                assertTrue(response.headers.contains("WWW-Authenticate"))
-            }
-        }
-    }
+//    @Test
+//    fun `metered endpoints returns 402 given no macaroon`() {
+//        withTestApplication({
+//            installContentNegotiation()
+//            installLsatInterceptor(invoiceService, macaroonService)
+//            routing {
+//                registerInvoiceApi(invoiceService)
+//            }
+//        }) {
+//            with(handleRequest(HttpMethod.Get, "/invoices/forbidden")) {
+//                assertEquals(response.status(), HttpStatusCode.PaymentRequired)
+//                assertTrue(response.headers.contains("WWW-Authenticate"))
+//            }
+//        }
+//    }
 
     @Test
     fun `valid macaroon invoice paid and valid preimage`() {
