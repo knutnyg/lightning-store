@@ -28,7 +28,7 @@ import javax.xml.bind.DatatypeConverter
 val log: Logger = LoggerFactory.getLogger("Lightning Store")
 
 fun main() {
-    embeddedServer(Netty, port = 8000, host = "localhost") {
+    embeddedServer(Netty, port = 8020, host = "localhost") {
 
         val environment = Config(
             hostUrl = System.getenv("LS_HOST_URL"),
