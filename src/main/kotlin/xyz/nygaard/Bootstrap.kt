@@ -36,10 +36,17 @@ fun main() {
             readOnlyMacaroon = System.getenv("LS_READONLY_MACAROON"),
             invoiceMacaroon = System.getenv("LS_INVOICES_MACAROON"),
             cert = System.getenv("LS_TLS_CERT"),
+            databaseName = System.getenv("LS_DATABASE_NAME"),
+            databaseUsername = System.getenv("LS_DATABASE_USERNAME"),
+            databasePassword = System.getenv("LS_DATABASE_PASSWORD"),
             mocks = false
         )
 
-        val database = Database("jdbc:postgresql://localhost:5432/knutnygaard")
+        val database = Database(
+            "jdbc:postgresql://localhost:5432/${environment.databaseName}",
+            environment.databaseUsername,
+            environment.databasePassword
+        )
         val lndClient = LndClient(environment)
         val invoiceService = InvoiceService(database = database, lndClient = lndClient)
         val macaroonService = MacaroonService()
@@ -168,6 +175,9 @@ data class CreateInvoiceResponse(
 data class Config(
     val hostUrl: String,
     val hostPort: Int,
+    val databaseName: String,
+    val databaseUsername: String,
+    val databasePassword: String,
     val readOnlyMacaroon: String,
     val invoiceMacaroon: String,
     val cert: String,

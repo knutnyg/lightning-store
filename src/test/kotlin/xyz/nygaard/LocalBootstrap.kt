@@ -34,12 +34,15 @@ fun main() {
         val props = Properties()
         props.load(FileInputStream("src/test/resources/local.properties"))
         val environment = Config(
-                hostUrl = props.getProperty("lshost"),
-                hostPort = props.getProperty("lsport").toInt(),
-                readOnlyMacaroon = props.getProperty("readonly_macaroon"),
-                invoiceMacaroon = props.getProperty("invoice_macaroon"),
-                cert = props.getProperty("tls_cert"),
-                mocks = props.getProperty("lsmocks")?.toBoolean() ?: false
+            hostUrl = props.getProperty("lshost"),
+            hostPort = props.getProperty("lsport").toInt(),
+            readOnlyMacaroon = props.getProperty("readonly_macaroon"),
+            invoiceMacaroon = props.getProperty("invoice_macaroon"),
+            cert = props.getProperty("tls_cert"),
+            databaseName = "",
+            databaseUsername = "",
+            databasePassword = "",
+            mocks = props.getProperty("lsmocks")?.toBoolean() ?: false
         )
 
         val embeddedPostgres = EmbeddedPostgres.builder().setPort(5532).start()
