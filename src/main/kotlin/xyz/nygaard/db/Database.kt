@@ -6,19 +6,19 @@ import org.flywaydb.core.Flyway
 import java.sql.Connection
 import java.sql.ResultSet
 
-class Database(val url: String, val username: String, private val password: String) : DatabaseInterface {
+class Database(val url: String, private val databaseUsername: String, private val databasePassword: String) : DatabaseInterface {
     private val dataSource: HikariDataSource
 
     override val connection: Connection
         get() = dataSource.connection
 
     init {
-        runFlywayMigrations(url, username, password)
+        runFlywayMigrations(url, databaseUsername, databasePassword)
 
         dataSource = HikariDataSource(HikariConfig().apply {
             jdbcUrl = url
-            username = username
-            password = password
+            username = databaseUsername
+            password = databasePassword
             maximumPoolSize = 3
             isAutoCommit = false
             transactionIsolation = "TRANSACTION_REPEATABLE_READ"
