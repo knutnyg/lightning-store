@@ -10,7 +10,7 @@ export interface Invoice extends InvoiceRaw {
 }
 
 export const updateInvoice = (invoice: Invoice): Promise<Invoice> => {
-    return fetch(`http://localhost:8000/invoices/${invoice.id}`, {
+    return fetch(`https://store-api.nygaard.xyz/invoices/${invoice.id}`, {
         method: 'GET',
         headers: {
             'Access-Control-Allow-Origin': '*',
@@ -31,7 +31,7 @@ export const updateInvoice = (invoice: Invoice): Promise<Invoice> => {
 }
 
 export const createInvoice = (amount: number, memo: string): Promise<Invoice> => {
-    return fetch('http://localhost:8000/invoices', {
+    return fetch('https://store-api.nygaard.xyz/invoices', {
         method: 'POST',
         headers: {
             'Access-Control-Allow-Origin': '*',
