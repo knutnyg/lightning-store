@@ -18,7 +18,7 @@ function App() {
                 <p>The lightning network is a global decentralised payment network leveraging the bitcoin block chain.
                     Trading some of the features (like offline wallets) for benefits like massively scalable and near
                     free instant transactions. This could pave the way for a brave new web 3.0 where micropayments
-                    replaces advertisements and sale of your personal data as the main way to fund a service or a web site</p>
+                    replaces advertisements and sale of your personal data as the main way to fund a service or a web site.</p>
                 <p>To navigate this site you need your own lightning wallet. There are many alternatives, but as a
                     quick-start I suggest the custodian wallet BlueWallet.</p>
                 <LSATView/>
