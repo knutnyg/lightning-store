@@ -13,7 +13,7 @@ function App() {
             <div className="content">
                 <h1>Welcome to the my store</h1>
                 <p>This site is a project for me to learn my way around programming for the lightning network and all
-                    the posibilities it brings to web 3.0. I will attempt to explore concepts and techniques that
+                    the possibilities it brings to web 3.0. I will attempt to explore concepts and techniques that
                     micropayments brings to the table.</p>
                 <p>The lightning network is a global decentralised payment network leveraging the bitcoin block chain.
                     Trading some of the features (like offline wallets) for benefits like massively scalable and near
