@@ -37,7 +37,7 @@ export const LSATView = () => {
         if (invoice && !invoice.settled) {
             updateTokenInvoice()
                 .then(_invoice => {
-                    if(_invoice.preimage) {
+                    if (_invoice.preimage) {
                         localStorage.setItem("preimage", _invoice.preimage!!)
                     }
                     setInvoice({
@@ -54,9 +54,9 @@ export const LSATView = () => {
         <p>Lots of sites requires you to authenticate yourself. Most use a combination of username, email and passwords.
             One drawback with this method is that we spread personal details all over the world - even though these are
             not required to consume whatever service we register for. Another problem with the Internet today is all the
-            robot traffic and spam we encounter every day. We have developed tools like CAPCHA to prove that we are
-            humans, but the underlying problem still exists: Micropayments are troublesome making free signups the only
-            option.</p>
+            robot traffic and spam we encounter every day. We have developed tools like CAPTCHA to prove that we are
+            humans in response to the robots, but the underlying problem still exists: Micropayments are troublesome
+            making free signups the only option.</p>
         <h3>Enter Lightning Service Authentication Token(LSAT)</h3>
         <p>Have you ever noticed how service providers charge your credit card 1$ to validate it when you sign up for a
             subscription? Wouldn't it be amazing to do the same whenever someone creates an account for your
@@ -78,10 +78,11 @@ export const LSATView = () => {
             })
         }}>Aquire a token
         </button>}
-        {localStorage.getItem("macaroon") && !localStorage.getItem("preimage") && !inRegister && <button onClick={() => {
+        {localStorage.getItem("macaroon") && !localStorage.getItem("preimage") && !inRegister &&
+        <button onClick={() => {
             updateTokenInvoice()
                 .then(_invoice => {
-                    if(_invoice.preimage) {
+                    if (_invoice.preimage) {
                         localStorage.setItem("preimage", _invoice.preimage!!)
                     }
                     setInvoice({
@@ -95,7 +96,8 @@ export const LSATView = () => {
             <QRCode value={invoice.paymentRequest}/>
             <p>Please scan QR code with your favorite lightning wallet and pay the invoice</p>
         </div>)}
-        {localStorage.getItem("macaroon") && localStorage.getItem("preimage") && <p className="authenticated">Congratulations, you are authenticated 🤝</p>}
+        {localStorage.getItem("macaroon") && localStorage.getItem("preimage") &&
+        <p className="authenticated">Congratulations, you are authenticated 🤝</p>}
     </div>
 }
 
