@@ -60,13 +60,14 @@ export const LSATView = () => {
         <h3>Enter Lightning Service Authentication Token(LSAT)</h3>
         <p>Have you ever noticed how service providers charge your credit card 1$ to validate it when you sign up for a
             subscription? Wouldn't it be amazing to do the same whenever someone creates an account for your
-            service? These tokens can both be used for authentication and for paid APIs. One way to prevent spam and to
-            shoo away the trolls.
-            is to require a tiny payment for every action. To an actual user these add up change but for automated
-            robots they add up to real $$. To use my site you need to request a token from me. This is a one time
-            authentication requiring you to make a micropayment in exchange for a valid token. Leveraging clever
-            cryptografy the payment receipt is bound to the token making server side validation a purly mathematical
-            task.</p>
+            service or web site? The LSAT is a token that can both be used for authentication and paid APIs and its only
+            valid after an successful micropayment. One way to prevent spam and to shoo away the trolls is to
+            require a tiny payment for every
+            action. To an actual user these payments adds up to change while robots add up to real $$ and become less
+            viable. To use my
+            site you need to request a token from me. This is a one time authentication requiring you to make a
+            micropayment in exchange for a valid token. Leveraging clever cryptografy the payment receipt is bound to
+            the token making server side validation a purly mathematical task.</p>
         {!localStorage.getItem("macaroon") && <button onClick={() => {
             setInRegister(true);
             register().then(res => {
