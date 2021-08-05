@@ -14,6 +14,7 @@
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
+    flex-grow: 1
 }
 
 form {
@@ -39,3 +40,18 @@ textarea {
     resize: none;
 }
 
+footer {
+    display: flex;
+    flex-direction: column;
+    font-size: 1rem;
+}
+
+footer a {
+    color: #76fd59;
+    text-decoration: none;
+}
+
+footer span {
+    width: 100%;
+    margin-bottom: 1rem;
+}

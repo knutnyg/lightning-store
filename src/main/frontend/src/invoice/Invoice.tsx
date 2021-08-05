@@ -11,6 +11,7 @@ type FormData = {
 
 export const DonateView = () => {
     const [invoice, setInvoice] = useState<Invoice | undefined>(undefined);
+    const [showInvoice, setShowInvoice] = useState<Boolean>(false);
     const {register, handleSubmit, watch, formState: {errors}} = useForm<FormData>();
     const onSubmit: SubmitHandler<FormData> = (data) => {
         createInvoice(data.amount, data.memo)
@@ -26,37 +27,39 @@ export const DonateView = () => {
 
     let component;
 
-    if (invoice === undefined) {
-        component = <div>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <div className={"form-row"}>
-                    <label>Amount</label>
-                    <input className={"amount"} defaultValue={10} {...register("amount", {required: true, min: 0})} />
-                </div>
-                <div className={"form-row"}>
-                    <label>Memo</label>
-                    <textarea className={"memo"} defaultValue={""} {...register("memo", {
-                        required: false,
-                        maxLength: 150
-                    })} />
-                </div>
-                <button onSubmit={handleSubmit(onSubmit)}>Get Invoice</button>
-            </form>
-        </div>
-    } else if (invoice.settled) {
-        component = <div className={"invoice-view"}>
-            <p>Thank you!😎</p>
-            <button onClick={() => {
-                setInvoice(undefined)
-            }}>Again!! 🤠
-            </button>
-        </div>;
-    } else {
-        component = <div className={"invoice-view"}>
-            <QRCode value={invoice!.paymentRequest}/>
-            <p>Please scan QR code with your phone</p>
-        </div>;
-    }
+    // if (invoice === undefined && showInvoice) {
+    //     component = <div>
+    //         <p>Do you like my project and would like to support me? Buy me a coffee ☕️</p>
+    //         <button onClick={() => { setShowInvoice(true)}}>Donate</button>
+    //         <form onSubmit={handleSubmit(onSubmit)}>
+    //             <div className={"form-row"}>
+    //                 <label>Amount</label>
+    //                 <input className={"amount"} defaultValue={10} {...register("amount", {required: true, min: 0})} />
+    //             </div>
+    //             <div className={"form-row"}>
+    //                 <label>Memo</label>
+    //                 <textarea className={"memo"} defaultValue={""} {...register("memo", {
+    //                     required: false,
+    //                     maxLength: 150
+    //                 })} />
+    //             </div>
+    //             <button onSubmit={handleSubmit(onSubmit)}>Get Invoice</button>
+    //         </form>
+    //     </div>
+    // } else if (invoice && invoice.settled) {
+    //     component = <div className={"invoice-view"}>
+    //         <p>Thank you!😎</p>
+    //         <button onClick={() => {
+    //             setInvoice(undefined)
+    //         }}>Again!! 🤠
+    //         </button>
+    //     </div>;
+    // } else {
+    //     component = <div className={"invoice-view"}>
+    //         <QRCode value={invoice!.paymentRequest}/>
+    //         <p>Please scan QR code with your phone</p>
+    //     </div>;
+    // }
 
     return (
         <div className={"invoice-view"}>
