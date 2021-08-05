@@ -11,15 +11,16 @@ function App() {
     return (
         <div className="main">
             <div className="content">
-                <h1>Welcome to the my store</h1>
+                <h1>Welcome to my lightning store</h1>
                 <p>This site is a project for me to learn my way around programming for the lightning network and all
                     the possibilities it brings to web 3.0. I will attempt to explore concepts and techniques that
-                    micropayments brings to the table.</p>
-                <p>The lightning network is a global decentralised payment network leveraging the bitcoin block chain.
+                    micropayments bring to the table.</p>
+                <p>The lightning network is a global decentralized payment network leveraging the bitcoin block chain.
                     Trading some of the features (like offline wallets) for benefits like massively scalable and near
                     free instant transactions. This could pave the way for a brave new web 3.0 where micropayments
-                    replaces advertisements and sale of your personal data as the main way to fund a service or a web site.</p>
-                <p>To navigate this site you need your own lightning wallet. There are many alternatives, but as a
+                    replace advertisements and sale of your personal data as the main way to fund a service or a web
+                    site.</p>
+                <p>To navigate this site, you need your own lightning wallet. There are many alternatives, but as a
                     quick-start I suggest the custodian wallet BlueWallet.</p>
                 <LSATView/>
                 <DonateView/>
