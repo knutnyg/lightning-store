@@ -3,12 +3,14 @@ package xyz.nygaard
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import io.ktor.application.*
 import io.ktor.features.*
+import io.ktor.http.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import org.flywaydb.core.Flyway
 import xyz.nygaard.db.DatabaseInterface
 import xyz.nygaard.lnd.LndClient
+import xyz.nygaard.lnd.LndClientMock
 import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.invoice.registerInvoiceApi
 import java.io.FileInputStream
@@ -41,18 +43,30 @@ fun main() {
         }
 
         /* We run with a mock of LndClient. Can be exchanged with the proper implementation to run against a LND */
-        val lndClient = LndClient(environment) //LndClientMock()
+//        val lndClient = LndClient(environment)
+        val lndClient = LndClientMock()
         val invoiceService = InvoiceService(localDb, lndClient)
+        val macaroonService = MacaroonService()
 
         installContentNegotiation()
         install(CORS) {
-            host("localhost:3000", listOf("http"))
-            allowCredentials = true
+            method(HttpMethod.Options)
+            method(HttpMethod.Post)
+            method(HttpMethod.Get)
+            method(HttpMethod.Put)
+            header(HttpHeaders.Authorization)
+            header(HttpHeaders.AccessControlAllowOrigin)
+            header(HttpHeaders.ContentType)
+            header(HttpHeaders.AccessControlExposeHeaders)
+            allowSameOrigin = true
+            host("localhost:8080", listOf("http", "https")) // frontendHost might be "*"
+            log.info("CORS enabled for $hosts")
         }
 
         routing {
             registerSelftestApi(lndClient)
             registerInvoiceApi(invoiceService)
+            registerRegisterApi(invoiceService, macaroonService)
         }
     }.start(wait = true)
 }

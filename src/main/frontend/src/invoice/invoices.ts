@@ -1,3 +1,5 @@
+import {baseUrl} from "../App";
+
 interface InvoiceRaw {
     id: string
     paymentRequest: string,
@@ -15,6 +17,28 @@ export const updateInvoice = (invoice: Invoice): Promise<Invoice> => {
         headers: {
             'Access-Control-Allow-Origin': '*',
             'Accept': 'application/json'
+        },
+    })
+        .then(response => (response.json() as Promise<InvoiceRaw>))
+        .then((raw) => {
+            return {
+                ...raw,
+                inProgress: !raw.settled
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            return Promise.reject()
+        });
+}
+
+export const updateTokenInvoice = (): Promise<Invoice> => {
+    return fetch(`${baseUrl}/invoices`, {
+        method: 'GET',
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Accept': 'application/json',
+            'Authorization': `LSAT ${localStorage.getItem('macaroon')}`
         },
     })
         .then(response => (response.json() as Promise<InvoiceRaw>))

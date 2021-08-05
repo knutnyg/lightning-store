@@ -75,28 +75,35 @@ fun main() {
             }
             registerSelftestApi(lndClient)
             registerInvoiceApi(invoiceService)
-//            put("/register") {
-//                val authHeader = call.request.header("Authorization")
-//                if (authHeader == null) {
-//                    log.info("Caller missing authentication")
-//                    val userId = UUID.randomUUID()
-//                    val invoice = invoiceService.createInvoice(1, userId.toString())
-//                    val macaroon = macaroonService.createMacaroon(invoice)
-//                    call.response.headers.append(
-//                        "WWW-Authenticate",
-//                        "LSAT macaroon=\"${macaroon.serialize()}\", invoice=\"${invoice.paymentRequest}\""
-//                    )
-//                    call.response.headers.append(
-//                        "Access-Control-Expose-Headers", "WWW-Authenticate"
-//                    )
-//                    call.respond(HttpStatusCode.PaymentRequired, "Payment Required")
-//                    return@put
-//                }
-//                call.respond("Ok")
-//
-//            }
+            registerRegisterApi(invoiceService, macaroonService)
         }
     }.start(wait = true)
+}
+
+fun Routing.registerRegisterApi(
+    invoiceService: InvoiceService,
+    macaroonService: MacaroonService
+) {
+    put("/register") {
+        val authHeader = call.request.header("Authorization")
+        if (authHeader == null) {
+            log.info("Caller missing authentication")
+            val userId = UUID.randomUUID()
+            val invoice = invoiceService.createInvoice(1, userId.toString())
+            val macaroon = macaroonService.createMacaroon(invoice.rhash)
+            call.response.headers.append(
+                "WWW-Authenticate",
+                "LSAT macaroon=\"${macaroon.serialize()}\", invoice=\"${invoice.paymentRequest}\""
+            )
+            call.response.headers.append(
+                "Access-Control-Expose-Headers", "WWW-Authenticate"
+            )
+            call.respond(HttpStatusCode.PaymentRequired, "Payment Required")
+            return@put
+        }
+        call.respond("Ok")
+
+    }
 }
 
 fun Routing.registerSelftestApi(lndClient: LndApiWrapper) {
