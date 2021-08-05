@@ -32,28 +32,6 @@ export const updateInvoice = (invoice: Invoice): Promise<Invoice> => {
         });
 }
 
-export const updateTokenInvoice = (): Promise<Invoice> => {
-    return fetch(`${baseUrl}/invoices`, {
-        method: 'GET',
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Accept': 'application/json',
-            'Authorization': `LSAT ${localStorage.getItem('macaroon')}`
-        },
-    })
-        .then(response => (response.json() as Promise<InvoiceRaw>))
-        .then((raw) => {
-            return {
-                ...raw,
-                inProgress: !raw.settled
-            }
-        })
-        .catch(err => {
-            console.log(err)
-            return Promise.reject()
-        });
-}
-
 export const createInvoice = (amount: number, memo: string): Promise<Invoice> => {
     return fetch('https://store-api.nygaard.xyz/invoices', {
         method: 'POST',

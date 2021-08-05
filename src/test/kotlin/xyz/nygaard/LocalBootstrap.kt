@@ -13,6 +13,7 @@ import xyz.nygaard.lnd.LndClient
 import xyz.nygaard.lnd.LndClientMock
 import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.invoice.registerInvoiceApi
+import xyz.nygaard.store.user.TokenService
 import java.io.FileInputStream
 import java.sql.Connection
 import java.util.*
@@ -32,7 +33,7 @@ fun main() {
             databaseName = "",
             databaseUsername = "",
             databasePassword = "",
-            mocks = props.getProperty("lsmocks")?.toBoolean() ?: false
+            macaroonGeneratorSecret = props.getProperty("LS_MACAROON_SECRET")
         )
 
         val embeddedPostgres = EmbeddedPostgres.builder().setPort(5532).start()
@@ -43,10 +44,11 @@ fun main() {
         }
 
         /* We run with a mock of LndClient. Can be exchanged with the proper implementation to run against a LND */
-//        val lndClient = LndClient(environment)
-        val lndClient = LndClientMock()
+        val lndClient = LndClient(environment)
+//        val lndClient = LndClientMock()
         val invoiceService = InvoiceService(localDb, lndClient)
         val macaroonService = MacaroonService()
+        val tokenService = TokenService(embeddedPostgres.postgresDatabase)
 
         installContentNegotiation()
         install(CORS) {
@@ -66,7 +68,7 @@ fun main() {
         routing {
             registerSelftestApi(lndClient)
             registerInvoiceApi(invoiceService)
-            registerRegisterApi(invoiceService, macaroonService)
+            registerRegisterApi(invoiceService, macaroonService, tokenService)
         }
     }.start(wait = true)
 }

@@ -53,3 +53,4 @@ class MacaroonService {
 }
 
 fun Macaroon.extractUserId() = Identifier.deserialize(this.identifier).userId
+fun Macaroon.extractRHash() = Identifier.deserialize(this.identifier).paymentHash

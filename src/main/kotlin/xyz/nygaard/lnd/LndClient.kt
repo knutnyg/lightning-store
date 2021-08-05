@@ -76,6 +76,7 @@ fun AddInvoiceResponse.map2(): LndCreatedInvoice =
 
 fun org.lightningj.lnd.wrapper.message.Invoice.map2() =
     LndInvoice(
+        preimage = rPreimage?.toHex(),
         memo = memo,
         rhash = rHash.toHex(),
         settled = settled,

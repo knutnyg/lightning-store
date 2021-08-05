@@ -21,6 +21,8 @@ import xyz.nygaard.lnd.LndApiWrapper
 import xyz.nygaard.lnd.LndClient
 import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.invoice.registerInvoiceApi
+import xyz.nygaard.store.user.Token
+import xyz.nygaard.store.user.TokenService
 import xyz.nygaard.util.sha256
 import java.util.*
 import javax.xml.bind.DatatypeConverter
@@ -39,7 +41,7 @@ fun main() {
             databaseName = System.getenv("LS_DATABASE_NAME"),
             databaseUsername = System.getenv("LS_DATABASE_USERNAME"),
             databasePassword = System.getenv("LS_DATABASE_PASSWORD"),
-            mocks = false
+            macaroonGeneratorSecret = System.getenv("LS_MACAROON_SECRET"),
         )
 
         val database = Database(
@@ -50,6 +52,7 @@ fun main() {
         val lndClient = LndClient(environment)
         val invoiceService = InvoiceService(database = database, lndClient = lndClient)
         val macaroonService = MacaroonService()
+        val tokenService = TokenService(database.dataSource)
 
         installContentNegotiation()
         install(XForwardedHeaderSupport)
@@ -63,8 +66,7 @@ fun main() {
             header(HttpHeaders.ContentType)
             header(HttpHeaders.AccessControlExposeHeaders)
             allowSameOrigin = true
-            host("localhost:8080", listOf("http", "https")) // frontendHost might be "*"
-            host("store.nygaard.xyz", listOf("http", "https")) // frontendHost might be "*"
+            host("store.nygaard.xyz", listOf("http", "https"))
             log.info("CORS enabled for $hosts")
         }
         install(CallLogging)
@@ -75,14 +77,15 @@ fun main() {
             }
             registerSelftestApi(lndClient)
             registerInvoiceApi(invoiceService)
-            registerRegisterApi(invoiceService, macaroonService)
+            registerRegisterApi(invoiceService, macaroonService, tokenService)
         }
     }.start(wait = true)
 }
 
 fun Routing.registerRegisterApi(
     invoiceService: InvoiceService,
-    macaroonService: MacaroonService
+    macaroonService: MacaroonService,
+    tokenService: TokenService,
 ) {
     put("/register") {
         val authHeader = call.request.header("Authorization")
@@ -98,11 +101,34 @@ fun Routing.registerRegisterApi(
             call.response.headers.append(
                 "Access-Control-Expose-Headers", "WWW-Authenticate"
             )
+            tokenService.createToken(macaroon)
             call.respond(HttpStatusCode.PaymentRequired, "Payment Required")
             return@put
         }
         call.respond("Ok")
+    }
+    get("/register") {
+        val authHeader = call.request.header("Authorization")
+        if (authHeader == null) {
+            log.info("Caller missing authentication")
+            return@get call.respond(HttpStatusCode.Unauthorized)
+        } else {
+            log.info("Caller looking up preimage for registration")
+            val (type, rest) = authHeader.split(" ").let { it.first() to it.last() }
+            val (incomingMacaroon, _) = rest.split(":")
+                .let { split -> split.first().let { MacaroonsBuilder.deserialize(it) } to split.last() }
 
+            if (type != "LSAT") {
+                log.info("Caller using wrong authentication type, got $type")
+                return@get call.respond(HttpStatusCode.BadRequest, "Authentication digest must be LSAT")
+            }
+            if (!macaroonService.isValid(incomingMacaroon)) {
+                log.info("Macaroon is invalid")
+                return@get call.respond(HttpStatusCode.Unauthorized)
+            }
+            val invoice = invoiceService.lookupAndUpdate(incomingMacaroon.extractRHash())!!
+            return@get call.respond(invoice)
+        }
     }
 }
 
@@ -189,7 +215,7 @@ data class Config(
     val readOnlyMacaroon: String,
     val invoiceMacaroon: String,
     val cert: String,
-    val mocks: Boolean
+    val macaroonGeneratorSecret: String
 )
 
 class EnvironmentMacaroonContext(var currentMacaroonData: String) : MacaroonContext {

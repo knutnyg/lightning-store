@@ -7,7 +7,7 @@ import java.sql.Connection
 import java.sql.ResultSet
 
 class Database(val url: String, private val databaseUsername: String, private val databasePassword: String) : DatabaseInterface {
-    private val dataSource: HikariDataSource
+    internal val dataSource: HikariDataSource
 
     override val connection: Connection
         get() = dataSource.connection

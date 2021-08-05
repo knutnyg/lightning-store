@@ -1,13 +1,32 @@
-import reportWebVitals from "./reportWebVitals";
 import {useState} from "react";
-import {updateInvoice, updateTokenInvoice} from "./invoice/invoices";
 import {baseUrl} from "./App";
 import QRCode from "qrcode.react";
 import useInterval from "./hooks/useInterval";
 
 interface Invoice {
+    id?: string,
     paymentRequest: string,
-    settled: boolean
+    settled: boolean,
+    preimage?: string
+}
+
+export const updateTokenInvoice = (): Promise<Invoice> => {
+    return fetch(`${baseUrl}/register`, {
+        method: 'GET',
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Accept': 'application/json',
+            'Authorization': `LSAT ${localStorage.getItem('macaroon')}`
+        },
+    })
+        .then(response => (response.json() as Promise<Invoice>))
+        .then((raw) => {
+            return raw
+        })
+        .catch(err => {
+            console.log(err)
+            return Promise.reject()
+        });
 }
 
 export const LSATView = () => {
@@ -17,32 +36,38 @@ export const LSATView = () => {
     useInterval(() => {
         if (invoice && !invoice.settled) {
             updateTokenInvoice()
-                .then(_invoice => setInvoice({
-                    paymentRequest: _invoice.paymentRequest,
-                    settled: _invoice.settled !== null
-                }))
+                .then(_invoice => {
+                    if(_invoice.preimage) {
+                        localStorage.setItem("preimage", _invoice.preimage!!)
+                    }
+                    setInvoice({
+                        id: _invoice.id,
+                        paymentRequest: _invoice.paymentRequest,
+                        settled: _invoice.settled !== null
+                    })
+                })
         }
     }, 1000)
 
-    return <div>
+    return <div className="lsat-view">
         <h2>Teqnique #1: Authentication</h2>
         <p>Lots of sites requires you to authenticate yourself. Most use a combination of username, email and passwords.
             One drawback with this method is that we spread personal details all over the world - even though these are
             not required to consume whatever service we register for. Another problem with the Internet today is all the
             robot traffic and spam we encounter every day. We have developed tools like CAPCHA to prove that we are
             humans, but the underlying problem still exists: Micropayments are troublesome making free signups the only
-            option</p>
+            option.</p>
         <h3>Enter Lightning Service Authentication Token(LSAT)</h3>
-        <p>Have you ever noticed how service providers charge your creditcard 1$ to validate it when you sign up for a
+        <p>Have you ever noticed how service providers charge your credit card 1$ to validate it when you sign up for a
             subscription? Wouldn't it be amazing to do the same whenever someone creates an account for your
             service? These tokens can both be used for authentication and for paid APIs. One way to prevent spam and to
-            shoo away the trolls
+            shoo away the trolls.
             is to require a tiny payment for every action. To an actual user these add up change but for automated
             robots they add up to real $$. To use my site you need to request a token from me. This is a one time
             authentication requiring you to make a micropayment in exchange for a valid token. Leveraging clever
             cryptografy the payment receipt is bound to the token making server side validation a purly mathematical
-            task</p>
-        <button onClick={() => {
+            task.</p>
+        {!localStorage.getItem("macaroon") && <button onClick={() => {
             setInRegister(true);
             register().then(res => {
                 setInvoice({
@@ -52,26 +77,26 @@ export const LSATView = () => {
                 localStorage.setItem("macaroon", res.macaroon)
             })
         }}>Aquire a token
-        </button>
+        </button>}
+        {localStorage.getItem("macaroon") && !localStorage.getItem("preimage") && !inRegister && <button onClick={() => {
+            updateTokenInvoice()
+                .then(_invoice => {
+                    if(_invoice.preimage) {
+                        localStorage.setItem("preimage", _invoice.preimage!!)
+                    }
+                    setInvoice({
+                        id: _invoice.id,
+                        paymentRequest: _invoice.paymentRequest,
+                        settled: _invoice.settled !== null
+                    })
+                })
+        }}>Check for payment</button>}
         {inRegister && invoice && !invoice.settled && (<div>
             <QRCode value={invoice.paymentRequest}/>
             <p>Please scan QR code with your favorite lightning wallet and pay the invoice</p>
         </div>)}
-        {inRegister && invoice && invoice.settled && (<p>
-            Now you're golden 🤝
-        </p>)}
+        {localStorage.getItem("macaroon") && localStorage.getItem("preimage") && <p className="authenticated">Congratulations, you are authenticated 🤝</p>}
     </div>
-}
-
-export const lookupPreimage = (): Promise<Response> => {
-    return fetch(`${baseUrl}/register`, {
-            method: 'GET',
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Authorization': `LSAT ${localStorage.getItem('macaroon')}`
-            }
-        }
-    )
 }
 
 interface Challenge {
@@ -87,23 +112,12 @@ export const register = (): Promise<Challenge> => {
             },
         }
     )
-        // Parse header
         .then(response => {
-            if (response.status == 402) {
-                console.log("payment is required")
-                console.log(response.headers)
-                console.log()
-
+            if (response.status === 402) {
                 const wwwchallenge = response.headers.get('WWW-Authenticate')!
                 const type = wwwchallenge.split(' ')[0]
                 const macaroon = wwwchallenge.split(' ')[1].slice(0, -1).split('=')[1].slice(1, -1)
                 const invoice = wwwchallenge.split(' ')[2].split('=')[1].slice(1, -1)
-
-
-                console.log(wwwchallenge)
-                console.log('type', type)
-                console.log('macaroon', macaroon)
-                console.log('invoice', invoice)
 
                 return {
                     macaroon: macaroon,

@@ -13,7 +13,8 @@ data class LndInvoice(
     val memo: String? = null,
     val rhash: String,
     val settled: Boolean = false,
-    val paymentRequest: String
+    val paymentRequest: String,
+    val preimage: String? = null
 )
 
 data class LndCreatedInvoice(

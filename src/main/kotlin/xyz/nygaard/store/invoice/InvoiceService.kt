@@ -4,6 +4,7 @@ import xyz.nygaard.db.DatabaseInterface
 import xyz.nygaard.db.toList
 import xyz.nygaard.lnd.LndApiWrapper
 import xyz.nygaard.lnd.LndCreatedInvoice
+import xyz.nygaard.lnd.LndInvoice
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
@@ -24,7 +25,28 @@ class InvoiceService(
                                 memo = getString("memo"),
                                 rhash = getString("rhash"),
                                 paymentRequest = getString("payment_req"),
-                                settled = if (getTimestamp("settled") != null) (getTimestamp("settled").toLocalDateTime()) else null
+                                settled = if (getTimestamp("settled") != null) (getTimestamp("settled").toLocalDateTime()) else null,
+                                preimage = getString("preimage")
+                            )
+                        }.firstOrNull()
+                }
+        }
+    }
+
+    internal fun getInvoice(rhash: String): Invoice? {
+        return database.connection.use { connection ->
+            connection.prepareStatement("SELECT * FROM INVOICES WHERE rhash = ?")
+                .use {
+                    it.setString(1, rhash)
+                    it.executeQuery()
+                        .toList {
+                            Invoice(
+                                id = UUID.fromString(getString("id")),
+                                memo = getString("memo"),
+                                rhash = getString("rhash"),
+                                paymentRequest = getString("payment_req"),
+                                settled = if (getTimestamp("settled") != null) (getTimestamp("settled").toLocalDateTime()) else null,
+                                preimage = getString("preimage")
                             )
                         }.firstOrNull()
                 }
@@ -32,19 +54,23 @@ class InvoiceService(
     }
 
     fun lookupAndUpdate(uuid: UUID): Invoice? {
-        getInvoice(uuid)
-            ?.let { invoiceFromDB ->
-                val updatedLndInvoice = lndClient.lookupInvoice(invoiceFromDB)
+        return getInvoice(uuid)?.let { lookupAndUpdate(it) }
+    }
 
-                return if (updatedLndInvoice.settled && invoiceFromDB.settled == null) {
-                    val settledTimestamp = updateSettled(invoiceFromDB)
-                    invoiceFromDB.copy(settled = settledTimestamp, id = invoiceFromDB.id)
-                } else {
-                    updateLookup(invoiceFromDB)
-                    invoiceFromDB.copy(id = invoiceFromDB.id)
-                }
-            }
-        return null
+    fun lookupAndUpdate(rhash: String): Invoice? {
+        return getInvoice(rhash)?.let { lookupAndUpdate(it) }
+    }
+
+    private fun lookupAndUpdate(invoice: Invoice): Invoice? {
+        val updatedLndInvoice = lndClient.lookupInvoice(invoice)
+
+        return if (updatedLndInvoice.settled && invoice.settled == null) {
+            val settledTimestamp = updateSettled(invoice, updatedLndInvoice.preimage!!)
+            invoice.copy(settled = settledTimestamp, id = invoice.id, preimage = updatedLndInvoice.preimage)
+        } else {
+            updateLookup(invoice)
+            invoice.copy(id = invoice.id)
+        }
     }
 
     fun createInvoice(
@@ -83,19 +109,20 @@ class InvoiceService(
         return uuid
     }
 
-    private fun updateSettled(invoice: Invoice): LocalDateTime {
+    private fun updateSettled(invoice: Invoice, preimage: String): LocalDateTime {
         val settled = LocalDateTime.now()
         database.connection.use { connection ->
             connection.prepareStatement(
                 """
                 UPDATE invoices
-                SET settled = ?, last_lookup = ?
+                SET settled = ?, last_lookup = ?, preimage = ?
                 WHERE id = ? 
             """
             ).use {
                 it.setTimestamp(1, Timestamp.valueOf(settled))
                 it.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()))
-                it.setString(3, invoice.id.toString())
+                it.setString(3, preimage)
+                it.setString(4, invoice.id.toString())
                 it.executeUpdate()
             }
             connection.commit()
@@ -128,5 +155,6 @@ data class Invoice(
     val memo: String? = null,
     val rhash: String,
     val settled: LocalDateTime? = null,
-    val paymentRequest: String
+    val paymentRequest: String,
+    val preimage: String? = null
 )

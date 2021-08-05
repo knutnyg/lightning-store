@@ -22,6 +22,16 @@
     flex-grow: 1
 }
 
+.lsat-view {
+    margin-bottom: 200px;
+}
+
+.lsat-view .authenticated {
+    text-align: center;
+    color: coral;
+    margin-top: 50px;
+}
+
 form {
     width: 500px;
 }
