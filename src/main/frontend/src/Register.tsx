@@ -66,7 +66,7 @@ export const LSATView = () => {
             action. To an actual user these payments adds up to change while robots add up to real $$ and become less
             viable. To use my
             site you need to request a token from me. This is a one time authentication requiring you to make a
-            micropayment in exchange for a valid token. Leveraging clever cryptografy the payment receipt is bound to
+            micropayment in exchange for a valid token. Leveraging clever cryptography the payment receipt is bound to
             the token making server side validation a purly mathematical task.</p>
         {!localStorage.getItem("macaroon") && <button onClick={() => {
             setInRegister(true);
