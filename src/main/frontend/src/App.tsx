@@ -4,7 +4,7 @@ import {LSATView} from './Register';
 
 
 // export const baseUrl = "http://localhost:8081"
-const baseUrl = "https://store-api.nygaard.xyz"
+export const baseUrl = "https://store-api.nygaard.xyz"
 
 function App() {
 
