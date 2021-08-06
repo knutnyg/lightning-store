@@ -1,5 +1,6 @@
 package xyz.nygaard.store.invoice
 
+import xyz.nygaard.db.connectionAutoCommit
 import xyz.nygaard.db.toList
 import xyz.nygaard.lnd.LndApiWrapper
 import xyz.nygaard.lnd.LndCreatedInvoice
@@ -13,7 +14,7 @@ class InvoiceService(
     private val lndClient: LndApiWrapper
 ) {
     internal fun getInvoice(uuid: UUID): Invoice? {
-        return dataSource.connection.use { connection ->
+        return dataSource.connectionAutoCommit().use { connection ->
             connection.prepareStatement("SELECT * FROM INVOICES WHERE ID = ?")
                 .use {
                     it.setString(1, uuid.toString())
@@ -33,7 +34,7 @@ class InvoiceService(
     }
 
     internal fun getInvoice(rhash: String): Invoice? {
-        return dataSource.connection.use { connection ->
+        return dataSource.connectionAutoCommit().use { connection ->
             connection.prepareStatement("SELECT * FROM INVOICES WHERE rhash = ?")
                 .use {
                     it.setString(1, rhash)
@@ -89,7 +90,7 @@ class InvoiceService(
 
     private fun newInvoice(createdInvoice: LndCreatedInvoice, memo: String): UUID {
         val uuid = UUID.randomUUID()
-        dataSource.connection.use { connection ->
+        dataSource.connectionAutoCommit().use { connection ->
             connection.prepareStatement(
                 """
                INSERT INTO INVOICES(id, rhash, payment_req, settled, memo)
@@ -109,7 +110,7 @@ class InvoiceService(
 
     private fun updateSettled(invoice: Invoice, preimage: String): LocalDateTime {
         val settled = LocalDateTime.now()
-        dataSource.connection.use { connection ->
+        dataSource.connectionAutoCommit().use { connection ->
             connection.prepareStatement(
                 """
                 UPDATE invoices
@@ -129,7 +130,7 @@ class InvoiceService(
 
     private fun updateLookup(invoice: Invoice): LocalDateTime {
         val lookup = LocalDateTime.now()
-        dataSource.connection.use { connection ->
+        dataSource.connectionAutoCommit().use { connection ->
             connection.prepareStatement(
                 """
                 UPDATE invoices

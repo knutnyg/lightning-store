@@ -39,7 +39,7 @@ class MacaroonService(
     //TODO: Fix secret and location
     fun createMacaroon(invoiceRhash: String, userId: UUID = UUID.randomUUID()): Macaroon {
         return MacaroonsBuilder(
-            "localhost:8000",
+            location,
             secret,
             Identifier(0, userId, invoiceRhash).serialize()
         )

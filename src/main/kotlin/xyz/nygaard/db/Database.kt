@@ -5,6 +5,9 @@ import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
 import java.sql.Connection
 import java.sql.ResultSet
+import javax.sql.DataSource
+
+fun DataSource.connectionAutoCommit(): Connection = this.connection.apply { autoCommit = true }
 
 class Database(val url: String, private val databaseUsername: String, private val databasePassword: String) : DatabaseInterface {
     internal val dataSource: HikariDataSource
