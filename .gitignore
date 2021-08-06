@@ -14,3 +14,4 @@ src/generated
 .DS_Store
 
 local.properties
+environment.properties
