@@ -11,8 +11,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import xyz.nygaard.MacaroonService
 import xyz.nygaard.installContentNegotiation
-import xyz.nygaard.installLsatInterceptor
 import xyz.nygaard.lnd.LndClientMock
+import xyz.nygaard.store.installLsatInterceptor
+import xyz.nygaard.store.user.TokenService
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class InvoiceApiKtTest {
@@ -26,6 +27,7 @@ internal class InvoiceApiKtTest {
     )
 
     private val macaroonService = MacaroonService("localhost", "secret")
+    private val tokenService = TokenService(embeddedPostgres.postgresDatabase)
 
     @BeforeAll
     fun test() {
@@ -103,7 +105,7 @@ internal class InvoiceApiKtTest {
     fun `valid macaroon invoice paid and valid preimage`() {
         withTestApplication({
             installContentNegotiation()
-            installLsatInterceptor(invoiceService, macaroonService)
+            installLsatInterceptor(invoiceService, macaroonService, tokenService)
             routing {
                 registerInvoiceApi(invoiceService)
             }

@@ -11,7 +11,7 @@ interface Invoice {
 }
 
 export const updateTokenInvoice = (): Promise<Invoice> => {
-    return fetch(`${baseUrl}/register`, {
+    return fetch(`${baseUrl}/open/register`, {
         method: 'GET',
         headers: {
             'Access-Control-Allow-Origin': '*',
