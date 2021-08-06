@@ -3,6 +3,7 @@ package xyz.nygaard
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.github.nitram509.jmacaroons.Macaroon
 import com.github.nitram509.jmacaroons.MacaroonsBuilder
 import io.ktor.application.*
 import io.ktor.features.*
@@ -21,9 +22,9 @@ import xyz.nygaard.lnd.LndApiWrapper
 import xyz.nygaard.lnd.LndClient
 import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.invoice.registerInvoiceApi
-import xyz.nygaard.store.user.Token
 import xyz.nygaard.store.user.TokenService
 import xyz.nygaard.util.sha256
+import java.lang.RuntimeException
 import java.util.*
 import javax.sql.DataSource
 import javax.xml.bind.DatatypeConverter
@@ -77,66 +78,56 @@ internal fun Application.buildApplication(
         header(HttpHeaders.AccessControlExposeHeaders)
         allowSameOrigin = true
         host("store.nygaard.xyz", listOf("http", "https"))
+        host("localhost:8080", listOf("http", "https"))
         log.info("CORS enabled for $hosts")
     }
     install(CallLogging)
-//        installLsatInterceptor(invoiceService, macaroonService)
+    installLsatInterceptor(invoiceService, macaroonService)
     routing {
         get("/") {
             call.respondText("Hello, world!")
         }
         registerSelftestApi(lndClient)
         registerInvoiceApi(invoiceService)
-        registerRegisterApi(invoiceService, macaroonService, tokenService)
+        registerRegisterApi(invoiceService)
     }
 }
 
 fun Routing.registerRegisterApi(
     invoiceService: InvoiceService,
-    macaroonService: MacaroonService,
-    tokenService: TokenService,
 ) {
     put("/register") {
-        val authHeader = call.request.header("Authorization")
-        if (authHeader == null) {
-            log.info("Caller missing authentication")
-            val userId = UUID.randomUUID()
-            val invoice = invoiceService.createInvoice(1, userId.toString())
-            val macaroon = macaroonService.createMacaroon(invoice.rhash)
-            call.response.headers.append(
-                "WWW-Authenticate",
-                "LSAT macaroon=\"${macaroon.serialize()}\", invoice=\"${invoice.paymentRequest}\""
-            )
-            call.response.headers.append(
-                "Access-Control-Expose-Headers", "WWW-Authenticate"
-            )
-            tokenService.createToken(macaroon)
-            call.respond(HttpStatusCode.PaymentRequired, "Payment Required")
-            return@put
-        }
         call.respond("Ok")
     }
-    get("/register") {
+    get("/poll/register") {
         val authHeader = call.request.header("Authorization")
-        if (authHeader == null) {
-            log.info("Caller missing authentication")
-            return@get call.respond(HttpStatusCode.Unauthorized)
-        } else {
-            log.info("Caller looking up preimage for registration")
-            val (type, rest) = authHeader.split(" ").let { it.first() to it.last() }
-            val (incomingMacaroon, _) = rest.split(":")
-                .let { split -> split.first().let { MacaroonsBuilder.deserialize(it) } to split.last() }
+            ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
-            if (type != "LSAT") {
-                log.info("Caller using wrong authentication type, got $type")
-                return@get call.respond(HttpStatusCode.BadRequest, "Authentication digest must be LSAT")
-            }
-            if (!macaroonService.isValid(incomingMacaroon)) {
-                log.info("Macaroon is invalid")
-                return@get call.respond(HttpStatusCode.Unauthorized)
-            }
-            val invoice = invoiceService.lookupAndUpdate(incomingMacaroon.extractRHash())!!
-            return@get call.respond(invoice)
+        log.info("Caller looking up preimage for registration")
+        val authorization = AuthHeader.deserialize(authHeader)
+
+        val invoice = invoiceService.lookupAndUpdate(authorization.macaroon.extractRHash()) ?: return@get call.respond(
+            HttpStatusCode.NotFound
+        )
+        return@get call.respond(invoice)
+    }
+}
+
+class AuthHeader(
+    val type: String,
+    val macaroon: Macaroon,
+    val preimage: String?
+) {
+    companion object {
+        fun deserialize(header: String): AuthHeader {
+            val (type, rest) = header.split(" ").let { it.first() to it.last() }
+            val split = rest.split(":")
+            val (macaroon, preimage) = if (split.size == 2)
+                split.first().let { MacaroonsBuilder.deserialize(it) } to split.last()
+            else
+                split.first().let { MacaroonsBuilder.deserialize(it) } to null
+
+            return AuthHeader(type, macaroon, preimage)
         }
     }
 }
@@ -162,7 +153,7 @@ fun Application.installContentNegotiation() {
 }
 
 fun Application.installLsatInterceptor(invoiceService: InvoiceService, macaroonService: MacaroonService) {
-    intercept(ApplicationCallPipeline.Setup) {
+    intercept(ApplicationCallPipeline.Call) {
         if (call.request.path() == "/register") {
             val authHeader = call.request.header("Authorization")
             if (authHeader == null) {
@@ -174,26 +165,27 @@ fun Application.installLsatInterceptor(invoiceService: InvoiceService, macaroonS
                     "WWW-Authenticate",
                     "LSAT macaroon=\"${macaroon.serialize()}\", invoice=\"${invoice.paymentRequest}\""
                 )
+                call.response.headers.append(
+                    "Access-Control-Expose-Headers", "WWW-Authenticate"
+                )
                 call.respond(HttpStatusCode.PaymentRequired, "Payment Required")
                 return@intercept finish()
             }
 
-            val (type, rest) = authHeader.split(" ").let { it.first() to it.last() }
-            val (incomingMacaroon, preimage) = rest.split(":")
-                .let { split -> split.first().let { MacaroonsBuilder.deserialize(it) } to split.last() }
+            val authorization = AuthHeader.deserialize(authHeader)
 
-            if (type != "LSAT") {
-                log.info("Caller using wrong authentication type, got $type")
+            if (authorization.type != "LSAT") {
+                log.info("Caller using wrong authentication type, got ${authorization.type}")
                 call.respond(HttpStatusCode.BadRequest, "Authentication digest must be LSAT")
                 return@intercept finish()
             }
-            if (!macaroonService.isValid(incomingMacaroon)) {
+            if (!macaroonService.isValid(authorization.macaroon)) {
                 log.info("Macaroon is invalid")
                 call.respond(HttpStatusCode.Unauthorized)
                 return@intercept finish()
             }
 
-            if (preimage.sha256() != macaroonService.extractPaymentHash(incomingMacaroon)) {
+            if (authorization.preimage?.sha256() != macaroonService.extractPaymentHash(authorization.macaroon)) {
                 log.info("Preimage does not correspond to payment hash")
                 call.respond(HttpStatusCode.BadRequest, "Preimage does not correspond to payment hash")
                 return@intercept finish()
