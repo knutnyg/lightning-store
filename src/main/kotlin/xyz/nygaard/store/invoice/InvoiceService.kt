@@ -1,20 +1,19 @@
 package xyz.nygaard.store.invoice
 
-import xyz.nygaard.db.DatabaseInterface
 import xyz.nygaard.db.toList
 import xyz.nygaard.lnd.LndApiWrapper
 import xyz.nygaard.lnd.LndCreatedInvoice
-import xyz.nygaard.lnd.LndInvoice
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
+import javax.sql.DataSource
 
 class InvoiceService(
-    private val database: DatabaseInterface,
+    private val dataSource: DataSource,
     private val lndClient: LndApiWrapper
 ) {
     internal fun getInvoice(uuid: UUID): Invoice? {
-        return database.connection.use { connection ->
+        return dataSource.connection.use { connection ->
             connection.prepareStatement("SELECT * FROM INVOICES WHERE ID = ?")
                 .use {
                     it.setString(1, uuid.toString())
@@ -34,7 +33,7 @@ class InvoiceService(
     }
 
     internal fun getInvoice(rhash: String): Invoice? {
-        return database.connection.use { connection ->
+        return dataSource.connection.use { connection ->
             connection.prepareStatement("SELECT * FROM INVOICES WHERE rhash = ?")
                 .use {
                     it.setString(1, rhash)
@@ -90,7 +89,7 @@ class InvoiceService(
 
     private fun newInvoice(createdInvoice: LndCreatedInvoice, memo: String): UUID {
         val uuid = UUID.randomUUID()
-        database.connection.use { connection ->
+        dataSource.connection.use { connection ->
             connection.prepareStatement(
                 """
                INSERT INTO INVOICES(id, rhash, payment_req, settled, memo)
@@ -104,14 +103,13 @@ class InvoiceService(
                 it.setString(5, memo)
                 it.executeUpdate()
             }
-            connection.commit()
         }
         return uuid
     }
 
     private fun updateSettled(invoice: Invoice, preimage: String): LocalDateTime {
         val settled = LocalDateTime.now()
-        database.connection.use { connection ->
+        dataSource.connection.use { connection ->
             connection.prepareStatement(
                 """
                 UPDATE invoices
@@ -125,14 +123,13 @@ class InvoiceService(
                 it.setString(4, invoice.id.toString())
                 it.executeUpdate()
             }
-            connection.commit()
         }
         return settled
     }
 
     private fun updateLookup(invoice: Invoice): LocalDateTime {
         val lookup = LocalDateTime.now()
-        database.connection.use { connection ->
+        dataSource.connection.use { connection ->
             connection.prepareStatement(
                 """
                 UPDATE invoices
@@ -144,7 +141,6 @@ class InvoiceService(
                 it.setString(2, invoice.id.toString())
                 it.executeUpdate()
             }
-            connection.commit()
         }
         return lookup
     }

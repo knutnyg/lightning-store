@@ -8,7 +8,6 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import xyz.nygaard.TestDatabase
 import xyz.nygaard.lnd.LndClient
 import xyz.nygaard.lnd.LndCreatedInvoice
 import xyz.nygaard.lnd.LndInvoice
@@ -47,7 +46,7 @@ internal class InvoiceServiceTest {
     }
 
     val invoiceService = InvoiceService(
-        TestDatabase(embeddedPostgres.postgresDatabase),
+        embeddedPostgres.postgresDatabase,
         lndClientMock2
     )
 

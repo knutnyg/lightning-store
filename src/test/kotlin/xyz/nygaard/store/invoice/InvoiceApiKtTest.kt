@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import xyz.nygaard.MacaroonService
-import xyz.nygaard.TestDatabase
 import xyz.nygaard.installContentNegotiation
 import xyz.nygaard.installLsatInterceptor
 import xyz.nygaard.lnd.LndClientMock
@@ -22,7 +21,7 @@ internal class InvoiceApiKtTest {
         .setPort(5534).start()
 
     private val invoiceService = InvoiceService(
-        TestDatabase(embeddedPostgres.postgresDatabase),
+        embeddedPostgres.postgresDatabase,
         LndClientMock()
     )
 

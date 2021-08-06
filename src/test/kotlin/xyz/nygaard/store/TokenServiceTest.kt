@@ -4,7 +4,6 @@ import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.*
 import xyz.nygaard.MacaroonService
-import xyz.nygaard.TestDatabase
 import xyz.nygaard.extractUserId
 import xyz.nygaard.store.user.Token
 import xyz.nygaard.store.user.TokenService

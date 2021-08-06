@@ -25,6 +25,7 @@ import xyz.nygaard.store.user.Token
 import xyz.nygaard.store.user.TokenService
 import xyz.nygaard.util.sha256
 import java.util.*
+import javax.sql.DataSource
 import javax.xml.bind.DatatypeConverter
 
 val log: Logger = LoggerFactory.getLogger("Lightning Store")
@@ -50,37 +51,44 @@ fun main() {
             environment.databaseUsername,
             environment.databasePassword
         )
-        val lndClient = LndClient(environment)
-        val invoiceService = InvoiceService(database = database, lndClient = lndClient)
-        val macaroonService = MacaroonService(environment.location, environment.macaroonGeneratorSecret)
-        val tokenService = TokenService(database.dataSource)
-
-        installContentNegotiation()
-        install(XForwardedHeaderSupport)
-        install(CORS) {
-            method(HttpMethod.Options)
-            method(HttpMethod.Post)
-            method(HttpMethod.Get)
-            method(HttpMethod.Put)
-            header(HttpHeaders.Authorization)
-            header(HttpHeaders.AccessControlAllowOrigin)
-            header(HttpHeaders.ContentType)
-            header(HttpHeaders.AccessControlExposeHeaders)
-            allowSameOrigin = true
-            host("store.nygaard.xyz", listOf("http", "https"))
-            log.info("CORS enabled for $hosts")
-        }
-        install(CallLogging)
-//        installLsatInterceptor(invoiceService, macaroonService)
-        routing {
-            get("/") {
-                call.respondText("Hello, world!")
-            }
-            registerSelftestApi(lndClient)
-            registerInvoiceApi(invoiceService)
-            registerRegisterApi(invoiceService, macaroonService, tokenService)
-        }
+        buildApplication(environment, database.dataSource)
     }.start(wait = true)
+}
+
+internal fun Application.buildApplication(
+    environment: Config,
+    dataSource: DataSource
+) {
+    val lndClient = LndClient(environment)
+    val invoiceService = InvoiceService(dataSource, lndClient)
+    val macaroonService = MacaroonService(environment.location, environment.macaroonGeneratorSecret)
+    val tokenService = TokenService(dataSource)
+
+    installContentNegotiation()
+    install(XForwardedHeaderSupport)
+    install(CORS) {
+        method(HttpMethod.Options)
+        method(HttpMethod.Post)
+        method(HttpMethod.Get)
+        method(HttpMethod.Put)
+        header(HttpHeaders.Authorization)
+        header(HttpHeaders.AccessControlAllowOrigin)
+        header(HttpHeaders.ContentType)
+        header(HttpHeaders.AccessControlExposeHeaders)
+        allowSameOrigin = true
+        host("store.nygaard.xyz", listOf("http", "https"))
+        log.info("CORS enabled for $hosts")
+    }
+    install(CallLogging)
+//        installLsatInterceptor(invoiceService, macaroonService)
+    routing {
+        get("/") {
+            call.respondText("Hello, world!")
+        }
+        registerSelftestApi(lndClient)
+        registerInvoiceApi(invoiceService)
+        registerRegisterApi(invoiceService, macaroonService, tokenService)
+    }
 }
 
 fun Routing.registerRegisterApi(
