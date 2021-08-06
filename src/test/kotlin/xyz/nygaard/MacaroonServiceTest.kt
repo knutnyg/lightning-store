@@ -7,7 +7,7 @@ import java.util.*
 
 internal class MacaroonServiceTest {
 
-    private val macaroonService = MacaroonService()
+    private val macaroonService = MacaroonService("localhost", "secret")
 
     @Test
     fun getMacaroon() {

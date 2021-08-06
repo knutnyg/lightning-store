@@ -18,7 +18,7 @@ internal class TokenServiceTest {
         .setPort(5534).start()
 
     val tokenService: TokenService = TokenService(embeddedPostgres.postgresDatabase)
-    val macaroonService: MacaroonService = MacaroonService()
+    val macaroonService: MacaroonService = MacaroonService("localhost", "secret")
 
     @BeforeAll
     fun setup() {

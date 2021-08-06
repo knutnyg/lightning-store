@@ -42,6 +42,7 @@ fun main() {
             databaseUsername = System.getenv("LS_DATABASE_USERNAME"),
             databasePassword = System.getenv("LS_DATABASE_PASSWORD"),
             macaroonGeneratorSecret = System.getenv("LS_MACAROON_SECRET"),
+            location = System.getenv("LS_LOCATION")
         )
 
         val database = Database(
@@ -51,7 +52,7 @@ fun main() {
         )
         val lndClient = LndClient(environment)
         val invoiceService = InvoiceService(database = database, lndClient = lndClient)
-        val macaroonService = MacaroonService()
+        val macaroonService = MacaroonService(environment.location, environment.macaroonGeneratorSecret)
         val tokenService = TokenService(database.dataSource)
 
         installContentNegotiation()
@@ -215,7 +216,8 @@ data class Config(
     val readOnlyMacaroon: String,
     val invoiceMacaroon: String,
     val cert: String,
-    val macaroonGeneratorSecret: String
+    val macaroonGeneratorSecret: String,
+    val location: String,
 )
 
 class EnvironmentMacaroonContext(var currentMacaroonData: String) : MacaroonContext {

@@ -29,7 +29,7 @@ class SignpostE2ETest {
         LndClientMock()
     )
 
-    private val macaroonService = MacaroonService()
+    private val macaroonService = MacaroonService("localhost", "secret")
 
     @BeforeAll
     fun test() {

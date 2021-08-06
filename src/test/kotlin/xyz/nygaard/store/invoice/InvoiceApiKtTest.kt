@@ -26,7 +26,7 @@ internal class InvoiceApiKtTest {
         LndClientMock()
     )
 
-    private val macaroonService = MacaroonService()
+    private val macaroonService = MacaroonService("localhost", "secret")
 
     @BeforeAll
     fun test() {

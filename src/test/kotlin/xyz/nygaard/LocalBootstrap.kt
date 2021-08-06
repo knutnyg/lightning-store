@@ -33,7 +33,8 @@ fun main() {
             databaseName = "",
             databaseUsername = "",
             databasePassword = "",
-            macaroonGeneratorSecret = props.getProperty("LS_MACAROON_SECRET")
+            macaroonGeneratorSecret = props.getProperty("LS_MACAROON_SECRET"),
+            location = "localhost"
         )
 
         val embeddedPostgres = EmbeddedPostgres.builder().setPort(5532).start()
@@ -47,7 +48,7 @@ fun main() {
         val lndClient = LndClient(environment)
 //        val lndClient = LndClientMock()
         val invoiceService = InvoiceService(localDb, lndClient)
-        val macaroonService = MacaroonService()
+        val macaroonService = MacaroonService(environment.location, environment.macaroonGeneratorSecret)
         val tokenService = TokenService(embeddedPostgres.postgresDatabase)
 
         installContentNegotiation()
