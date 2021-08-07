@@ -2,6 +2,7 @@ package xyz.nygaard.store.user
 
 import com.github.nitram509.jmacaroons.Macaroon
 import com.github.nitram509.jmacaroons.MacaroonsBuilder
+import io.ktor.features.*
 import xyz.nygaard.db.DatabaseInterface
 import xyz.nygaard.db.connectionAutoCommit
 import xyz.nygaard.db.toList
@@ -23,7 +24,7 @@ class TokenService(val dataSource: DataSource) {
         }
     }
 
-    private fun fetchToken(id: UUID): Token {
+    private fun fetchToken(id: UUID): Token? {
         return dataSource.connectionAutoCommit().use { connection ->
             connection.prepareStatement("SELECT * FROM token WHERE id = ?")
                 .use {
@@ -35,7 +36,7 @@ class TokenService(val dataSource: DataSource) {
                                 balance = getInt("balance"),
                                 revoked = getBoolean("revoked")
                             )
-                        }.first()
+                        }.firstOrNull()
                 }
         }
     }
@@ -43,7 +44,7 @@ class TokenService(val dataSource: DataSource) {
     fun fetchToken(macaroon: Macaroon) = fetchToken(macaroon.extractUserId())
 
     fun increaseBalance(macaroon: Macaroon, numberOfSatoshis: Int) {
-        fetchToken(macaroon).let { token ->
+        fetchToken(macaroon)?.let { token ->
             dataSource.connectionAutoCommit().use { connection ->
                 connection.prepareStatement("UPDATE token SET balance = ? WHERE id = ?")
                     .use {
@@ -52,11 +53,11 @@ class TokenService(val dataSource: DataSource) {
                         it.executeUpdate()
                     }
             }
-        }
+        } ?: throw NotFoundException("token not found")
     }
 
     fun decreaseBalance(macaroon: Macaroon, numberOfSatoshis: Int) {
-        fetchToken(macaroon).let { token ->
+        fetchToken(macaroon)?.let { token ->
             if (token.balance < numberOfSatoshis) throw IllegalArgumentException("Attempting to decrease balance < 0")
             dataSource.connectionAutoCommit().use { connection ->
                 connection.prepareStatement("UPDATE token SET balance = ? WHERE id = ?")
@@ -66,6 +67,6 @@ class TokenService(val dataSource: DataSource) {
                         it.executeUpdate()
                     }
             }
-        }
+        } ?: throw NotFoundException("token not found")
     }
 }

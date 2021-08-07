@@ -92,7 +92,7 @@ internal fun Application.buildApplication(
         }
         registerSelftestApi(lndClient)
         registerInvoiceApi(invoiceService)
-        registerRegisterApi(invoiceService)
+        registerRegisterApi(invoiceService, tokenService)
     }
 }
 

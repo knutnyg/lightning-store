@@ -5,19 +5,17 @@ import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.*
 import xyz.nygaard.MacaroonService
 import xyz.nygaard.extractUserId
-import xyz.nygaard.store.user.Token
 import xyz.nygaard.store.user.TokenService
-import java.util.*
 import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class TokenServiceTest {
 
-    val embeddedPostgres = EmbeddedPostgres.builder()
+    private val embeddedPostgres = EmbeddedPostgres.builder()
         .setPort(5534).start()
 
-    val tokenService: TokenService = TokenService(embeddedPostgres.postgresDatabase)
-    val macaroonService: MacaroonService = MacaroonService("localhost", "secret")
+    private val tokenService: TokenService = TokenService(embeddedPostgres.postgresDatabase)
+    private val macaroonService: MacaroonService = MacaroonService("localhost", "secret")
 
     @BeforeAll
     fun setup() {
@@ -35,7 +33,7 @@ internal class TokenServiceTest {
         val result = tokenService.createToken(macaroon = macaroon)
         assertEquals(result, 1)
 
-        val token = tokenService.fetchToken(macaroon)
+        val token = tokenService.fetchToken(macaroon)!!
         assertEquals(token.macaroon, macaroon)
         assertEquals(token.id, macaroon.extractUserId())
         assertEquals(token.balance, 0)
