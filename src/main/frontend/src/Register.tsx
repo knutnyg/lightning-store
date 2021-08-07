@@ -2,6 +2,7 @@ import {useState} from "react";
 import {baseUrl} from "./App";
 import QRCode from "qrcode.react";
 import useInterval from "./hooks/useInterval";
+import {updateUser, useUser} from "./hooks/useUser";
 
 interface Invoice {
     id?: string,
@@ -32,6 +33,7 @@ export const updateTokenInvoice = (): Promise<Invoice> => {
 export const LSATView = () => {
     const [invoice, setInvoice] = useState<Invoice | undefined>(undefined);
     const [inRegister, setInRegister] = useState<Boolean>(false);
+    const [user, setUser] = useUser()
 
     useInterval(() => {
         if (invoice && !invoice.settled) {
@@ -39,6 +41,8 @@ export const LSATView = () => {
                 .then(_invoice => {
                     if (_invoice.preimage) {
                         localStorage.setItem("preimage", _invoice.preimage!!)
+                        updateUser()
+                            .then(_user => setUser(_user))
                     }
                     setInvoice({
                         id: _invoice.id,

@@ -53,7 +53,7 @@ fun Application.installLsatInterceptor(invoiceService: InvoiceService, macaroonS
             }
             // Truncate the route response. If there is no finish() function,
             // the route /book will still respond to the processing, and the pipeline will be unwritable.
-            return@intercept finish()
+            return@intercept proceed()
         }
         return@intercept proceed()
     }

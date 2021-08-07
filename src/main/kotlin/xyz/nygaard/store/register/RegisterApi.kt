@@ -38,7 +38,7 @@ fun Routing.registerRegisterApi(
         log.info("Caller looking up token")
         val authorization = AuthHeader.deserialize(authHeader)
 
-        val token = tokenService.fetchToken(authorization.macaroon) ?: return@get call.respond(HttpStatusCode.NotFound)
+        val token = tokenService.fetchToken(authorization.macaroon) ?: return@get call.respond(HttpStatusCode.NotFound).also { log.info("Received token not stored in database. Probably because we have deleted our entry") }
         return@get call.respond(token.toDTO())
     }
 }
