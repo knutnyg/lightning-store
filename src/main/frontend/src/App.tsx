@@ -17,8 +17,12 @@ function App() {
 
     return (
         <div className="main">
+            <header>
+                <h1>Store</h1>
+                {user && <span className="user">Balance: ${user?.balance}</span>}
+                {!user && <span className="user">Not logged in</span>}
+            </header>
             <div className="content">
-                <h1>Welcome to my lightning store</h1>
                 <p>This site is a project for me to learn my way around programming for the lightning network and all
                     the possibilities it brings to web 3.0. I will attempt to explore concepts and techniques that
                     micropayments bring to the table.</p>
@@ -29,8 +33,8 @@ function App() {
                     site.</p>
                 <p>To navigate this site, you need your own lightning wallet. There are many alternatives, but as a
                     quick-start I suggest the custodian wallet BlueWallet.</p>
-                {user && <p>Hello {user.userId} you have {user.balance} satoshis to send in my store</p>}
-                <LSATView />
+
+                <LSATView/>
                 <DonateView/>
                 <footer>
                     <span>I would love suggestions to what more I could add to my store! Take a look at the code on <a

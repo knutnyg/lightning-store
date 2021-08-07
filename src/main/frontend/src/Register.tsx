@@ -42,7 +42,6 @@ export const LSATView = () => {
                     if (_invoice.preimage) {
                         localStorage.setItem("preimage", _invoice.preimage!!)
                         updateUser()
-                            .then(_user => setUser(_user))
                     }
                     setInvoice({
                         id: _invoice.id,
