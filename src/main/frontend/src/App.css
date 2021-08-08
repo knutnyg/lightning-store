@@ -4,28 +4,30 @@ html {
 
 body {
     height: 100%;
-    overflow: hidden;  /* makes the body non-scrollable (we will add scrolling to the sidebar and main content containers) */
-    margin: 0;  /* removes default style */
-    display: flex;  /* enables flex content for its children */
+    overflow: hidden; /* makes the body non-scrollable (we will add scrolling to the sidebar and main content containers) */
+    display: flex; /* enables flex content for its children */
+    margin: 0; /* removes default style */
     box-sizing: border-box;
 }
 
 header {
     display: flex;
+    width: 100%;
     flex-direction: row;
+    align-items: center;
 }
 
 header h1 {
-    margin-right: auto;
     margin: 0;
-    margin-left: 40px;
+    margin-right: auto;
+    margin-left: 2rem;
+    order: 0;
     flex-grow: 1;
 }
 
 header .user {
-    margin-top: 1rem;
+    margin-right: 2rem;
     padding-right: 40px;
-    margin-left: auto;
     order: 1;
 }
 
@@ -88,7 +90,7 @@ footer span {
 }
 
 form {
-    width: 500px;
+    width: 300px;
 }
 
 .form-row {
