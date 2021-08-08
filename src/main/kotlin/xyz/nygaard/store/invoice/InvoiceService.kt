@@ -26,7 +26,8 @@ class InvoiceService(
                                 rhash = getString("rhash"),
                                 paymentRequest = getString("payment_req"),
                                 settled = if (getTimestamp("settled") != null) (getTimestamp("settled").toLocalDateTime()) else null,
-                                preimage = getString("preimage")
+                                preimage = getString("preimage"),
+                                amount = getLong("amount")
                             )
                         }.firstOrNull()
                 }
@@ -46,7 +47,8 @@ class InvoiceService(
                                 rhash = getString("rhash"),
                                 paymentRequest = getString("payment_req"),
                                 settled = if (getTimestamp("settled") != null) (getTimestamp("settled").toLocalDateTime()) else null,
-                                preimage = getString("preimage")
+                                preimage = getString("preimage"),
+                                amount = getLong("amount")
                             )
                         }.firstOrNull()
                 }
@@ -74,27 +76,28 @@ class InvoiceService(
     }
 
     fun createInvoice(
-        amount: Long = 10L,
+        amount: Long = 10,
         memo: String = ""
     ): Invoice {
         val lndInvoice = lndClient.addInvoice(amount, memo)
-        val uuid = newInvoice(lndInvoice, memo)
+        val uuid = newInvoice(lndInvoice, memo, amount)
 
         return Invoice(
             id = uuid,
             memo = memo,
             rhash = lndInvoice.rhash,
-            paymentRequest = lndInvoice.paymentRequest
+            paymentRequest = lndInvoice.paymentRequest,
+            amount = amount
         )
     }
 
-    private fun newInvoice(createdInvoice: LndCreatedInvoice, memo: String): UUID {
+    private fun newInvoice(createdInvoice: LndCreatedInvoice, memo: String, amount: Long): UUID {
         val uuid = UUID.randomUUID()
         dataSource.connectionAutoCommit().use { connection ->
             connection.prepareStatement(
                 """
-               INSERT INTO INVOICES(id, rhash, payment_req, settled, memo)
-                VALUES (?, ?, ?, ?, ?)
+               INSERT INTO INVOICES(id, rhash, payment_req, settled, memo, amount)
+                VALUES (?, ?, ?, ?, ?, ?)
             """
             ).use {
                 it.setString(1, uuid.toString())
@@ -102,6 +105,7 @@ class InvoiceService(
                 it.setString(3, createdInvoice.paymentRequest)
                 it.setTimestamp(4, null)
                 it.setString(5, memo)
+                it.setLong(6, amount)
                 it.executeUpdate()
             }
         }
@@ -153,5 +157,6 @@ data class Invoice(
     val rhash: String,
     val settled: LocalDateTime? = null,
     val paymentRequest: String,
-    val preimage: String? = null
+    val preimage: String? = null,
+    val amount: Long
 )
