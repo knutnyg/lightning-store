@@ -3,7 +3,6 @@ package xyz.nygaard
 import com.github.nitram509.jmacaroons.Macaroon
 import com.github.nitram509.jmacaroons.MacaroonsBuilder
 import com.github.nitram509.jmacaroons.MacaroonsVerifier
-import xyz.nygaard.store.invoice.Invoice
 import java.util.*
 
 class Identifier(

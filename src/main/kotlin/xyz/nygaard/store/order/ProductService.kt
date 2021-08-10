@@ -16,9 +16,24 @@ class ProductService(val dataSource: DataSource) {
                             Product(
                                 id = UUID.fromString(this.getString("id")),
                                 name = this.getString("name"),
-                                price = this.getLong("price")
+                                price = this.getLong("price"),
+                                payload = this.getString("payload")
                             )
                         }.first()
+                }
+        }
+    }
+
+    fun hasPurchased(tokenId: UUID, productId: UUID): Boolean {
+        return dataSource.connectionAutoCommit().use {
+            it.prepareStatement("SELECT * FROM products p INNER JOIN orders o on p.id = o.product_id WHERE o.token_id = ? AND p.id = ? AND settled IS NOT null")
+                .use { preparedStatement ->
+                    preparedStatement.setString(1, tokenId.toString())
+                    preparedStatement.setString(2, productId.toString())
+                    preparedStatement.executeQuery()
+                        .toList {
+                            true
+                        }.size == 1
                 }
         }
     }
@@ -27,13 +42,15 @@ class ProductService(val dataSource: DataSource) {
 class Product(
     val id: UUID,
     val name: String,
-    val price: Long
+    val price: Long,
+    val payload: String
 ) {
-    fun toDto() = ProductDto(id, name, price)
+    fun toDto() = ProductDto(id, name, price, payload)
 }
 
 data class ProductDto(
     val id: UUID,
     val name: String,
-    val price: Long
+    val price: Long,
+    val payload: String
 )

@@ -15,8 +15,7 @@ import java.util.*
 fun Routing.registerOrders(
     orderService: OrderService,
     tokenService: TokenService,
-    productService: ProductService,
-    invoiceService: InvoiceService
+    productService: ProductService
 ) {
     put("/orders/invoice/{id}") {
         val authHeader = call.request.header("Authorization")
@@ -28,16 +27,12 @@ fun Routing.registerOrders(
         val authorization = AuthHeader.deserialize(authHeader)
 
         val product = productService.getProduct(productId)
-        invoiceService.createInvoice(product.price, "1x${product.name}: $productId")
-            .let {
-                return@put call.respond(
-                    orderService.placeOrderWithInvoice(
-                        macaroon = authorization.macaroon,
-                        product = product,
-                    )
-                )
-            }
-
+        return@put call.respond(
+            orderService.placeOrderWithInvoice(
+                macaroon = authorization.macaroon,
+                product = product,
+            )
+        )
     }
 
     put("/orders/balance/{id}") {

@@ -25,7 +25,7 @@ class OrderService(
 
         dataSource.connectionAutoCommit().use { connection ->
             val id = UUID.randomUUID()
-            connection.prepareStatement("INSERT INTO orders(id, token_id, invoice_id, product_id) VALUES(?, ?, ?, ?, ?)")
+            connection.prepareStatement("INSERT INTO orders(id, token_id, invoice_id, product_id, settled) VALUES(?, ?, ?, ?, null)")
                 .use { statement ->
                     statement.setString(1, id.toString())
                     statement.setString(2, macaroon.extractUserId().toString())
@@ -69,7 +69,7 @@ class OrderService(
 
     fun getOrders(userId: UUID): List<Order> {
         return dataSource.connectionAutoCommit().use { connection ->
-            connection.prepareStatement("SELECT o.settled as order_settled, * from orders o LEFT OUTER JOIN invoices i on o.invoice_id = i.id INNER JOIN token t on o.token_id = t.id INNER JOIN products AS p on o.product_id = p.id WHERE t.id = ?")
+            connection.prepareStatement("SELECT o.settled as order_settled, i.settled as invoice_settled, * from orders o LEFT OUTER JOIN invoices i on o.invoice_id = i.id INNER JOIN token t on o.token_id = t.id INNER JOIN products AS p on o.product_id = p.id WHERE t.id = ?")
                 .use { statement ->
                     statement.setString(1, userId.toString())
                     statement.executeQuery()
@@ -77,20 +77,21 @@ class OrderService(
                             Order(
                                 id = UUID.fromString(this.getString("id")),
                                 if (this.getString("invoice_id") != null) Invoice(
-                                    id = UUID.fromString(this.getString("i.id")),
+                                    id = UUID.fromString(this.getString("invoice_id")),
                                     memo = this.getString("memo"),
                                     rhash = this.getString("rhash"),
-                                    settled = this.getTimestamp("settled")?.toLocalDateTime(),
-                                    paymentRequest = this.getString("paymentRequest"),
+                                    settled = this.getTimestamp("invoice_settled")?.toLocalDateTime(),
+                                    paymentRequest = this.getString("payment_req"),
                                     preimage = this.getString("preimage"),
                                     amount = this.getLong("amount")
                                 ) else null,
                                 product = Product(
                                     id = this.getString("product_id").let { UUID.fromString(it) },
                                     name = this.getString("name"),
-                                    price = this.getLong("price")
+                                    price = this.getLong("price"),
+                                    payload = this.getString("payload")
                                 ),
-                                settled = this.getTimestamp("order_settled").toLocalDateTime()
+                                settled = this.getTimestamp("order_settled")?.toLocalDateTime()
                             )
                         }
                 }
@@ -119,7 +120,8 @@ class OrderService(
                         product = Product(
                             id = UUID.fromString(this.getString("p.id")),
                             name = this.getString("name"),
-                            price = this.getLong("price")
+                            price = this.getLong("price"),
+                            payload = this.getString("payload")
                         ),
                         settled = this.getTimestamp("o.settled")?.toLocalDateTime()
                     )

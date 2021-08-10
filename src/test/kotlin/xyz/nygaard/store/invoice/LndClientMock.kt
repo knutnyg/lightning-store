@@ -1,29 +1,42 @@
 package xyz.nygaard.lnd
 
 import org.slf4j.LoggerFactory
+import xyz.nygaard.log
 import xyz.nygaard.store.invoice.Invoice
+import xyz.nygaard.util.sha256
 import java.util.*
 
 class LndClientMock : LndApiWrapper {
 
-    val log = LoggerFactory.getLogger("LndClientMock")
+    private val preimage = "1234"
+    private val rhash = preimage.sha256()
+
+    private var _invoice = LndInvoice(
+        id = UUID.randomUUID(),
+        memo = "memo",
+        rhash = rhash,
+        settled = false,
+        paymentRequest = "lnbc5u1pwjefggpp5lcu6le2lt6ttmjvucj4um720pjdh9xe29993383g9r9dwjxadlgsdq523jhxapqf9h8vmmfvdjscqzpgj5cqeemavasg8uqu7ec85k3792q02czxzregkdae5ylqvytgvrcsq4t2spjzrnv3sh8pkckv4y04urwzmzsu9h8kthcvwk3evr4z8ksqkdj8c0"
+    )
+
+    fun markInvoiceAsPaid() {
+        _invoice = _invoice.copy(
+            settled = true,
+            preimage = preimage
+        )
+    }
+
 
     override fun addInvoice(value: Long, memo: String): LndCreatedInvoice {
         log.info("addInvoice returning mock")
         return LndCreatedInvoice(
-            rhash = "/jmv5V9elr3JnMSrzflPDJtymyopSxieKCjK10jdb9E=",
+            rhash = rhash,
             paymentRequest = "lnbc5u1pwjefggpp5lcu6le2lt6ttmjvucj4um720pjdh9xe29993383g9r9dwjxadlgsdq523jhxapqf9h8vmmfvdjscqzpgj5cqeemavasg8uqu7ec85k3792q02czxzregkdae5ylqvytgvrcsq4t2spjzrnv3sh8pkckv4y04urwzmzsu9h8kthcvwk3evr4z8ksqkdj8c0"
         )
     }
 
     override fun lookupInvoice(invoice: Invoice): LndInvoice {
-        return LndInvoice(
-            id = UUID.randomUUID(),
-            memo = "memo",
-            rhash = "/jmv5V9elr3JnMSrzflPDJtymyopSxieKCjK10jdb9E=",
-            settled = true,
-            paymentRequest = "lnbc5u1pwjefggpp5lcu6le2lt6ttmjvucj4um720pjdh9xe29993383g9r9dwjxadlgsdq523jhxapqf9h8vmmfvdjscqzpgj5cqeemavasg8uqu7ec85k3792q02czxzregkdae5ylqvytgvrcsq4t2spjzrnv3sh8pkckv4y04urwzmzsu9h8kthcvwk3evr4z8ksqkdj8c0"
-        )
+        return _invoice
     }
 
     override fun getInfo(): NodeInfo {

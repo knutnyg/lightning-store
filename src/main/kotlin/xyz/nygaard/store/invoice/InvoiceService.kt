@@ -4,6 +4,7 @@ import xyz.nygaard.db.connectionAutoCommit
 import xyz.nygaard.db.toList
 import xyz.nygaard.lnd.LndApiWrapper
 import xyz.nygaard.lnd.LndCreatedInvoice
+import xyz.nygaard.log
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
@@ -114,22 +115,41 @@ class InvoiceService(
 
     private fun updateSettled(invoice: Invoice, preimage: String): LocalDateTime {
         val settled = LocalDateTime.now()
-        dataSource.connectionAutoCommit().use { connection ->
-            connection.prepareStatement(
-                """
+        dataSource.connection.apply { autoCommit = false }.use { connection ->
+            try {
+
+
+                connection.prepareStatement(
+                    """
                 UPDATE invoices
                 SET settled = ?, last_lookup = ?, preimage = ?
                 WHERE id = ? 
             """
-            ).use {
-                it.setTimestamp(1, Timestamp.valueOf(settled))
-                it.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()))
-                it.setString(3, preimage)
-                it.setString(4, invoice.id.toString())
-                it.executeUpdate()
+                ).use {
+                    it.setTimestamp(1, Timestamp.valueOf(settled))
+                    it.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()))
+                    it.setString(3, preimage)
+                    it.setString(4, invoice.id.toString())
+                    it.executeUpdate()
+                }
+
+                connection.prepareStatement("UPDATE orders o SET settled = ? WHERE o.invoice_id = ?").use {
+                    it.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()))
+                    it.setString(2, invoice.id.toString())
+                    it.executeUpdate().run {
+                        if (this > 0) {
+                            log.info("Updated $this orders with settled = true")
+                        }
+                    }
+                    connection.commit()
+                }
+            } catch (e: Exception) {
+                connection.rollback()
+                log.error("Failed to update invoice")
+                throw RuntimeException("")
             }
+            return settled
         }
-        return settled
     }
 
     private fun updateLookup(invoice: Invoice): LocalDateTime {
