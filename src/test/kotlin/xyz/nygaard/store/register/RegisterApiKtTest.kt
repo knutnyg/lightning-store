@@ -15,6 +15,8 @@ import xyz.nygaard.installContentNegotiation
 import xyz.nygaard.lnd.LndClientMock
 import xyz.nygaard.store.auth.installLsatInterceptor
 import xyz.nygaard.store.invoice.InvoiceService
+import xyz.nygaard.store.order.OrderService
+import xyz.nygaard.store.order.ProductService
 import xyz.nygaard.store.user.TokenResponse
 import xyz.nygaard.store.user.TokenService
 import xyz.nygaard.util.sha256
@@ -32,6 +34,8 @@ internal class RegisterApiKtTest {
 
     private val macaroonService = MacaroonService("localhost", "secret")
     private val tokenService = TokenService(embeddedPostgres.postgresDatabase)
+    private val orderService = OrderService(embeddedPostgres.postgresDatabase)
+    private val productService = ProductService(embeddedPostgres.postgresDatabase)
 
     private val preimage = "1234"
     private val rhash = preimage.sha256()
@@ -49,7 +53,7 @@ internal class RegisterApiKtTest {
     fun `fetch user balance`() {
         withTestApplication({
             installContentNegotiation()
-            installLsatInterceptor(invoiceService, macaroonService, tokenService)
+            installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
             routing {
                 registerRegisterApi(invoiceService, tokenService)
             }

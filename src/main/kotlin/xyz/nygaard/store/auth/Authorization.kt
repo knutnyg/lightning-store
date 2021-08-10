@@ -8,20 +8,30 @@ import io.ktor.request.*
 import io.ktor.response.*
 import xyz.nygaard.MacaroonService
 import xyz.nygaard.store.invoice.InvoiceService
+import xyz.nygaard.store.order.OrderService
+import xyz.nygaard.store.order.ProductService
 import xyz.nygaard.store.user.TokenService
 import xyz.nygaard.util.sha256
 import java.util.*
 
-fun Application.installLsatInterceptor(invoiceService: InvoiceService, macaroonService: MacaroonService, tokenService: TokenService) {
+fun Application.installLsatInterceptor(
+    invoiceService: InvoiceService,
+    macaroonService: MacaroonService,
+    tokenService: TokenService,
+    orderService: OrderService,
+    productService: ProductService
+) {
     intercept(ApplicationCallPipeline.Call) {
         if (!call.request.path().contains("/open")) {
             val authHeader = call.request.header("Authorization")
             if (authHeader == null) {
                 log.info("Caller missing authentication")
-                val userId = UUID.randomUUID()
-                val invoice = invoiceService.createInvoice(1, userId.toString())
+                val tokenProduct = productService.getProduct(UUID.fromString("a64d4344-f964-4dfe-99a6-7b39a7eb91c1"))
+                val invoice =
+                    invoiceService.createInvoice(tokenProduct.price, "1x${tokenProduct.name}: ${tokenProduct.id}")
                 val macaroon = macaroonService.createMacaroon(invoice.rhash)
                 tokenService.createToken(macaroon)
+                orderService.placeOrderWithInvoice(invoice, tokenProduct, macaroon)
                 call.response.headers.append(
                     "WWW-Authenticate",
                     "LSAT macaroon=\"${macaroon.serialize()}\", invoice=\"${invoice.paymentRequest}\""

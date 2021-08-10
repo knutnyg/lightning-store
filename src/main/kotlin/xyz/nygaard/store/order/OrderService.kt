@@ -17,12 +17,9 @@ import java.util.*
 import javax.sql.DataSource
 
 class OrderService(
-    private val dataSource: DataSource,
-    private val invoiceService: InvoiceService
+    private val dataSource: DataSource
 ) {
-    fun placeOrderWithInvoice(macaroon: Macaroon, product: Product): Invoice {
-        val invoice = invoiceService.createInvoice(product.price, "1x${product.name}: ${product.id}")
-
+    fun placeOrderWithInvoice(invoice: Invoice, product: Product, macaroon: Macaroon): Invoice {
         dataSource.connectionAutoCommit().use { connection ->
             val id = UUID.randomUUID()
             connection.prepareStatement("INSERT INTO orders(id, token_id, invoice_id, product_id, settled) VALUES(?, ?, ?, ?, null)")

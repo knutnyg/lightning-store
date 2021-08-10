@@ -43,7 +43,7 @@ class Product(
     val id: UUID,
     val name: String,
     val price: Long,
-    val payload: String
+    val payload: String?
 ) {
     fun toDto() = ProductDto(id, name, price, payload)
 }
@@ -52,5 +52,5 @@ data class ProductDto(
     val id: UUID,
     val name: String,
     val price: Long,
-    val payload: String
+    val payload: String?
 )

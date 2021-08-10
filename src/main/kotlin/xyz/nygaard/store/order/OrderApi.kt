@@ -18,9 +18,9 @@ fun Routing.registerOrders(
     productService: ProductService,
     invoiceService: InvoiceService
 ) {
-    put("/orders/invoice/{id}") {
+    post("/orders/invoice/{id}") {
         val authHeader = call.request.header("Authorization")
-            ?: return@put call.respond(HttpStatusCode.Unauthorized)
+            ?: return@post call.respond(HttpStatusCode.Unauthorized)
 
         val productId = UUID.fromString(call.parameters["id"])
 
@@ -28,17 +28,19 @@ fun Routing.registerOrders(
         val authorization = AuthHeader.deserialize(authHeader)
 
         val product = productService.getProduct(productId)
-        return@put call.respond(
+        val invoice = invoiceService.createInvoice(product.price, product.name)
+        return@post call.respond(
             orderService.placeOrderWithInvoice(
                 macaroon = authorization.macaroon,
                 product = product,
+                invoice = invoice
             )
         )
     }
 
-    put("/orders/balance/{id}") {
+    post("/orders/balance/{id}") {
         val authHeader = call.request.header("Authorization")
-            ?: return@put call.respond(HttpStatusCode.Unauthorized)
+            ?: return@post call.respond(HttpStatusCode.Unauthorized)
 
         val productId = UUID.fromString(call.parameters["id"])
 
@@ -48,7 +50,7 @@ fun Routing.registerOrders(
         val token = tokenService.fetchToken(authorization.macaroon) ?: throw IllegalStateException()
         val product = productService.getProduct(productId)
 
-        if (token.balance < product.price) return@put call.respond(HttpStatusCode.BadRequest, "Insufficent balance")
+        if (token.balance < product.price) return@post call.respond(HttpStatusCode.BadRequest, "Insufficent balance")
 
         orderService.placeOrderWithBalance(authorization.macaroon, product)
         call.respond(HttpStatusCode.OK)

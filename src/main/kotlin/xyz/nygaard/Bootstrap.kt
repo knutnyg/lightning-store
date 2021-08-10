@@ -19,6 +19,8 @@ import xyz.nygaard.lnd.LndApiWrapper
 import xyz.nygaard.lnd.LndClient
 import xyz.nygaard.store.auth.installLsatInterceptor
 import xyz.nygaard.store.invoice.InvoiceService
+import xyz.nygaard.store.order.OrderService
+import xyz.nygaard.store.order.ProductService
 import xyz.nygaard.store.register.registerRegisterApi
 import xyz.nygaard.store.user.TokenService
 import java.util.*
@@ -60,6 +62,8 @@ internal fun Application.buildApplication(
     val invoiceService = InvoiceService(dataSource, lndClient)
     val macaroonService = MacaroonService(environment.location, environment.macaroonGeneratorSecret)
     val tokenService = TokenService(dataSource)
+    val orderService = OrderService(dataSource)
+    val productService = ProductService(dataSource)
 
     installContentNegotiation()
     install(XForwardedHeaderSupport)
@@ -78,7 +82,7 @@ internal fun Application.buildApplication(
         log.info("CORS enabled for $hosts")
     }
     install(CallLogging)
-    installLsatInterceptor(invoiceService, macaroonService, tokenService)
+    installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
     routing {
         get("/") {
             call.respondText("Hello, world!")

@@ -39,7 +39,7 @@ class StoreE2ETest {
     private val macaroonService = MacaroonService("localhost", "secret")
     private val tokenService = TokenService(embeddedPostgres.postgresDatabase)
     private val productService = ProductService(embeddedPostgres.postgresDatabase)
-    private val orderService = OrderService(embeddedPostgres.postgresDatabase, invoiceService)
+    private val orderService = OrderService(embeddedPostgres.postgresDatabase)
 
     private val preimage = "1234"
     private val rhash = preimage.sha256()
@@ -57,7 +57,7 @@ class StoreE2ETest {
         embeddedPostgres.postgresDatabase.connection.use {
             it.prepareStatement("DELETE FROM orders;").execute()
             it.prepareStatement("DELETE FROM token;").execute()
-            it.prepareStatement("DELETE FROM invoices").execute()
+            it.prepareStatement("DELETE FROM invoices;").execute()
         }
     }
 
@@ -65,7 +65,7 @@ class StoreE2ETest {
     fun `sign up as new user`() {
         withTestApplication({
             installContentNegotiation()
-            installLsatInterceptor(invoiceService, macaroonService, tokenService)
+            installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
             routing {
                 registerRegisterApi(invoiceService, tokenService)
             }
@@ -80,6 +80,7 @@ class StoreE2ETest {
                 assertEquals(HttpStatusCode.PaymentRequired, response.status())
                 assertNotNull(authHeader.macaroon)
                 assertEquals("LSAT", authHeader.type)
+                assertEquals(1, orderService.getOrders(authHeader.macaroon.extractUserId()).size)
             }
         }
     }
@@ -89,7 +90,7 @@ class StoreE2ETest {
         tokenService.createToken(macaroon, 0)
         withTestApplication({
             installContentNegotiation()
-            installLsatInterceptor(invoiceService, macaroonService, tokenService)
+            installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
             routing {
                 registerRegisterApi(invoiceService, tokenService)
             }
@@ -111,13 +112,13 @@ class StoreE2ETest {
         tokenService.createToken(macaroon, 110)
         withTestApplication({
             installContentNegotiation()
-            installLsatInterceptor(invoiceService, macaroonService, tokenService)
+            installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
             routing {
                 registerOrders(orderService, tokenService, productService, invoiceService)
                 registerProducts(productService)
             }
         }) {
-            with(handleRequest(HttpMethod.Put, "/orders/balance/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
+            with(handleRequest(HttpMethod.Post, "/orders/balance/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
                 addHeader(HttpHeaders.Accept, "application/json")
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
             }) {
@@ -139,14 +140,14 @@ class StoreE2ETest {
         tokenService.createToken(macaroon, 0)
         withTestApplication({
             installContentNegotiation()
-            installLsatInterceptor(invoiceService, macaroonService, tokenService)
+            installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
             routing {
                 registerOrders(orderService, tokenService, productService, invoiceService)
                 registerProducts(productService)
             }
         }) {
             var invoiceId: UUID? = null
-            with(handleRequest(HttpMethod.Put, "/orders/invoice/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
+            with(handleRequest(HttpMethod.Post, "/orders/invoice/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
                 addHeader(HttpHeaders.Accept, "application/json")
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
             }) {
@@ -190,13 +191,13 @@ class StoreE2ETest {
         tokenService.createToken(macaroon, 0)
         withTestApplication({
             installContentNegotiation()
-            installLsatInterceptor(invoiceService, macaroonService, tokenService)
+            installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
             routing {
                 registerOrders(orderService, tokenService, productService, invoiceService)
                 registerProducts(productService)
             }
         }) {
-            with(handleRequest(HttpMethod.Put, "/orders/balance/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
+            with(handleRequest(HttpMethod.Post, "/orders/balance/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
                 addHeader(HttpHeaders.Accept, "application/json")
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
             }) {
