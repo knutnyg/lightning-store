@@ -159,4 +159,16 @@ data class Invoice(
     val paymentRequest: String,
     val preimage: String? = null,
     val amount: Long
+) {
+    fun toDto() = InvoiceDto(id, memo, rhash, settled, paymentRequest, preimage, amount)
+}
+
+data class InvoiceDto(
+    val id: UUID? = null,
+    val memo: String? = null,
+    val rhash: String,
+    val settled: LocalDateTime? = null,
+    val paymentRequest: String,
+    val preimage: String? = null,
+    val amount: Long
 )

@@ -41,16 +41,6 @@ internal class TokenServiceTest {
     }
 
     @Test
-    fun `decrement balance`() {
-        val macaroon = macaroonService.createMacaroon("rhash")
-        tokenService.createToken(macaroon, balance = 1000)
-        tokenService.decreaseBalance(macaroon, 100)
-
-        val token = requireNotNull(tokenService.fetchToken(macaroon))
-        assertEquals(900, token.balance)
-    }
-
-    @Test
     fun `increase balance`() {
         val macaroon = macaroonService.createMacaroon("rhash")
         tokenService.createToken(macaroon)
@@ -58,12 +48,5 @@ internal class TokenServiceTest {
 
         val token = requireNotNull(tokenService.fetchToken(macaroon))
         assertEquals(100, token.balance)
-    }
-
-    @Test
-    fun `decrease balance below 0`() {
-        val macaroon = macaroonService.createMacaroon("rhash")
-        tokenService.createToken(macaroon, balance = 0)
-        assertThrows<IllegalArgumentException> { tokenService.decreaseBalance(macaroon, 100) }
     }
 }

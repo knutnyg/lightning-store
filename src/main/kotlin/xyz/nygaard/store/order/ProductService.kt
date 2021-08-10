@@ -24,7 +24,15 @@ class ProductService(val dataSource: DataSource) {
     }
 }
 
-data class Product(
+class Product(
+    val id: UUID,
+    val name: String,
+    val price: Long
+) {
+    fun toDto() = ProductDto(id, name, price)
+}
+
+data class ProductDto(
     val id: UUID,
     val name: String,
     val price: Long

@@ -10,6 +10,7 @@ import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 import xyz.nygaard.MacaroonService
+import xyz.nygaard.extractUserId
 import xyz.nygaard.installContentNegotiation
 import xyz.nygaard.lnd.LndClientMock
 import xyz.nygaard.store.AuthChallengeHeader
@@ -39,7 +40,7 @@ class StoreE2ETest {
     private val macaroonService = MacaroonService("localhost", "secret")
     private val tokenService = TokenService(embeddedPostgres.postgresDatabase)
     private val productService = ProductService(embeddedPostgres.postgresDatabase)
-    private val orderService = OrderService(embeddedPostgres.postgresDatabase, invoiceService, productService)
+    private val orderService = OrderService(embeddedPostgres.postgresDatabase, invoiceService)
 
     private val preimage = "1234"
     private val rhash = preimage.sha256()
@@ -106,23 +107,22 @@ class StoreE2ETest {
     }
 
     @Test
-    fun `top off balance`() {
-        tokenService.createToken(macaroon, 0)
+    fun `purchase blogpost with balance`() {
+        tokenService.createToken(macaroon, 110)
         withTestApplication({
             installContentNegotiation()
             installLsatInterceptor(invoiceService, macaroonService, tokenService)
             routing {
-                registerRegisterApi(invoiceService, tokenService)
-                registerOrders(orderService)
+                registerOrders(orderService, tokenService, productService, invoiceService)
             }
         }) {
-            with(handleRequest(HttpMethod.Put, "/orders/5c3ae6cf-1ecc-4ae4-ba86-60e66ef2625b") {
+            with(handleRequest(HttpMethod.Put, "/orders/balance/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
                 addHeader(HttpHeaders.Accept, "application/json")
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
             }) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                val response = mapper.readValue(response.content, Invoice::class.java)
-                assertEquals(100, response.amount)
+                assertEquals(10L, tokenService.fetchToken(macaroon)?.balance)
+                assertEquals(1, orderService.getOrders(macaroon.extractUserId()).size)
             }
         }
     }

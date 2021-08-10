@@ -12,13 +12,13 @@ import javax.sql.DataSource
 
 
 class TokenService(val dataSource: DataSource) {
-    fun createToken(macaroon: Macaroon, balance: Int = 0): Int {
+    fun createToken(macaroon: Macaroon, balance: Long = 0L): Int {
         dataSource.connectionAutoCommit().use { connection ->
             return connection.prepareStatement("INSERT INTO token(id, macaroon, balance, revoked) VALUES (?, ?, ?, false)")
                 .use {
                     it.setString(1, macaroon.extractUserId().toString())
                     it.setString(2, macaroon.serialize())
-                    it.setInt(3, balance)
+                    it.setLong(3, balance)
                     it.executeUpdate()
                 }
         }
@@ -33,7 +33,7 @@ class TokenService(val dataSource: DataSource) {
                         .toList {
                             Token(
                                 macaroon = MacaroonsBuilder.deserialize(getString("macaroon")),
-                                balance = getInt("balance"),
+                                balance = getLong("balance"),
                                 revoked = getBoolean("revoked")
                             )
                         }.firstOrNull()
@@ -43,26 +43,12 @@ class TokenService(val dataSource: DataSource) {
 
     fun fetchToken(macaroon: Macaroon) = fetchToken(macaroon.extractUserId())
 
-    fun increaseBalance(macaroon: Macaroon, numberOfSatoshis: Int) {
+    fun increaseBalance(macaroon: Macaroon, numberOfSatoshis: Long) {
         fetchToken(macaroon)?.let { token ->
             dataSource.connectionAutoCommit().use { connection ->
                 connection.prepareStatement("UPDATE token SET balance = ? WHERE id = ?")
                     .use {
-                        it.setInt(1, token.balance + numberOfSatoshis)
-                        it.setString(2, token.id.toString())
-                        it.executeUpdate()
-                    }
-            }
-        } ?: throw NotFoundException("token not found")
-    }
-
-    fun decreaseBalance(macaroon: Macaroon, numberOfSatoshis: Int) {
-        fetchToken(macaroon)?.let { token ->
-            if (token.balance < numberOfSatoshis) throw IllegalArgumentException("Attempting to decrease balance < 0")
-            dataSource.connectionAutoCommit().use { connection ->
-                connection.prepareStatement("UPDATE token SET balance = ? WHERE id = ?")
-                    .use {
-                        it.setInt(1, token.balance - numberOfSatoshis)
+                        it.setLong(1, token.balance + numberOfSatoshis)
                         it.setString(2, token.id.toString())
                         it.executeUpdate()
                     }
