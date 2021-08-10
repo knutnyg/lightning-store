@@ -1,7 +1,9 @@
 package xyz.nygaard.store.invoice
 
+import com.github.nitram509.jmacaroons.Macaroon
 import xyz.nygaard.db.connectionAutoCommit
 import xyz.nygaard.db.toList
+import xyz.nygaard.extractUserId
 import xyz.nygaard.lnd.LndApiWrapper
 import xyz.nygaard.lnd.LndCreatedInvoice
 import xyz.nygaard.log
@@ -14,11 +16,12 @@ class InvoiceService(
     private val dataSource: DataSource,
     private val lndClient: LndApiWrapper
 ) {
-    internal fun getInvoice(uuid: UUID): Invoice? {
+    internal fun getInvoice(uuid: UUID, macaroon: Macaroon): Invoice? {
         return dataSource.connectionAutoCommit().use { connection ->
-            connection.prepareStatement("SELECT * FROM INVOICES WHERE ID = ?")
+            connection.prepareStatement("SELECT * FROM INVOICES i INNER JOIN orders o on i.id = o.invoice_id WHERE i.id = ? AND o.token_id = ?")
                 .use {
                     it.setString(1, uuid.toString())
+                    it.setString(2, macaroon.extractUserId().toString())
                     it.executeQuery()
                         .toList {
                             Invoice(
@@ -35,7 +38,7 @@ class InvoiceService(
         }
     }
 
-    internal fun getInvoice(rhash: String): Invoice? {
+    private fun getInvoice(rhash: String): Invoice? {
         return dataSource.connectionAutoCommit().use { connection ->
             connection.prepareStatement("SELECT * FROM INVOICES WHERE rhash = ?")
                 .use {
@@ -56,8 +59,8 @@ class InvoiceService(
         }
     }
 
-    fun lookupAndUpdate(uuid: UUID): Invoice? {
-        return getInvoice(uuid)?.let { lookupAndUpdate(it) }
+    fun lookupAndUpdate(invoiceId: UUID, macaroon: Macaroon): Invoice? {
+        return getInvoice(invoiceId, macaroon)?.let { lookupAndUpdate(it) }
     }
 
     fun lookupAndUpdate(rhash: String): Invoice? {
@@ -68,6 +71,7 @@ class InvoiceService(
         val updatedLndInvoice = lndClient.lookupInvoice(invoice)
 
         return if (updatedLndInvoice.settled && invoice.settled == null) {
+            // We have an invoice that has been settled and need to do side effect
             val settledTimestamp = updateSettled(invoice, updatedLndInvoice.preimage!!)
             invoice.copy(settled = settledTimestamp, id = invoice.id, preimage = updatedLndInvoice.preimage)
         } else {
@@ -117,8 +121,6 @@ class InvoiceService(
         val settled = LocalDateTime.now()
         dataSource.connection.apply { autoCommit = false }.use { connection ->
             try {
-
-
                 connection.prepareStatement(
                     """
                 UPDATE invoices

@@ -6,7 +6,6 @@ import io.ktor.http.*
 import io.ktor.routing.*
 import io.ktor.server.testing.*
 import org.flywaydb.core.Flyway
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -14,7 +13,7 @@ import org.junit.jupiter.api.TestInstance
 import xyz.nygaard.MacaroonService
 import xyz.nygaard.installContentNegotiation
 import xyz.nygaard.lnd.LndClientMock
-import xyz.nygaard.store.installLsatInterceptor
+import xyz.nygaard.store.auth.installLsatInterceptor
 import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.user.TokenResponse
 import xyz.nygaard.store.user.TokenService

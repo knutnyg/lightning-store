@@ -7,7 +7,7 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import xyz.nygaard.extractUserId
 import xyz.nygaard.log
-import xyz.nygaard.store.AuthHeader
+import xyz.nygaard.store.auth.AuthHeader
 import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.user.TokenService
 import java.util.*
@@ -15,7 +15,8 @@ import java.util.*
 fun Routing.registerOrders(
     orderService: OrderService,
     tokenService: TokenService,
-    productService: ProductService
+    productService: ProductService,
+    invoiceService: InvoiceService
 ) {
     put("/orders/invoice/{id}") {
         val authHeader = call.request.header("Authorization")
@@ -71,5 +72,23 @@ fun Routing.registerOrders(
 
         val authorization = AuthHeader.deserialize(authHeader)
         orderService.getOrder(authorization.macaroon.extractUserId(), orderId)
+    }
+
+    get("/invoices/{uuid}") {
+        val invoiceUUID =
+            call.parameters["uuid"].let { UUID.fromString(it) } ?: throw RuntimeException("Missing invoice uuid")
+        val authHeader = call.request.header("Authorization")
+            ?: return@get call.respond(HttpStatusCode.Unauthorized)
+
+        val authorization = AuthHeader.deserialize(authHeader)
+        log.info("Lookup on invoice: $invoiceUUID")
+
+        val invoice = invoiceService.lookupAndUpdate(invoiceUUID, authorization.macaroon)
+
+        if (invoice != null) {
+            call.respond(invoice)
+        } else {
+            call.respond(HttpStatusCode.NotFound)
+        }
     }
 }

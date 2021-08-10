@@ -3,7 +3,6 @@ package xyz.nygaard.store.e2e
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import io.ktor.http.*
-import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.testing.*
 import org.flywaydb.core.Flyway
@@ -13,11 +12,10 @@ import xyz.nygaard.MacaroonService
 import xyz.nygaard.extractUserId
 import xyz.nygaard.installContentNegotiation
 import xyz.nygaard.lnd.LndClientMock
-import xyz.nygaard.store.AuthChallengeHeader
-import xyz.nygaard.store.installLsatInterceptor
+import xyz.nygaard.store.auth.AuthChallengeHeader
+import xyz.nygaard.store.auth.installLsatInterceptor
 import xyz.nygaard.store.invoice.InvoiceDto
 import xyz.nygaard.store.invoice.InvoiceService
-import xyz.nygaard.store.invoice.registerInvoiceApi
 import xyz.nygaard.store.order.*
 import xyz.nygaard.store.register.registerRegisterApi
 import xyz.nygaard.store.user.TokenResponse
@@ -115,7 +113,7 @@ class StoreE2ETest {
             installContentNegotiation()
             installLsatInterceptor(invoiceService, macaroonService, tokenService)
             routing {
-                registerOrders(orderService, tokenService, productService)
+                registerOrders(orderService, tokenService, productService, invoiceService)
                 registerProducts(productService)
             }
         }) {
@@ -143,9 +141,8 @@ class StoreE2ETest {
             installContentNegotiation()
             installLsatInterceptor(invoiceService, macaroonService, tokenService)
             routing {
-                registerOrders(orderService, tokenService, productService)
+                registerOrders(orderService, tokenService, productService, invoiceService)
                 registerProducts(productService)
-                registerInvoiceApi(invoiceService)
             }
         }) {
             var invoiceId: UUID? = null
@@ -195,7 +192,7 @@ class StoreE2ETest {
             installContentNegotiation()
             installLsatInterceptor(invoiceService, macaroonService, tokenService)
             routing {
-                registerOrders(orderService, tokenService, productService)
+                registerOrders(orderService, tokenService, productService, invoiceService)
                 registerProducts(productService)
             }
         }) {

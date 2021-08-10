@@ -6,7 +6,7 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import xyz.nygaard.extractUserId
-import xyz.nygaard.store.AuthHeader
+import xyz.nygaard.store.auth.AuthHeader
 import java.util.*
 
 fun Routing.registerProducts(productService: ProductService) {

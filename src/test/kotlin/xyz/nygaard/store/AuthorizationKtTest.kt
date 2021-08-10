@@ -2,6 +2,7 @@ package xyz.nygaard.store
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import xyz.nygaard.store.auth.AuthChallengeHeader
 
 internal class AuthorizationKtTest {
 

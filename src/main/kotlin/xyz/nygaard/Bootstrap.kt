@@ -3,13 +3,10 @@ package xyz.nygaard
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.github.nitram509.jmacaroons.Macaroon
-import com.github.nitram509.jmacaroons.MacaroonsBuilder
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.jackson.*
-import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
@@ -20,14 +17,10 @@ import org.slf4j.LoggerFactory
 import xyz.nygaard.db.Database
 import xyz.nygaard.lnd.LndApiWrapper
 import xyz.nygaard.lnd.LndClient
-import xyz.nygaard.store.AuthHeader
-import xyz.nygaard.store.installLsatInterceptor
+import xyz.nygaard.store.auth.installLsatInterceptor
 import xyz.nygaard.store.invoice.InvoiceService
-import xyz.nygaard.store.invoice.registerInvoiceApi
 import xyz.nygaard.store.register.registerRegisterApi
 import xyz.nygaard.store.user.TokenService
-import xyz.nygaard.util.sha256
-import java.lang.RuntimeException
 import java.util.*
 import javax.sql.DataSource
 import javax.xml.bind.DatatypeConverter
@@ -91,7 +84,6 @@ internal fun Application.buildApplication(
             call.respondText("Hello, world!")
         }
         registerSelftestApi(lndClient)
-        registerInvoiceApi(invoiceService)
         registerRegisterApi(invoiceService, tokenService)
     }
 }

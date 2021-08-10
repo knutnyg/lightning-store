@@ -7,10 +7,9 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import xyz.nygaard.extractRHash
 import xyz.nygaard.log
-import xyz.nygaard.store.AuthHeader
+import xyz.nygaard.store.auth.AuthHeader
 import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.user.TokenService
-import java.util.*
 
 fun Routing.registerRegisterApi(
     invoiceService: InvoiceService,

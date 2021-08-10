@@ -1,4 +1,4 @@
-package xyz.nygaard.store
+package xyz.nygaard.store.auth
 
 import com.github.nitram509.jmacaroons.Macaroon
 import com.github.nitram509.jmacaroons.MacaroonsBuilder
@@ -51,8 +51,6 @@ fun Application.installLsatInterceptor(invoiceService: InvoiceService, macaroonS
                 call.respond(HttpStatusCode.BadRequest, "Preimage does not correspond to payment hash")
                 return@intercept finish()
             }
-            // Truncate the route response. If there is no finish() function,
-            // the route /book will still respond to the processing, and the pipeline will be unwritable.
             return@intercept proceed()
         }
         return@intercept proceed()
