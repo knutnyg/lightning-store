@@ -81,6 +81,7 @@ export const LSATView = () => {
             })
         }}>Aquire a token
         </button>}
+        {localStorage.getItem("macaroon") && <button onClick={() => {localStorage.removeItem("macaroon"); localStorage.removeItem("preimage"); setInvoice(undefined)}}>Reset login</button>}
         {localStorage.getItem("macaroon") && !localStorage.getItem("preimage") && !inRegister &&
         <button onClick={() => {
             updateTokenInvoice()
