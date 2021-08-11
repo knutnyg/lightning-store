@@ -116,3 +116,7 @@ textarea {
     height: 40px;
     resize: none;
 }
+
+.blog {
+    margin-bottom: 50px;
+}

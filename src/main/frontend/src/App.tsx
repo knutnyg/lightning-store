@@ -120,18 +120,18 @@ export const PaywallView = () => {
             .then(invoice => setInvoice(invoice))
     }
 
-    return <div>
+    return <div className="blog">
         <h2>Introducing paywalled content</h2>
         <p>Tired of finding articles behind paywalls requiring a monthly subscription on a news site you visit once a
             year? To read the rest of this article you need to buy it, however in the world of micropayments that does
-            not need to be a cumbersome experience. Simply scan the QR-code and pay 50 satoshis for access</p>
-        {blog && <div dangerouslySetInnerHTML={{__html: blog.payload}}/>}
+            not need to be a cumbersome experience. Simply scan the QR-code and pay the invoice for access</p>
         {!blog && <button onClick={createOrder}>Hit me</button>}
         {invoice &&
         <div className={"invoice-view"}>
             <QRCode value={invoice.paymentRequest}/>
             <p>Please scan QR code with your phone</p>
         </div>}
+        {blog && <div dangerouslySetInnerHTML={{__html: blog.payload}}/>}
 
 
     </div>
