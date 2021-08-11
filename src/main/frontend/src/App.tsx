@@ -1,8 +1,12 @@
 import './App.css';
-import {DonateView} from "./invoice/Invoice";
 import {LSATView} from './Register';
 import {updateUser, useUser} from "./hooks/useUser";
 import useInterval from "./hooks/useInterval";
+import {
+    BrowserRouter as Router,
+    Switch,
+    Route
+} from "react-router-dom";
 
 
 // export const baseUrl = "http://localhost:8081"
@@ -15,6 +19,21 @@ function App() {
             .then(_user => setUser(_user))
     }, 3000)
 
+    const about = () => {
+        return <div>
+            <p>This site is a project for me to learn my way around programming for the lightning network and all
+                the possibilities it brings to web 3.0. I will attempt to explore concepts and techniques that
+                micropayments bring to the table.</p>
+            <p>The lightning network is a global decentralized payment network leveraging the bitcoin block chain.
+                Trading some of the features (like offline wallets) for benefits like massively scalable and near
+                free instant transactions. This could pave the way for a brave new web 3.0 where micropayments
+                replace advertisements and sale of your personal data as the main way to fund a service or a web
+                site.</p>
+            <p>To navigate this site, you need your own lightning wallet. There are many alternatives, but as a
+                quick-start I suggest the custodian wallet BlueWallet.</p>
+        </div>
+    }
+
     return (
         <div className="main">
             <header>
@@ -23,19 +42,15 @@ function App() {
                 {!user && <span className="user">Not logged in</span>}
             </header>
             <div className="content">
-                <p>This site is a project for me to learn my way around programming for the lightning network and all
-                    the possibilities it brings to web 3.0. I will attempt to explore concepts and techniques that
-                    micropayments bring to the table.</p>
-                <p>The lightning network is a global decentralized payment network leveraging the bitcoin block chain.
-                    Trading some of the features (like offline wallets) for benefits like massively scalable and near
-                    free instant transactions. This could pave the way for a brave new web 3.0 where micropayments
-                    replace advertisements and sale of your personal data as the main way to fund a service or a web
-                    site.</p>
-                <p>To navigate this site, you need your own lightning wallet. There are many alternatives, but as a
-                    quick-start I suggest the custodian wallet BlueWallet.</p>
-
-                <LSATView/>
-                <DonateView/>
+                <Router>
+                    <Switch>
+                        <Route path="/lsat"><LSATView/></Route>
+                        <Route path="/blog"><h1>Blog</h1></Route>
+                        {/*<Route path="/about">{about()}</Route>*/}
+                        {/*<Route path="/about">{about()}</Route>*/}
+                        <Route path="/">{about()}</Route>
+                    </Switch>
+                </Router>
                 <footer>
                     <span>I would love suggestions to what more I could add to my store! Take a look at the code on <a
                         href={"https://github.com/knutnyg/lightning-store/"}>github</a>.</span>
@@ -47,3 +62,4 @@ function App() {
 }
 
 export default App;
+
