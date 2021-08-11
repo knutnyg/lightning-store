@@ -54,6 +54,7 @@ header .user {
 footer {
     font-size: 1rem;
     padding-bottom: 40px;
+    text-align: center;
 }
 
 footer a {
