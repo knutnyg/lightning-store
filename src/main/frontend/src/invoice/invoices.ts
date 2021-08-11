@@ -1,6 +1,6 @@
 import {baseUrl} from "../App";
 
-interface InvoiceRaw {
+export interface InvoiceRaw {
     id: string
     paymentRequest: string,
     settled: string,
@@ -12,11 +12,12 @@ export interface Invoice extends InvoiceRaw {
 }
 
 export const updateInvoice = (invoice: Invoice): Promise<Invoice> => {
-    return fetch(`https://store-api.nygaard.xyz/invoices/${invoice.id}`, {
+    return fetch(`${baseUrl}/invoices/${invoice.id}`, {
         method: 'GET',
         headers: {
             'Access-Control-Allow-Origin': '*',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'Authorization': `LSAT ${localStorage.getItem('macaroon')}:${localStorage.getItem("preimage")}`
         },
     })
         .then(response => (response.json() as Promise<InvoiceRaw>))

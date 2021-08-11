@@ -21,6 +21,8 @@ import xyz.nygaard.store.auth.installLsatInterceptor
 import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.order.OrderService
 import xyz.nygaard.store.order.ProductService
+import xyz.nygaard.store.order.registerOrders
+import xyz.nygaard.store.order.registerProducts
 import xyz.nygaard.store.register.registerRegisterApi
 import xyz.nygaard.store.user.TokenService
 import java.util.*
@@ -89,6 +91,8 @@ internal fun Application.buildApplication(
         }
         registerSelftestApi(lndClient)
         registerRegisterApi(invoiceService, tokenService)
+        registerProducts(productService)
+        registerOrders(orderService, tokenService, productService, invoiceService)
     }
 }
 

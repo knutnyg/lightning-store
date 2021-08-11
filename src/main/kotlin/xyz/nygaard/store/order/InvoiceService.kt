@@ -16,7 +16,7 @@ class InvoiceService(
     private val dataSource: DataSource,
     private val lndClient: LndApiWrapper
 ) {
-    internal fun getInvoice(uuid: UUID, macaroon: Macaroon): Invoice? {
+    private fun getInvoice(uuid: UUID, macaroon: Macaroon): Invoice? {
         return dataSource.connectionAutoCommit().use { connection ->
             connection.prepareStatement("SELECT * FROM INVOICES i INNER JOIN orders o on i.id = o.invoice_id WHERE i.id = ? AND o.token_id = ?")
                 .use {

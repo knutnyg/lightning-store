@@ -4,6 +4,7 @@ import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import org.flywaydb.core.Flyway
+import xyz.nygaard.db.Database
 import java.io.FileInputStream
 import java.util.*
 
@@ -19,17 +20,21 @@ fun main() {
             invoiceMacaroon = props.getProperty("invoice_macaroon"),
             cert = props.getProperty("tls_cert"),
             databaseName = "",
-            databaseUsername = "",
+            databaseUsername = "postgres",
             databasePassword = "",
-            macaroonGeneratorSecret = props.getProperty("LS_MACAROON_SECRET"),
+            macaroonGeneratorSecret = props.getProperty("ls_macaroon_secret"),
             location = "localhost"
         )
 
-        val embeddedPostgres = EmbeddedPostgres.builder().setPort(5532).start()
+        val database = Database(
+            "jdbc:postgresql://localhost:5432/${environment.databaseName}",
+            environment.databaseUsername,
+            environment.databasePassword
+        )
 
         Flyway.configure().run {
-            dataSource(embeddedPostgres.postgresDatabase).load().migrate()
+            dataSource(database.dataSource).load().migrate()
         }
-        buildApplication(environment, embeddedPostgres.postgresDatabase)
+        buildApplication(environment, database.dataSource)
     }.start(wait = true)
 }
