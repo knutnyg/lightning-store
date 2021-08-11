@@ -57,9 +57,13 @@ footer {
     text-align: center;
 }
 
-footer a {
+a {
     color: #76fd59;
     text-decoration: none;
+}
+
+li {
+    list-style-type: none;
 }
 
 footer span {

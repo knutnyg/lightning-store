@@ -5,8 +5,10 @@ import useInterval from "./hooks/useInterval";
 import {
     BrowserRouter as Router,
     Switch,
-    Route
+    Route,
+    Link
 } from "react-router-dom";
+import {Invoice} from "./invoice/invoices";
 
 
 // export const baseUrl = "http://localhost:8081"
@@ -30,7 +32,7 @@ function App() {
                 <Router>
                     <Switch>
                         <Route path="/lsat"><LSATView/></Route>
-                        <Route path="/blog"><h1>Blog</h1></Route>
+                        <Route path="/blog-paywall"><PaywallView/></Route>
                         <Route path="/bitcoin-network"><h1>Bitcoin Network</h1></Route>
                         <Route path="/lightning-network"><h1>Lightning Network</h1>
                             <p>The lightning network is a global
@@ -48,10 +50,26 @@ function App() {
                                 the possibilities it brings to web 3.0. I will attempt to explore concepts and
                                 techniques that
                                 micropayments bring to the table.</p>
+                            <p>To navigate this site you need to have lightning enabled bitcoin wallet and authenticate
+                                yourself through paying a lightning invoice. Read more and authenticate yourself in
+                                the <Link to="./LSAT">LSAT section</Link></p>
+                            <h2>Table of content:</h2>
+                            <h3>Concepts</h3>
+                            <ul>
+                                <li><Link to="./bitcoin-network">Bitcoin Network</Link></li>
+                                <li><Link to="./lightning-network">Lightning Network</Link></li>
+                                <li><Link to="./lsat">LSAT</Link></li>
+                            </ul>
+                            <h3>Techniques</h3>
+                            <ul>
+                                <li><Link to="./blog-paywall">Paywalling content</Link></li>
+                            </ul>
                         </Route>
                     </Switch>
+                    <Link to="./">Back</Link>
                 </Router>
             </div>
+
             <footer>
                     <span>I would love suggestions to what more I could add to my store! Take a look at the code on <a
                         href={"https://github.com/knutnyg/lightning-store/"}>github</a>. </span>
@@ -59,6 +77,37 @@ function App() {
             </footer>
         </div>
     );
+}
+
+export const PaywallView = () => {
+    const fetchArticle = () => {
+
+    }
+    const rest = "<p>Rest</p>"
+    return <div>
+        <h2>Introducing paywalled content</h2>
+        <p>Tired of finding articles behind paywalls requiring a monthly subscription on a news site you visit once a
+            year? To read the rest of this article you need to buy it, however in the world of micropayments that does
+            not need to be a cumbersome experience. Simply scan the QR-code and pay 50 satoshis for access</p>
+        <div dangerouslySetInnerHTML={ {__html: rest} } />
+    </div>
+}
+
+interface Blog {
+    content: string
+}
+
+export const fetchProduct = (id: string): Promise<Response> => {
+    return fetch(`${baseUrl}/products/${id}`, {
+        method: 'GET',
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Accept': 'application/json',
+            'Authorization': `LSAT ${localStorage.getItem('macaroon')}:${localStorage.getItem("preimage")}`
+        },
+    })
+        .then(res => { return res.status === 402 ? res.json() as Promise<Blog> : res.json() as Promise<Invoice> } )
+        .catch(err => { console.log("err"); throw err })
 }
 
 export default App;

@@ -21,9 +21,6 @@ export const updateTokenInvoice = (): Promise<Invoice> => {
         },
     })
         .then(response => (response.json() as Promise<Invoice>))
-        .then((raw) => {
-            return raw
-        })
         .catch(err => {
             console.log(err)
             return Promise.reject()
