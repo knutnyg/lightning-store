@@ -16,15 +16,16 @@ export const Home = (props: PageProps) => {
         <p>To navigate this site you need to have a lightning enabled bitcoin wallet on your phone or computer. I
             recommend <a href="https://bluewallet.io">BlueWallet</a> to get started.</p>
 
-        <p>First of lets get you an account. Not a normal boring account. We live in the future and use <Link
-            to="/s/lsat">LSATs</Link>.</p>
+        <p>First of lets get you an account. Not a normal boring account. We live in the future and use a new technique
+            named <Link
+                to="/s/lsat">LSAT</Link>.</p>
+
+        <Link to="/s/lsat">Sign up here️</Link>
 
         <p>All my code is freely available at <a
             href={"https://github.com/knutnyg/lightning-store/"}>github</a> and my <a
             href={"https://1ml.com/node/020deb273bd81cd6771ec3397403f2e74a3c22f8f4c052321c30e5c612cf538328"}>lightning
             node</a> is public and would love new connections! 🤝🤠</p>
-
-        <Link to="/s/lsat">Sign up here️</Link>
 
 
         {/*<h2>Table of content:</h2>*/}
