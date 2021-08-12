@@ -16,7 +16,7 @@ export interface InvoiceViewProps {
 export const InvoiceView = (props: InvoiceViewProps) => {
     return <div className={"invoice-view"}>
         <QRCode value={props.paymentReq}/>
-        <p>Please scan QR code with your phone</p>
+        <p>Please scan QR code with your lightning wallet or <button onClick={() => navigator.clipboard.writeText(props.paymentReq)}>copy to clipboard</button></p>
     </div>
 }
 

@@ -1,59 +1,45 @@
-html {
-    height: 100%;
-}
-
-body {
-    height: 100%;
-    overflow: hidden; /* makes the body non-scrollable (we will add scrolling to the sidebar and main content containers) */
-    display: flex; /* enables flex content for its children */
-    margin: 0; /* removes default style */
-    box-sizing: border-box;
-}
-
-header {
-    display: flex;
-    width: 100%;
-    flex-direction: row;
-    align-items: center;
-}
-
-header h1 {
-    margin: 0;
-    margin-right: auto;
-    margin-left: 2rem;
-    order: 0;
-    flex-grow: 1;
-}
-
-header .user {
-    margin-right: 2rem;
-    padding-right: 40px;
-    order: 1;
-}
 
 .main {
     font-size: 1.5rem;
     color: white;
     background-color: #282c34;
-    height: 100%;  /* allows both columns to span the full height of the browser window */
+    height: 100%;
     display: flex;
     flex-direction: column;
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+}
+
+header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-grow: 0;
+}
+
+header .user {
+    margin-right: 2rem;
 }
 
 .content {
     justify-content: left;
     font-size: 1.5rem;
     color: white;
-    margin-left: 10%;
-    padding-right: 10%;
+    margin-left: 1.5rem;
+    padding-right: 1.5rem;
     flex-grow: 1;  /* ensures that the container will take up the full height of the parent container */
     overflow-y: auto;  /* adds scroll to this container */
+    padding-bottom: 3rem;
 }
 
 
 footer {
+    flex-grow: 0;
     font-size: 1rem;
-    padding-bottom: 40px;
+    margin-bottom: 0.5rem;
     text-align: center;
 }
 
@@ -64,6 +50,20 @@ a {
 
 li {
     list-style-type: none;
+}
+
+h1 {
+    margin: 0;
+    margin-right: auto;
+    margin-left: 1.5rem;
+    flex-grow: 1;
+    font-size: 2rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    margin-top: 0;
 }
 
 footer span {

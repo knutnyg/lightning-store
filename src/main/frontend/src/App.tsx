@@ -12,7 +12,6 @@ import {PaywallView} from "./pages/Blog";
 
 
 // export const baseUrl = "http://localhost:8081"
-
 export const baseUrl = "https://store-api.nygaard.xyz"
 
 function App() {
@@ -21,13 +20,14 @@ function App() {
         if (!user) {
             updateUser()
                 .then(_user => setUser(_user))
+                .catch(err => console.log(err))
         }
     }, 3000)
 
     return (
         <div className="main">
             <header>
-                <h1>Store</h1>
+                <h1>Lightning blog ⚡️</h1>
                 {user && <span className="user">Balance: ${user?.balance}</span>}
                 {!user && <span className="user">Not logged in</span>}
             </header>
