@@ -72,7 +72,7 @@ function App() {
                 <footer>
                     <span>Take a look at the code on <a
                         href={"https://github.com/knutnyg/lightning-store/"}>github</a>. </span>
-                    <span>Connect to my lightning node: 020deb273bd81cd6771ec3397403f2e74a3c22f8f4c052321c30e5c612cf538328@84.214.74.65:9735</span>
+                    <span>Connect to my <a href={"https://1ml.com/node/020deb273bd81cd6771ec3397403f2e74a3c22f8f4c052321c30e5c612cf538328"}>lightning node</a></span>
                 </footer>
             </div>
 
