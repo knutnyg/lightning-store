@@ -34,10 +34,10 @@ function App() {
             <div className="content">
                 <Router>
                     <Switch>
-                        <Route path="/lsat"><LSATView/></Route>
-                        <Route path="/blog-paywall"><PaywallView/></Route>
-                        <Route path="/bitcoin-network"><h1>Bitcoin Network</h1></Route>
-                        <Route path="/lightning-network"><h1>Lightning Network</h1>
+                        <Route path="/s/lsat"><LSATView/></Route>
+                        <Route path="/s/blog-paywall"><PaywallView/></Route>
+                        <Route path="/s/bitcoin-network"><h1>Bitcoin Network</h1></Route>
+                        <Route path="/s/lihtning-network"><h1>Lightning Network</h1>
                             <p>The lightning network is a global
                                 decentralized payment network leveraging the bitcoin block chain.
                                 Trading some of the features (like offline wallets) for benefits like massively scalable
@@ -53,17 +53,17 @@ function App() {
                                 micropayments bring to the table.</p>
                             <p>To navigate this site you need to have lightning enabled bitcoin wallet and authenticate
                                 yourself through paying a lightning invoice. Read more and authenticate yourself in
-                                the <Link to="./LSAT">LSAT section</Link></p>
+                                the <Link to="./s/LSAT">LSAT section</Link></p>
                             <h2>Table of content:</h2>
                             <h3>Concepts</h3>
                             <ul>
-                                <li><Link to="./bitcoin-network">Bitcoin Network</Link></li>
-                                <li><Link to="./lightning-network">Lightning Network</Link></li>
-                                <li><Link to="./lsat">LSAT</Link></li>
+                                <li><Link to="./s/bitcoin-network">Bitcoin Network</Link></li>
+                                <li><Link to="./s/lightning-network">Lightning Network</Link></li>
+                                <li><Link to="./s/lsat">LSAT</Link></li>
                             </ul>
                             <h3>Techniques</h3>
                             <ul>
-                                <li><Link to="./blog-paywall">Paywalling content</Link></li>
+                                <li><Link to="./s/blog-paywall">Paywalling content</Link></li>
                             </ul>
                         </Route>
                     </Switch>
