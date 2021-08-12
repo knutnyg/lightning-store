@@ -9,6 +9,18 @@ type FormData = {
     memo: string;
 };
 
+export interface InvoiceViewProps {
+    paymentReq: string
+}
+
+export const InvoiceView = (props: InvoiceViewProps) => {
+    return <div className={"invoice-view"}>
+        <QRCode value={props.paymentReq}/>
+        <p>Please scan QR code with your phone</p>
+    </div>
+}
+
+
 export const DonateView = () => {
     const [invoice, setInvoice] = useState<Invoice | undefined>(undefined);
     const [showInvoice, setShowInvoice] = useState<Boolean>(false);
