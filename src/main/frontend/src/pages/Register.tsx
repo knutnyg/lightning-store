@@ -4,6 +4,7 @@ import QRCode from "qrcode.react";
 import useInterval from "../hooks/useInterval";
 import {updateUser, useUser} from "../hooks/useUser";
 import {PageProps} from "./Blog";
+import {Link} from "react-router-dom";
 
 interface Invoice {
     id?: string,
@@ -106,6 +107,7 @@ export const LSATView = (props: PageProps) => {
         </div>)}
         {localStorage.getItem("macaroon") && localStorage.getItem("preimage") &&
         <p className="authenticated">Congratulations, you are authenticated 🤝</p>}
+        <Link to="/">Back</Link>
     </div>
 }
 

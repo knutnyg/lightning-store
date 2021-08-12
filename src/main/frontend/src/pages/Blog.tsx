@@ -1,6 +1,5 @@
 import {useEffect, useState} from "react";
-import {Invoice, InvoiceRaw, updateInvoice} from "../invoice/invoices";
-import useInterval from "../hooks/useInterval";
+import {Invoice, InvoiceRaw} from "../invoice/invoices";
 import {baseUrl} from "../App";
 import {InvoiceView} from "../invoice/Invoice";
 

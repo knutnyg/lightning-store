@@ -15,8 +15,9 @@ import {Header} from "./Header";
 import {Home} from './pages/Home';
 
 
-// export const baseUrl = "http://localhost:8081"
-export const baseUrl = "https://store-api.nygaard.xyz"
+export const baseUrl = "http://localhost:8081"
+
+// export const baseUrl = "https://store-api.nygaard.xyz"
 
 function App() {
     const [user, setUser] = useUser()
@@ -45,14 +46,7 @@ function App() {
                         <Route path="/s/lightning-network"><Lightning onChange={newtitle}/></Route>
                         <Route path="/"><Home onChange={newtitle}/></Route>
                     </Switch>
-                    <Link to="/">Back</Link>
                 </Router>
-                <footer>
-                    <span>Take a look at the code on <a
-                        href={"https://github.com/knutnyg/lightning-store/"}>github</a>. </span>
-                    <span>Connect to my <a
-                        href={"https://1ml.com/node/020deb273bd81cd6771ec3397403f2e74a3c22f8f4c052321c30e5c612cf538328"}>lightning node</a></span>
-                </footer>
             </div>
 
         </div>

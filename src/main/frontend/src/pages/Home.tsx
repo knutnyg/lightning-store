@@ -8,24 +8,31 @@ export const Home = (props: PageProps) => {
         props.onChange("Lightning blog ⚡️")
     })
 
-    return <div><p>This site is a project for me to learn my way around programming for the lightning
-        network and all
-        the possibilities it brings to web 3.0. I will attempt to explore concepts and
-        techniques that
-        micropayments bring to the table.</p>
-        <p>To navigate this site you need to have lightning enabled bitcoin wallet and authenticate
-            yourself through paying a lightning invoice. Read more and authenticate yourself in
-            the <Link to="/s/LSAT">LSAT section</Link></p>
-        <h2>Table of content:</h2>
-        <h3>Concepts</h3>
-        <ul>
-            <li><Link to="/s/bitcoin-network">Bitcoin Network</Link></li>
-            <li><Link to="/s/lightning-network">Lightning Network</Link></li>
-            <li><Link to="/s/lsat">LSAT</Link></li>
-        </ul>
-        <h3>Techniques</h3>
-        <ul>
-            <li><Link to="/s/blog-paywall">Paywalling content</Link></li>
-        </ul>
+    return <div>
+        <p>Welcome to my Lightning project! This is a ⚡️ powered site where I experiment with and all
+            the possibilities programmable money brings to the web. My goal is to make an educational and inspiring site
+            explaining and showcasing different concepts and techniques using the Lightning Network.</p>
+
+        <p>To navigate this site you need to have a lightning enabled bitcoin wallet on your phone or computer. I
+            recommend <a href="https://bluewallet.io">BlueWallet</a> to get started.</p>
+
+        <p>First of lets get you an account. Not a normal boring account. We use <Link to="/s/lsat">LSATs</Link>.</p>
+
+        <p>All my code is available at <a
+            href={"https://github.com/knutnyg/lightning-store/"}>github</a> and my <a
+            href={"https://1ml.com/node/020deb273bd81cd6771ec3397403f2e74a3c22f8f4c052321c30e5c612cf538328"}>lightning
+            node</a> is public and would love new connections! 🤝🤠</p>
+
+        {/*<h2>Table of content:</h2>*/}
+        {/*<h3>Concepts</h3>*/}
+        {/*<ul>*/}
+        {/*    <li><Link to="/s/lsat">LSAT</Link></li>*/}
+        {/*    <li><Link to="/s/bitcoin-network">Bitcoin Network</Link></li>*/}
+        {/*    <li><Link to="/s/lightning-network">Lightning Network</Link></li>*/}
+        {/*</ul>*/}
+        {/*<h3>Techniques</h3>*/}
+        {/*<ul>*/}
+        {/*    <li><Link to="/s/blog-paywall">Paywalling content</Link></li>*/}
+        {/*</ul>*/}
     </div>
 }
