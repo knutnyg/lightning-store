@@ -45,8 +45,6 @@ function App() {
                                 where micropayments replace advertisements and sale of your personal data as the main
                                 way to fund a service or a web site.</p>
                         </Route>
-                        {/*<Route path="/about">{about()}</Route>*/}
-                        {/*<Route path="/about">{about()}</Route>*/}
                         <Route path="/">
                             <p>This site is a project for me to learn my way around programming for the lightning
                                 network and all
