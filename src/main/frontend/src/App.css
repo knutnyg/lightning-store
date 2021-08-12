@@ -33,14 +33,11 @@ header .user {
     padding-right: 1.5rem;
     flex-grow: 1;  /* ensures that the container will take up the full height of the parent container */
     overflow-y: auto;  /* adds scroll to this container */
-    padding-bottom: 3rem;
 }
 
 
 footer {
-    flex-grow: 0;
     font-size: 1rem;
-    margin-bottom: 0.5rem;
     text-align: center;
 }
 
