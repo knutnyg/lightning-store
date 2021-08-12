@@ -11,9 +11,9 @@ import {
 import {PaywallView} from "./pages/Blog";
 
 
-export const baseUrl = "http://localhost:8081"
+// export const baseUrl = "http://localhost:8081"
 
-// export const baseUrl = "https://store-api.nygaard.xyz"
+export const baseUrl = "https://store-api.nygaard.xyz"
 
 function App() {
     const [user, setUser] = useUser()
