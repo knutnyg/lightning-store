@@ -22,6 +22,7 @@ header {
 
 header .user {
     margin-right: 2rem;
+    font-size: 1rem;
 }
 
 .content {
@@ -57,7 +58,7 @@ h1 {
     margin-right: auto;
     margin-left: 1.5rem;
     flex-grow: 1;
-    font-size: 2rem;
+    font-size: 1.6rem;
 }
 
 h2 {
