@@ -45,9 +45,10 @@ header .user {
     color: white;
     margin-left: 1.5rem;
     margin-right: 1.5rem;
-    flex-grow: 1;  /* ensures that the container will take up the full height of the parent container */
-    overflow-y: auto;  /* adds scroll to this container */
+    flex-grow: 1; /* ensures that the container will take up the full height of the parent container */
+    overflow-y: auto; /* adds scroll to this container */
     max-width: 1000px;
+    padding-bottom: 4rem;
 }
 
 
