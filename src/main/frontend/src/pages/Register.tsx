@@ -1,8 +1,8 @@
 import {useState} from "react";
-import {baseUrl} from "./App";
+import {baseUrl} from "../App";
 import QRCode from "qrcode.react";
-import useInterval from "./hooks/useInterval";
-import {updateUser, useUser} from "./hooks/useUser";
+import useInterval from "../hooks/useInterval";
+import {updateUser, useUser} from "../hooks/useUser";
 
 interface Invoice {
     id?: string,

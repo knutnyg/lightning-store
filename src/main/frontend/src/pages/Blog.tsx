@@ -1,8 +1,8 @@
 import {useEffect, useState} from "react";
-import {Invoice, InvoiceRaw, updateInvoice} from "./invoice/invoices";
-import useInterval from "./hooks/useInterval";
-import {baseUrl} from "./App";
-import {InvoiceView} from "./invoice/Invoice";
+import {Invoice, InvoiceRaw, updateInvoice} from "../invoice/invoices";
+import useInterval from "../hooks/useInterval";
+import {baseUrl} from "../App";
+import {InvoiceView} from "../invoice/Invoice";
 
 enum BlogState { INITIAL, NO_ACCESS, ACCESS, PENDING}
 

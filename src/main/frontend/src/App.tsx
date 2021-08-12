@@ -1,5 +1,5 @@
 import './App.css';
-import {LSATView} from './Register';
+import {LSATView} from './pages/Register';
 import {updateUser, useUser} from "./hooks/useUser";
 import useInterval from "./hooks/useInterval";
 import {
@@ -8,7 +8,7 @@ import {
     Route,
     Link
 } from "react-router-dom";
-import {PaywallView} from "./Blog";
+import {PaywallView} from "./pages/Blog";
 
 
 export const baseUrl = "http://localhost:8081"
