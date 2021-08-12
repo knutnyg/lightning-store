@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {baseUrl} from "../App";
 
-interface User {
+export interface User {
     userId: string,
     balance: number
 }
@@ -25,4 +25,8 @@ export const updateUser = () => {
 
 export const useUser = () => {
     return useState<User | null>(null);
+}
+
+export const useTitle = () => {
+    return useState<string>("Lightning Blog ⚡️");
 }

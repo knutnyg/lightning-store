@@ -8,6 +8,7 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
+    align-items: center;
     position: absolute;
     top: 0;
     right: 0;
@@ -20,6 +21,17 @@ header {
     flex-direction: row;
     align-items: center;
     flex-grow: 0;
+    width: 100%;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+@media (max-width: 980px) {
+    header { margin-left: 0;}
+}
+
+@media (min-width: 980px) {
+    main { margin-left: 30%}
 }
 
 header .user {
@@ -32,9 +44,10 @@ header .user {
     font-size: 1.5rem;
     color: white;
     margin-left: 1.5rem;
-    padding-right: 1.5rem;
+    margin-right: 1.5rem;
     flex-grow: 1;  /* ensures that the container will take up the full height of the parent container */
     overflow-y: auto;  /* adds scroll to this container */
+    max-width: 1000px;
 }
 
 
@@ -62,10 +75,10 @@ h1 {
     font-size: 1.6rem;
 }
 
+
 h2 {
     font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-    margin-top: 0;
+    margin: 0;
 }
 
 .invoice-view {

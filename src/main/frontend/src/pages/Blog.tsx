@@ -12,14 +12,25 @@ interface State {
     blog?: Blog,
 }
 
-export const PaywallView = () => {
+export interface PageProps {
+    onChange: (title:string) => void;
+}
+
+export const PaywallView = (props: PageProps) => {
     const [state, setState] = useState<State>({
-        invoice: undefined,
+        invoice: {
+            id: '123',
+            paymentRequest: 'string',
+            settled: 'false',
+            memo: 'memo',
+            inProgress: true
+        },
         blog: undefined,
-        access: BlogState.INITIAL
+        access: BlogState.PENDING
     })
 
     useEffect(() => {
+        props.onChange("Paywall")
         if (state.access === BlogState.INITIAL) {
             fetchProduct("261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")
                 .then(blog => setState({...state, blog: blog, access: BlogState.ACCESS}))
@@ -27,24 +38,24 @@ export const PaywallView = () => {
         }
     })
 
-    useInterval(() => {
-        if (state.access === BlogState.PENDING) {
-            if (state.invoice && !state.invoice?.settled) {
-                updateInvoice(state.invoice)
-                    .then(invoice => {
-                            setState({...state, invoice: invoice})
-                        }
-                    )
-            }
-            if (state.invoice?.settled) {
-                fetchProduct("261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")
-                    .then(blog => {
-                        setState({...state, blog: blog, access: BlogState.ACCESS, invoice: undefined})
-                    })
-                    .catch(_ => setState({...state, access: BlogState.NO_ACCESS}))
-            }
-        }
-    }, 1000)
+    // useInterval(() => {
+    //     if (state.access === BlogState.PENDING && 1===2) {
+    //         if (state.invoice && !state.invoice?.settled) {
+    //             updateInvoice(state.invoice)
+    //                 .then(invoice => {
+    //                         setState({...state, invoice: invoice})
+    //                     }
+    //                 )
+    //         }
+    //         if (state.invoice?.settled) {
+    //             fetchProduct("261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")
+    //                 .then(blog => {
+    //                     setState({...state, blog: blog, access: BlogState.ACCESS, invoice: undefined})
+    //                 })
+    //                 .catch(_ => setState({...state, access: BlogState.NO_ACCESS}))
+    //         }
+    //     }
+    // }, 1000)
 
     const createOrder = () => {
         createOrderInvoice("261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")
