@@ -14,10 +14,8 @@ import {Lightning} from "./pages/Lightning";
 import {Header} from "./Header";
 import {Home} from './pages/Home';
 
-
-export const baseUrl = "http://localhost:8081"
-
-// export const baseUrl = "https://store-api.nygaard.xyz"
+export const baseUrl = process.env.NODE_ENV === 'production'
+    ? 'https://store-api.nygaard.xyz' : 'http://localhost:8080';
 
 function App() {
     const [user, setUser] = useUser()
