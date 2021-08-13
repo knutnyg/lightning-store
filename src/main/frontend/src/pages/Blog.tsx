@@ -3,10 +3,10 @@ import {Invoice, InvoiceRaw} from "../invoice/invoices";
 import {baseUrl} from "../App";
 import {InvoiceView} from "../invoice/Invoice";
 
-enum BlogState { INITIAL, NO_ACCESS, ACCESS, PENDING}
+export enum ThingState { INITIAL, NO_ACCESS, ACCESS, PENDING}
 
 interface State {
-    access: BlogState
+    access: ThingState
     invoice?: Invoice,
     blog?: Blog,
 }
@@ -25,15 +25,15 @@ export const PaywallView = (props: PageProps) => {
             inProgress: true
         },
         blog: undefined,
-        access: BlogState.PENDING
+        access: ThingState.PENDING
     })
 
     useEffect(() => {
         props.onChange("Paywall")
-        if (state.access === BlogState.INITIAL) {
+        if (state.access === ThingState.INITIAL) {
             fetchProduct("261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")
-                .then(blog => setState({...state, blog: blog, access: BlogState.ACCESS}))
-                .catch(res => setState({...state, access: BlogState.NO_ACCESS}))
+                .then(blog => setState({...state, blog: blog, access: ThingState.ACCESS}))
+                .catch(res => setState({...state, access: ThingState.NO_ACCESS}))
         }
     })
 
@@ -58,7 +58,7 @@ export const PaywallView = (props: PageProps) => {
 
     const createOrder = () => {
         createOrderInvoice("261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")
-            .then(invoice => setState({...state, invoice: invoice, access: BlogState.PENDING}))
+            .then(invoice => setState({...state, invoice: invoice, access: ThingState.PENDING}))
     }
 
     return <div className="blog">
@@ -67,10 +67,10 @@ export const PaywallView = (props: PageProps) => {
             year? To read the rest of this article you need to buy it, however in the world of micropayments that does
             not need to be a cumbersome experience. Simply scan the QR-code and pay the invoice for access</p>
 
-        {state.access === BlogState.NO_ACCESS && <button onClick={createOrder}>Hit me</button>}
-        {state.access === BlogState.PENDING && state.invoice &&
+        {state.access === ThingState.NO_ACCESS && <button onClick={createOrder}>Hit me</button>}
+        {state.access === ThingState.PENDING && state.invoice &&
             <InvoiceView paymentReq={state.invoice.paymentRequest}/>}
-        {state.access === BlogState.ACCESS && state.blog &&
+        {state.access === ThingState.ACCESS && state.blog &&
         <div dangerouslySetInnerHTML={{__html: state.blog.payload}}/>}
     </div>
 }

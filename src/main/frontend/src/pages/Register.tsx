@@ -3,7 +3,7 @@ import {baseUrl} from "../App";
 import QRCode from "qrcode.react";
 import useInterval from "../hooks/useInterval";
 import {updateUser, useUser} from "../hooks/useUser";
-import {PageProps} from "./Blog";
+import {PageProps, ThingState} from "./Blog";
 import {Link} from "react-router-dom";
 
 interface Invoice {
@@ -11,10 +11,6 @@ interface Invoice {
     paymentRequest: string,
     settled: boolean,
     preimage?: string
-}
-
-interface State {
-    invoice?: Invoice,
 }
 
 export const updateTokenInvoice = (): Promise<Invoice> => {
@@ -33,32 +29,45 @@ export const updateTokenInvoice = (): Promise<Invoice> => {
         });
 }
 
+interface State {
+    invoice?: Invoice,
+    state: ThingState
+}
+
+
 export const LSATView = (props: PageProps) => {
-    const [invoice, setInvoice] = useState<Invoice | undefined>(undefined);
-    const [inRegister, setInRegister] = useState<Boolean>(false);
     const [user, setUser] = useUser()
+    const [state, setState] = useState<State>({invoice: undefined, state: ThingState.INITIAL})
 
     useEffect(() => {
         props.onChange("Registration")
-        window.scrollTo(0, 0);
     })
 
     useInterval(() => {
-        if (invoice && !invoice.settled) {
-            updateTokenInvoice()
-                .then(_invoice => {
-                    if (_invoice.preimage) {
-                        localStorage.setItem("preimage", _invoice.preimage!!)
-                        updateUser()
-                            .then(res => setUser(res))
-                    }
-                    setInvoice({
-                        id: _invoice.id,
-                        paymentRequest: _invoice.paymentRequest,
-                        settled: _invoice.settled !== null
+        if (state.state === ThingState.PENDING) {
+            if (state.invoice && !state.invoice.settled) {
+                updateTokenInvoice()
+                    .then(_invoice => {
+                        if (_invoice.settled && _invoice.preimage) {
+                            localStorage.setItem("preimage", _invoice.preimage!!)
+
+                            updateUser()
+                                .then(res => setUser(res))
+
+                            setState({
+                                invoice: {
+                                    id: _invoice.id,
+                                    paymentRequest: _invoice.paymentRequest,
+                                    settled: _invoice.settled !== null,
+                                    preimage: _invoice.preimage
+                                },
+                                state: ThingState.ACCESS
+                            })
+                        }
                     })
-                })
+            }
         }
+
     }, 1000)
 
     return <div className="lsat-view">
@@ -72,37 +81,39 @@ export const LSATView = (props: PageProps) => {
             enables paid signups without exposing any personal details to my server at all.</p>
 
         {!localStorage.getItem("macaroon") && <button onClick={() => {
-            setInRegister(true);
-            register().then(res => {
-                setInvoice({
-                    paymentRequest: res.invoice,
-                    settled: false,
+            register()
+                .then(res => {
+                    setState({
+                        ...state, invoice: {
+                            paymentRequest: res.invoice,
+                            settled: false,
+                        }
+                    })
+                    localStorage.setItem("macaroon", res.macaroon)
                 })
-                localStorage.setItem("macaroon", res.macaroon)
-            })
         }}>Aquire a token
         </button>}
         {localStorage.getItem("macaroon") && <button onClick={() => {
             localStorage.removeItem("macaroon");
             localStorage.removeItem("preimage");
-            setInvoice(undefined)
+            setState({...state, invoice:undefined, state: ThingState.INITIAL})
         }}>Reset login</button>}
-        {localStorage.getItem("macaroon") && !localStorage.getItem("preimage") && !inRegister &&
+        {localStorage.getItem("macaroon") && !localStorage.getItem("preimage") &&
         <button onClick={() => {
             updateTokenInvoice()
                 .then(_invoice => {
                     if (_invoice.preimage) {
                         localStorage.setItem("preimage", _invoice.preimage!!)
                     }
-                    setInvoice({
-                        id: _invoice.id,
-                        paymentRequest: _invoice.paymentRequest,
-                        settled: _invoice.settled !== null
-                    })
+                    setState({...state, invoice: {
+                            id: _invoice.id,
+                            paymentRequest: _invoice.paymentRequest,
+                            settled: _invoice.settled !== null
+                        }})
                 })
         }}>Check for payment</button>}
-        {inRegister && invoice && !invoice.settled && (<div>
-            <QRCode value={invoice.paymentRequest}/>
+        {state.state === ThingState.PENDING && state.invoice && !state.invoice.settled && (<div>
+            <QRCode value={state.invoice.paymentRequest}/>
             <p>Please scan QR code with your favorite lightning wallet and pay the invoice</p>
         </div>)}
         {localStorage.getItem("macaroon") && localStorage.getItem("preimage") &&
