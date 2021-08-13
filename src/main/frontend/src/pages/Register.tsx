@@ -4,9 +4,7 @@ import {updateUser, useUser} from "../hooks/useUser";
 import {AccessState, PageProps} from "./Blog";
 import {Link} from "react-router-dom";
 import {InvoiceView} from "../invoice/Invoice";
-import {library, icon} from '@fortawesome/fontawesome-svg-core'
-
-// import { faCamera } from '@fortawesome/free-solid-svg-icons'
+import useInterval from "../hooks/useInterval";
 
 interface Invoice {
     id?: string,
@@ -14,9 +12,6 @@ interface Invoice {
     settled: boolean,
     preimage?: string
 }
-
-
-const camera = icon({prefix: 'fas', iconName: 'camera'})
 
 export const updateTokenInvoice = (): Promise<Invoice> => {
     return fetch(`${baseUrl}/open/register`, {
@@ -43,66 +38,49 @@ interface State {
 export const LSATView = (props: PageProps) => {
     const [user, setUser] = useUser()
     const [state, setState] = useState<State>({
-        invoice: {
-            paymentRequest: "123a;wdka;wodkaw;dka;wodkawdadwauhwduiahwdiauhwduiahwdiuawhduiawhdaiuwd",
-            settled: false,
-        },
-        state: AccessState.PAYMENT_PENDING
+        invoice: undefined,
+        state: AccessState.INITIAL
     })
 
     useEffect(() => {
         props.onChange("Registration")
     })
-    // useInterval(() => {
-    //     if (state.state === AccessState.PAYMENT_PENDING) {
-    //         if (state.invoice && !state.invoice.settled) {
-    //             updateTokenInvoice()
-    //                 .then(_invoice => {
-    //                     if (_invoice.settled && _invoice.preimage) {
-    //                         localStorage.setItem("preimage", _invoice.preimage!!)
-    //
-    //                         updateUser()
-    //                             .then(res => setUser(res))
-    //
-    //                         setState({
-    //                             invoice: {
-    //                                 id: _invoice.id,
-    //                                 paymentRequest: _invoice.paymentRequest,
-    //                                 settled: _invoice.settled !== null,
-    //                                 preimage: _invoice.preimage
-    //                             },
-    //                             state: AccessState.ACCESS
-    //                         })
-    //                     }
-    //                 })
-    //         }
-    //     }
-    //
-    // }, 1000)
+    useInterval(() => {
+        if (state.state === AccessState.PAYMENT_PENDING) {
+            if (state.invoice && !state.invoice.settled) {
+                updateTokenInvoice()
+                    .then(_invoice => {
+                        if (_invoice.settled && _invoice.preimage) {
+                            localStorage.setItem("preimage", _invoice.preimage!!)
+
+                            updateUser()
+                                .then(res => setUser(res))
+
+                            setState({
+                                invoice: {
+                                    id: _invoice.id,
+                                    paymentRequest: _invoice.paymentRequest,
+                                    settled: _invoice.settled !== null,
+                                    preimage: _invoice.preimage
+                                },
+                                state: AccessState.ACCESS
+                            })
+                        }
+                    })
+            }
+        }
+
+    }, 1000)
 
     const handleLogout = () => {
         localStorage.removeItem("macaroon");
         localStorage.removeItem("preimage");
         setState({...state, invoice: undefined, state: AccessState.INITIAL});
     }
-    const handleLookupInvoice = () => {
-        updateTokenInvoice()
-            .then(_invoice => {
-                if (_invoice.preimage) {
-                    localStorage.setItem("preimage", _invoice.preimage!!)
-                }
-                setState({
-                    ...state, invoice: {
-                        id: _invoice.id,
-                        paymentRequest: _invoice.paymentRequest,
-                        settled: _invoice.settled !== null
-                    }
-                })
-            })
-    }
+
     const handleRegister = (): Promise<void> => {
         return fetch(`${baseUrl}/register`, {
-                method: 'PUT',
+            method: 'PUT',
                 headers: {
                     'Access-Control-Allow-Origin': '*',
                 },
@@ -118,7 +96,7 @@ export const LSATView = (props: PageProps) => {
                     ...state, invoice: {
                         paymentRequest: invoice,
                         settled: false,
-                    }, state: AccessState.PAYMENT_REQUIRED
+                    }, state: AccessState.PAYMENT_PENDING
                 })
                 localStorage.setItem("macaroon", macaroon)
             }
@@ -131,8 +109,6 @@ export const LSATView = (props: PageProps) => {
     const corruptLogin = () => !user && localStorage.getItem("macaroon")
     const hasMacaroon = () => localStorage.getItem("macaroon")
 
-    console.log(user)
-
     return <div className="lsat-view">
         <p>Most sites require you to have an account to properly access their content. We are forced to spread our
             personal details on servers all over the world. With payments its even worse when hacked servers can lead to
@@ -143,7 +119,8 @@ export const LSATView = (props: PageProps) => {
             cryptographically linked to your payment receipt and stored securely on your device. This powerful technique
             enables paid signups without exposing any personal details to my server.</p>
 
-        {!hasMacaroon() && <button onClick={handleRegister}>Aquire a token</button>}
+        {!hasMacaroon() && state.state !== AccessState.PAYMENT_PENDING &&
+        <button onClick={handleRegister}>Aquire a token</button>}
 
         {state.state === AccessState.PAYMENT_PENDING && state.invoice && !state.invoice.settled && (
             <InvoiceView paymentReq={state.invoice.paymentRequest}/>)}
@@ -156,7 +133,5 @@ export const LSATView = (props: PageProps) => {
             <Link to="/">Back</Link>
             {corruptLogin() && <button onClick={handleLogout}>Log out</button>}
         </div>
-
-
     </div>
 }

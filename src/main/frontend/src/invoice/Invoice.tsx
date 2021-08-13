@@ -3,8 +3,6 @@ import {SubmitHandler, useForm} from "react-hook-form";
 import {createInvoice, Invoice, updateInvoice} from "./invoices";
 import useInterval from "../hooks/useInterval";
 import QRCode from "qrcode.react";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCopy} from "@fortawesome/free-solid-svg-icons";
 
 type FormData = {
     amount: number;

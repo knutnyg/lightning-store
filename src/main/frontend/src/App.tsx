@@ -6,27 +6,28 @@ import {
     BrowserRouter as Router,
     Switch,
     Route,
-    Link
 } from "react-router-dom";
 import {PaywallView} from "./pages/Blog";
 import {Bitcoin} from "./pages/Bitcoin";
 import {Lightning} from "./pages/Lightning";
 import {Header} from "./Header";
 import {Home} from './pages/Home';
+import {useEffect} from "react";
 
 export const baseUrl = process.env.NODE_ENV === 'production'
-    ? 'https://store-api.nygaard.xyz' : 'http://localhost:8080';
+    ? 'https://store-api.nygaard.xyz' : 'http://localhost:8081';
 
 function App() {
     const [user, setUser] = useUser()
     const [title, setTitle] = useTitle()
-    useInterval(() => {
+
+    useEffect(() => {
         if (!user) {
             updateUser()
                 .then(_user => setUser(_user))
                 .catch(err => console.log(err))
         }
-    }, 3000)
+    })
 
     const newtitle = (title: string) => {
         setTitle(title)
@@ -46,7 +47,6 @@ function App() {
                     </Switch>
                 </Router>
             </div>
-
         </div>
     );
 }

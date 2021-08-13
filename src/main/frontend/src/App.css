@@ -98,11 +98,12 @@ h2 {
 .lsat-view .authenticated {
     text-align: center;
     color: coral;
-    margin-top: 50px;
 }
 
 .lsat-view button {
     font-size: 1.4rem;
+    align-self: center;
+    max-width: 12rem;
 }
 
 .lsat-view .troubleshoot {
