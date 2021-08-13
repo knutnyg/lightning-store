@@ -3,16 +3,16 @@ import {Invoice, InvoiceRaw} from "../invoice/invoices";
 import {baseUrl} from "../App";
 import {InvoiceView} from "../invoice/Invoice";
 
-export enum ThingState { INITIAL, NO_ACCESS, ACCESS, PENDING}
+export enum AccessState { INITIAL, PAYMENT_REQUIRED, PAYMENT_PENDING, ACCESS}
 
 interface State {
-    access: ThingState
+    access: AccessState
     invoice?: Invoice,
     blog?: Blog,
 }
 
 export interface PageProps {
-    onChange: (title:string) => void;
+    onChange: (title: string) => void;
 }
 
 export const PaywallView = (props: PageProps) => {
@@ -25,15 +25,15 @@ export const PaywallView = (props: PageProps) => {
             inProgress: true
         },
         blog: undefined,
-        access: ThingState.PENDING
+        access: AccessState.PAYMENT_PENDING
     })
 
     useEffect(() => {
         props.onChange("Paywall")
-        if (state.access === ThingState.INITIAL) {
+        if (state.access === AccessState.INITIAL) {
             fetchProduct("261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")
-                .then(blog => setState({...state, blog: blog, access: ThingState.ACCESS}))
-                .catch(res => setState({...state, access: ThingState.NO_ACCESS}))
+                .then(blog => setState({...state, blog: blog, access: AccessState.ACCESS}))
+                .catch(res => setState({...state, access: AccessState.PAYMENT_REQUIRED}))
         }
     })
 
@@ -58,7 +58,7 @@ export const PaywallView = (props: PageProps) => {
 
     const createOrder = () => {
         createOrderInvoice("261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")
-            .then(invoice => setState({...state, invoice: invoice, access: ThingState.PENDING}))
+            .then(invoice => setState({...state, invoice: invoice, access: AccessState.PAYMENT_PENDING}))
     }
 
     return <div className="blog">
@@ -67,10 +67,10 @@ export const PaywallView = (props: PageProps) => {
             year? To read the rest of this article you need to buy it, however in the world of micropayments that does
             not need to be a cumbersome experience. Simply scan the QR-code and pay the invoice for access</p>
 
-        {state.access === ThingState.NO_ACCESS && <button onClick={createOrder}>Hit me</button>}
-        {state.access === ThingState.PENDING && state.invoice &&
-            <InvoiceView paymentReq={state.invoice.paymentRequest}/>}
-        {state.access === ThingState.ACCESS && state.blog &&
+        {state.access === AccessState.PAYMENT_REQUIRED && <button onClick={createOrder}>Hit me</button>}
+        {state.access === AccessState.PAYMENT_PENDING && state.invoice &&
+        <InvoiceView paymentReq={state.invoice.paymentRequest}/>}
+        {state.access === AccessState.ACCESS && state.blog &&
         <div dangerouslySetInnerHTML={{__html: state.blog.payload}}/>}
     </div>
 }

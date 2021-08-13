@@ -19,7 +19,7 @@ export const Home = (props: PageProps) => {
         <p>First of lets get you an account. Not a normal boring account. We live in the future and use a new technique
             named <Link
                 to="/s/lsat">LSAT</Link>.</p>
-
+        <p><i className="far fa-user"/>aw</p>
         <Link to="/s/lsat">Sign up here️</Link>
 
         <p>All my code is freely available at <a

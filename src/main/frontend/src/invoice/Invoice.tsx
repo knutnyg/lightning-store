@@ -3,6 +3,8 @@ import {SubmitHandler, useForm} from "react-hook-form";
 import {createInvoice, Invoice, updateInvoice} from "./invoices";
 import useInterval from "../hooks/useInterval";
 import QRCode from "qrcode.react";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCopy} from "@fortawesome/free-solid-svg-icons";
 
 type FormData = {
     amount: number;
@@ -14,9 +16,22 @@ export interface InvoiceViewProps {
 }
 
 export const InvoiceView = (props: InvoiceViewProps) => {
+    const [success, setSuccess] = useState<boolean>(false)
     return <div className={"invoice-view"}>
-        <QRCode value={props.paymentReq}/>
-        <p>Please scan QR code with your lightning wallet or <button onClick={() => navigator.clipboard.writeText(props.paymentReq)}>copy to clipboard</button></p>
+        <div className={"centered"}>
+            <QRCode value={props.paymentReq} onClick={() => {
+                navigator.clipboard.writeText(props.paymentReq)
+                    .then(r => {
+                        setSuccess(true)
+                        setTimeout(() => {
+                            setSuccess(false)
+                        }, 2000)
+                    })
+            }}/>
+        </div>
+        {success && <span>Copied!</span>}
+        {/*<div><FontAwesomeIcon icon={faCopy}/></div>*/}
+        <p>Please scan QR code with your lightning wallet or click to copy to clipboard</p>
     </div>
 }
 
