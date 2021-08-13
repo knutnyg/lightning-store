@@ -92,6 +92,8 @@ h2 {
 
 .lsat-view {
     margin-bottom: 200px;
+    display: flex;
+    flex-direction: column;
 }
 
 .lsat-view .authenticated {
@@ -129,4 +131,8 @@ textarea {
 
 .blog {
     margin-bottom: 50px;
+}
+
+.centered {
+    align-self: center;
 }

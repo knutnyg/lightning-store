@@ -78,9 +78,9 @@ export const LSATView = (props: PageProps) => {
         <h3>Lightning Service Authentication Token(LSAT)</h3>
         <p>Registering is as simple as paying a lightning invoice to purchase a token from my server. This token is
             cryptographically linked to your payment receipt and stored securely on your device. This powerful technique
-            enables paid signups without exposing any personal details to my server at all.</p>
+            enables paid signups without exposing any personal details to my server.</p>
 
-        {!localStorage.getItem("macaroon") && <button onClick={() => {
+        {!localStorage.getItem("macaroon") && <button className={"centered"} onClick={() => {
             register()
                 .then(res => {
                     setState({
