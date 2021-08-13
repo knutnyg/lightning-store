@@ -143,11 +143,7 @@ export const LSATView = (props: PageProps) => {
             cryptographically linked to your payment receipt and stored securely on your device. This powerful technique
             enables paid signups without exposing any personal details to my server.</p>
 
-        {!hasMacaroon() && <button className={"centered"} onClick={handleRegister}>Aquire a token</button>}
-        {corruptLogin() && <button onClick={handleLogout}>Reset login</button>}
-
-        {state.invoice && !state.invoice.settled &&
-        <button onClick={handleLookupInvoice}>Check for payment</button>}
+        {!hasMacaroon() && <button onClick={handleRegister}>Aquire a token</button>}
 
         {state.state === AccessState.PAYMENT_PENDING && state.invoice && !state.invoice.settled && (
             <InvoiceView paymentReq={state.invoice.paymentRequest}/>)}
@@ -155,6 +151,12 @@ export const LSATView = (props: PageProps) => {
         {localStorage.getItem("macaroon") && localStorage.getItem("preimage") &&
         <p className="authenticated">Congratulations, you are authenticated 🤝</p>}
         <p>Want to learn more? Read the <a href="https://lsat.tech">docs</a> over at at Lightning Labs</p>
-        <Link to="/">Back</Link>
+
+        <div className={"troubleshoot"}>
+            <Link to="/">Back</Link>
+            {corruptLogin() && <button onClick={handleLogout}>Log out</button>}
+        </div>
+
+
     </div>
 }
