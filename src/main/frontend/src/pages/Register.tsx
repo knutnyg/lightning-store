@@ -131,7 +131,7 @@ export const LSATView = (props: PageProps) => {
 
         <div className={"troubleshoot"}>
             <Link to="/">Back</Link>
-            {corruptLogin() && <button onClick={handleLogout}>Log out</button>}
+            {corruptLogin() && <button onClick={handleLogout}>Destroy account</button>}
         </div>
     </div>
 }
