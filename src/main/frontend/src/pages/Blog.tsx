@@ -17,15 +17,9 @@ export interface PageProps {
 
 export const PaywallView = (props: PageProps) => {
     const [state, setState] = useState<State>({
-        invoice: {
-            id: '123',
-            paymentRequest: 'string',
-            settled: 'false',
-            memo: 'memo',
-            inProgress: true
-        },
+        invoice: undefined,
         blog: undefined,
-        access: AccessState.PAYMENT_PENDING
+        access: AccessState.INITIAL
     })
 
     useEffect(() => {
