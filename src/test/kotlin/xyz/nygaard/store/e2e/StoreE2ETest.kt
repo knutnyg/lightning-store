@@ -123,7 +123,7 @@ class StoreE2ETest {
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
             }) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(10L, tokenService.fetchToken(macaroon)?.balance)
+                assertEquals(109, tokenService.fetchToken(macaroon)?.balance)
                 assertEquals(1, orderService.getOrders(macaroon.extractUserId()).size)
             }
             with(handleRequest(HttpMethod.Get, "/products/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
@@ -156,7 +156,7 @@ class StoreE2ETest {
                 invoiceId = invoice.id
                 assertEquals(1, orderService.getOrders(macaroon.extractUserId()).size)
                 assertEquals(1, orderService.getOrders(macaroon.extractUserId()).size)
-                assertEquals(100, invoice.amount)
+                assertEquals(1, invoice.amount)
                 assertNull(invoice.settled)
             }
 

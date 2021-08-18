@@ -7,6 +7,7 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import xyz.nygaard.MacaroonService
+import xyz.nygaard.extractRHash
 import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.order.OrderService
 import xyz.nygaard.store.order.ProductService
@@ -23,6 +24,7 @@ fun Application.installLsatInterceptor(
 ) {
     intercept(ApplicationCallPipeline.Call) {
         if (!call.request.path().contains("/open")) {
+
             val authHeader = call.request.header("Authorization")
             if (authHeader == null) {
                 log.info("Caller missing authentication")
@@ -31,7 +33,7 @@ fun Application.installLsatInterceptor(
                     invoiceService.createInvoice(tokenProduct.price, "1x${tokenProduct.name}: ${tokenProduct.id}")
                 val macaroon = macaroonService.createMacaroon(invoice.rhash)
                 tokenService.createToken(macaroon)
-                orderService.placeOrderWithInvoice(invoice, tokenProduct, macaroon)
+                orderService.createWithInvoice(invoice, tokenProduct, macaroon)
                 call.response.headers.append(
                     "WWW-Authenticate",
                     "LSAT macaroon=\"${macaroon.serialize()}\", invoice=\"${invoice.paymentRequest}\""
@@ -50,13 +52,14 @@ fun Application.installLsatInterceptor(
                 call.respond(HttpStatusCode.BadRequest, "Authentication digest must be LSAT")
                 return@intercept finish()
             }
+
             if (!macaroonService.isValid(authorization.macaroon)) {
                 log.info("Macaroon is invalid")
                 call.respond(HttpStatusCode.Unauthorized)
                 return@intercept finish()
             }
 
-            if (authorization.preimage?.sha256() != macaroonService.extractPaymentHash(authorization.macaroon)) {
+            if (authorization.preimage?.sha256() != authorization.macaroon.extractRHash()) {
                 log.info("Preimage does not correspond to payment hash")
                 call.respond(HttpStatusCode.BadRequest, "Preimage does not correspond to payment hash")
                 return@intercept finish()

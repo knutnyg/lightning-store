@@ -3,16 +3,10 @@ package xyz.nygaard.util
 import java.security.MessageDigest
 
 
-fun String.sha256(): String {
-    return hashString(this, "SHA-256")
-}
-
-private fun hashString(input: String, algorithm: String): String {
-    return MessageDigest
-        .getInstance(algorithm)
-        .digest(input.decodeHex())
+fun String.sha256() =
+    MessageDigest.getInstance("SHA-256")
+        .digest(this.decodeHex())
         .fold("") { str, it -> str + "%02x".format(it) }
-}
 
 fun ByteArray.toHex(): String = joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
 

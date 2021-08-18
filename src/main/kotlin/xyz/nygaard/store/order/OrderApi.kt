@@ -30,7 +30,7 @@ fun Routing.registerOrders(
         val product = productService.getProduct(productId)
         val invoice = invoiceService.createInvoice(product.price, product.name)
         return@post call.respond(
-            orderService.placeOrderWithInvoice(
+            orderService.createWithInvoice(
                 macaroon = authorization.macaroon,
                 product = product,
                 invoice = invoice
