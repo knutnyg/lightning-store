@@ -125,10 +125,6 @@ class OrderService(
                 }.first()
         }
     }
-
-    fun isSettled() {
-
-    }
 }
 
 class Order(
