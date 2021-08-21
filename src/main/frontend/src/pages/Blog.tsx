@@ -57,7 +57,7 @@ export const PaywallView = (props: PageProps) => {
             .then(invoice => setState({...state, invoice: invoice, access: AccessState.PAYMENT_PENDING}))
     }
 
-    return <div className="blog">
+    return <div className="page">
         <p>Tired of finding articles behind paywalls requiring a monthly subscription on a news site you visit once a
             year? To read the rest of this article you need to buy it, however in the world of micropayments that does
             not need to be a cumbersome experience. Simply scan the QR-code and pay the invoice for access.</p>

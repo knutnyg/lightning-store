@@ -153,3 +153,9 @@ textarea {
 .block {
     margin-bottom: 1rem;
 }
+
+.page button {
+    font-size: 1.4rem;
+    align-self: center;
+    max-width: 12rem;
+}
