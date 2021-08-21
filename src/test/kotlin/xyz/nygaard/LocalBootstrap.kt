@@ -1,6 +1,5 @@
 package xyz.nygaard
 
-import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import org.flywaydb.core.Flyway

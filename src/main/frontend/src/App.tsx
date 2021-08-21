@@ -1,7 +1,6 @@
 import './App.css';
 import {LSATView} from './pages/Register';
 import {updateUser, useTitle, useUser} from "./hooks/useUser";
-import useInterval from "./hooks/useInterval";
 import {
     BrowserRouter as Router,
     Switch,

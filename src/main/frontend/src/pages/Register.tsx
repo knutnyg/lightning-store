@@ -80,7 +80,7 @@ export const LSATView = (props: PageProps) => {
 
     const handleRegister = (): Promise<void> => {
         return fetch(`${baseUrl}/register`, {
-            method: 'PUT',
+                method: 'PUT',
                 headers: {
                     'Access-Control-Allow-Origin': '*',
                 },
@@ -125,13 +125,20 @@ export const LSATView = (props: PageProps) => {
         {state.state === AccessState.PAYMENT_PENDING && state.invoice && !state.invoice.settled && (
             <InvoiceView paymentReq={state.invoice.paymentRequest}/>)}
 
-        {localStorage.getItem("macaroon") && localStorage.getItem("preimage") &&
-        <p className="authenticated">Congratulations, you are authenticated 🤝</p>}
         <p>Want to learn more? Read the <a href="https://lsat.tech">docs</a> over at at Lightning Labs</p>
+
+        {localStorage.getItem("macaroon") && localStorage.getItem("preimage") &&
+        <div>
+            <p className="authenticated">Congratulations, you are authenticated 🤝</p>
+            <p>Being authenticated you can now explore the world of [content] powered by micropayments instead of ads or
+                sale of user data. My first example is <Link to="/s/blog-paywall">paywalling articles.</Link></p>
+        </div>
+
+        }
 
         <div className={"troubleshoot"}>
             <Link to="/">Back</Link>
-            {corruptLogin() && <button onClick={handleLogout}>Destroy account</button>}
+            {corruptLogin() && <button onClick={handleLogout}>Log out</button>}
         </div>
     </div>
 }
