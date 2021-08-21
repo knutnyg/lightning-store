@@ -149,3 +149,7 @@ textarea {
 .centered {
     align-self: center;
 }
+
+.block {
+    margin-bottom: 1rem;
+}

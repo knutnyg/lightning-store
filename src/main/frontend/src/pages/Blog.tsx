@@ -3,6 +3,7 @@ import {Invoice, InvoiceRaw, updateInvoice} from "../invoice/invoices";
 import {baseUrl} from "../App";
 import {InvoiceView} from "../invoice/Invoice";
 import useInterval from "../hooks/useInterval";
+import {Link} from "react-router-dom";
 
 export enum AccessState { INITIAL, PAYMENT_REQUIRED, PAYMENT_PENDING, ACCESS}
 
@@ -65,7 +66,8 @@ export const PaywallView = (props: PageProps) => {
         {state.access === AccessState.PAYMENT_PENDING && state.invoice &&
         <InvoiceView paymentReq={state.invoice.paymentRequest}/>}
         {state.access === AccessState.ACCESS && state.blog &&
-        <div dangerouslySetInnerHTML={{__html: state.blog.payload}}/>}
+        <div className="block" dangerouslySetInnerHTML={{__html: state.blog.payload}}/>}
+        <Link to="/">Back</Link>
     </div>
 }
 

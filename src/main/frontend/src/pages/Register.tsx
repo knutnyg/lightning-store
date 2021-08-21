@@ -112,26 +112,25 @@ export const LSATView = (props: PageProps) => {
     return <div className="lsat-view">
         <p>Most sites require you to have an account to properly access their content. We are forced to spread our
             personal details on servers all over the world. With payments its even worse when hacked servers can lead to
-            credit cards getting charged and money stolen. My site has none of that.</p>
+            credit cards getting charged and money stolen. This is of course a thing of the past.</p>
 
-        <h3>Lightning Service Authentication Token(LSAT)</h3>
-        <p>Registering is as simple as paying a lightning invoice to purchase a token from my server. This token is
-            cryptographically linked to your payment receipt and stored securely on your device. This powerful technique
-            enables paid signups without exposing any personal details to my server.</p>
+        <p>Having a way for me to know that you are you is required to provide individual access to content. Registering
+            is as simple as paying a lightning invoice to purchase a token from my server.
+            This token is cryptographically linked to your payment receipt and stored securely on your device.</p>
 
         {!hasMacaroon() && state.state !== AccessState.PAYMENT_PENDING &&
-        <button onClick={handleRegister}>Aquire a token</button>}
+        <button onClick={handleRegister}>Register</button>}
 
         {state.state === AccessState.PAYMENT_PENDING && state.invoice && !state.invoice.settled && (
             <InvoiceView paymentReq={state.invoice.paymentRequest}/>)}
 
-        <p>Want to learn more? Read the <a href="https://lsat.tech">docs</a> over at at Lightning Labs</p>
+        <p>Want to learn more? Read about <a href="https://lsat.tech">LSAT</a> over at at Lightning Labs</p>
 
         {localStorage.getItem("macaroon") && localStorage.getItem("preimage") &&
         <div>
             <p className="authenticated">Congratulations, you are authenticated 🤝</p>
-            <p>Being authenticated you can now explore the world of [content] powered by micropayments instead of ads or
-                sale of user data. My first example is <Link to="/s/blog-paywall">paywalling articles.</Link></p>
+            <p>Being authenticated you can now explore the world of content powered by micropayments instead of ads or
+                sale of user data. </p><p>My first example is <Link to="/s/blog-paywall">paywalling articles.</Link></p>
         </div>
 
         }
