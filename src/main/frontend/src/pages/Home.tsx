@@ -8,7 +8,7 @@ export const Home = (props: PageProps) => {
         props.onChange("Lightning blog ⚡️")
     })
 
-    return <div>
+    return <div className={"page"}>
         <p>Welcome to my Lightning project! This is a ⚡️ powered site where I experiment with and all
             the possibilities programmable money brings to the web. My goal is to make an educational and inspiring site
             explaining and showcasing different concepts and techniques using the Lightning Network.</p>
@@ -16,10 +16,11 @@ export const Home = (props: PageProps) => {
         <p>To navigate this site you need to have a lightning enabled bitcoin wallet on your phone or computer. I
             recommend <a href="https://bluewallet.io">BlueWallet</a> to get started.</p>
 
-        <p>First of lets get you an account. Not a normal boring account. We live in the future and use a new technique
+        <p>Lets start by setting you up with an account. Not a normal boring account. We live in the future and use a
+            new technique
             named <Link
                 to="/s/lsat">LSAT</Link>.</p>
-        <Link to="/s/lsat">Sign up here️</Link>
+        <Link className={"centered"} to="/s/lsat">Read more and sign up here️</Link>
 
         <p>All my code is freely available at <a
             href={"https://github.com/knutnyg/lightning-store/"}>github</a> and my <a

@@ -82,6 +82,11 @@ h2 {
     margin: 0;
 }
 
+.page {
+    display: flex;
+    flex-direction: column;
+}
+
 .invoice-view {
     display: flex;
     flex-direction: column;
