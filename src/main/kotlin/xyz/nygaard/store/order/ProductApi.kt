@@ -21,6 +21,5 @@ fun Routing.registerProducts(productService: ProductService) {
         } else {
             call.respond(HttpStatusCode.PaymentRequired)
         }
-
     }
 }
