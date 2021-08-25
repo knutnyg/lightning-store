@@ -1,24 +1,40 @@
+Lightning Store is a project showcasing different techniques for a website leveraging the power of the lightning network
+for micro payments.
+
+## Building
+
+- Java 16
+- Node 15.9.0
+
+## Environment
+
+Lightning store assumes to run on the same host as LND and bitcoind however both ips and ports can be configured. See
+the `Config` class for posible configuration. To run against LND lightning store expects environement variables containing:
+
+- PORT i.e 8080
+- LS_HOST_URL i.e localhost
+- LS_HOST_PORT i.e 10009
+- LS_DATABASE_URL i.e postgresql://localhost:5432
+- LS_READONLY_MACAROON base64 encoded
+- LS_INVOICES_MACAROON base64 encoded
+- LS_TLS_CERT base64 encoded
+
 ## Running locally
-Lighting store can now be run through `LocalBootstrap.main()`. This will by default mock out the LND 
-instance and run with an embedded database.
 
-##Runtime Environment:
-Lightning store assumes you have the following runtime environment variables:
+Lighting store can now be run through `LocalBootstrap.main()`. By default it exects a production like environment with
+Postgres and LND available, but those can be replaced with embedded postgres and a stub implementation.
 
-- host i.e "localhost"
-- port i.e "8080"
-- tls_cert base64 encoded
-- macaroon base64 encoded
-- DATABASE_URL i.e "postgres://user@localhost:5432/"
+## Building and deploy
 
-##Postgres
-The application expects you to have postgres running locally.
-
-##Build & Deploy
-1. `./gradlew clean shadowJar`
-2. `docker build --tag=lightning-store .`
-3. `docker run lightning-store` (optional)
-
-4. `heroku container:push web`
-5. `heroku container:release web` 
+Backend:
+```
+./gradlew clean jar
+java -jar build/libs/app-1.1.jar
+```
+Frontend:
+Build static files and serve them from a server. I use serve.
+```
+npm install
+npm run build && serve -p 8090 build
+```
 
