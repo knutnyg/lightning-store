@@ -115,6 +115,18 @@ h2 {
     display: flex;
 }
 
+.gallery {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.gallery img {
+    width: 200px;
+    height: 200px;
+    margin: 1rem;
+}
+
 .troubleshoot a {
     flex-grow: 1;
 }
