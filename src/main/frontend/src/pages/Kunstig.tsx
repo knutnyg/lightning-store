@@ -9,15 +9,18 @@ export interface PageProps {
     onChange: (title: string) => void;
 }
 
-export const MachinePaints = (props: PageProps) => {
+export const Kunstig = (props: PageProps) => {
 
     useEffect(() => {
         props.onChange("Can a machine make art? 🎨")
     })
 
     return <div className="page">
-        <p>My colleage has a project where she has a neural network drawing images based on input.</p>
-        <p>She can use my site as a gallery</p>
+        <p>
+            These pieces are created by Kunstig, an AI that has taught itself to paint on its own. Kunstig is heavily
+            inspired by Edward Munch but you can also see that he takes from the abstract world of art as well. Kunstig
+            can produce an infinite amount of unique artworks, meaning there will never exist two identical pieces.
+        </p>
         <h2>Heres a few samples:</h2>
         <div className="gallery">
             <img className={"ai-image"} src={pic1}/>
