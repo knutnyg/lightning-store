@@ -22,7 +22,8 @@ fun main() {
             databaseUsername = "postgres",
             databasePassword = "",
             macaroonGeneratorSecret = props.getProperty("ls_macaroon_secret"),
-            location = "localhost"
+            location = "localhost",
+            resourcesPath = "/Users/knut"
         )
 
         val database = Database(

@@ -12,6 +12,7 @@ import xyz.nygaard.MacaroonService
 import xyz.nygaard.extractUserId
 import xyz.nygaard.installContentNegotiation
 import xyz.nygaard.lnd.LndClientMock
+import xyz.nygaard.store.Fetcher
 import xyz.nygaard.store.auth.AuthChallengeHeader
 import xyz.nygaard.store.auth.installLsatInterceptor
 import xyz.nygaard.store.invoice.InvoiceDto
@@ -21,6 +22,9 @@ import xyz.nygaard.store.register.registerRegisterApi
 import xyz.nygaard.store.user.TokenResponse
 import xyz.nygaard.store.user.TokenService
 import xyz.nygaard.util.sha256
+import java.io.File
+import java.io.FileInputStream
+import java.net.URI
 import java.util.*
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -115,7 +119,7 @@ class StoreE2ETest {
             installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
             routing {
                 registerOrders(orderService, tokenService, productService, invoiceService)
-                registerProducts(productService)
+                registerProducts(productService, "/Users/knut")
             }
         }) {
             with(handleRequest(HttpMethod.Post, "/orders/balance/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
@@ -211,4 +215,55 @@ class StoreE2ETest {
             }
         }
     }
+
+    @Test
+    fun `purchase image`() {
+        tokenService.createToken(macaroon, 0)
+        withTestApplication({
+            installContentNegotiation()
+            installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
+            routing {
+                registerOrders(orderService, tokenService, productService, invoiceService)
+                registerProducts(productService, resourceFetcher = TestFetcher())
+            }
+        }) {
+            var invoiceId: UUID? = null
+            with(handleRequest(HttpMethod.Post, "/orders/invoice/a1afc48b-23bc-4297-872a-5e7884d6975a") {
+                addHeader(HttpHeaders.Accept, "application/json")
+                addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
+            }) {
+                assertEquals(HttpStatusCode.OK, response.status())
+                val invoice = mapper.readValue(response.content, InvoiceDto::class.java)
+                invoiceId = invoice.id
+            }
+
+            with(handleRequest(HttpMethod.Get, "/products/a1afc48b-23bc-4297-872a-5e7884d6975a") {
+                addHeader(HttpHeaders.Accept, "application/json")
+                addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
+            }) {
+                assertEquals(HttpStatusCode.PaymentRequired, response.status())
+            }
+
+            lndMock.markInvoiceAsPaid()
+
+            with(handleRequest(HttpMethod.Get, "/invoices/$invoiceId") {
+                addHeader(HttpHeaders.Accept, "application/json")
+                addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
+            }) {
+                assertEquals(HttpStatusCode.OK, response.status())
+            }
+
+            with(handleRequest(HttpMethod.Get, "/products/a1afc48b-23bc-4297-872a-5e7884d6975a") {
+                addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
+            }) {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("image", response.contentType().contentType)
+                assertNotNull(response.byteContent?.size)
+            }
+        }
+    }
+}
+
+class TestFetcher : Fetcher {
+    override fun fetch(uri: URI) = FileInputStream("src/test/resources/working.jpg").readAllBytes()
 }

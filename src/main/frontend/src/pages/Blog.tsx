@@ -4,13 +4,14 @@ import {baseUrl} from "../App";
 import {InvoiceView} from "../invoice/Invoice";
 import useInterval from "../hooks/useInterval";
 import {Link} from "react-router-dom";
+import {fetchProduct, Product} from "../product/products";
 
 export enum AccessState { INITIAL, PAYMENT_REQUIRED, PAYMENT_PENDING, ACCESS}
 
-interface State {
+export interface State {
     access: AccessState
     invoice?: Invoice,
-    blog?: Blog,
+    product?: Product,
 }
 
 export interface PageProps {
@@ -20,7 +21,7 @@ export interface PageProps {
 export const PaywallView = (props: PageProps) => {
     const [state, setState] = useState<State>({
         invoice: undefined,
-        blog: undefined,
+        product: undefined,
         access: AccessState.INITIAL
     })
 
@@ -28,7 +29,7 @@ export const PaywallView = (props: PageProps) => {
         props.onChange("Introducing paywalled content")
         if (state.access === AccessState.INITIAL) {
             fetchProduct("261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")
-                .then(blog => setState({...state, blog: blog, access: AccessState.ACCESS}))
+                .then(blog => setState({...state, product: blog, access: AccessState.ACCESS}))
                 .catch(res => setState({...state, access: AccessState.PAYMENT_REQUIRED}))
         }
     })
@@ -45,7 +46,7 @@ export const PaywallView = (props: PageProps) => {
             if (state.invoice?.settled) {
                 fetchProduct("261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")
                     .then(blog => {
-                        setState({...state, blog: blog, access: AccessState.ACCESS, invoice: undefined})
+                        setState({...state, product: blog, access: AccessState.ACCESS, invoice: undefined})
                     })
                     .catch(_ => setState({...state, access: AccessState.PAYMENT_REQUIRED, invoice: undefined}))
             }
@@ -65,14 +66,10 @@ export const PaywallView = (props: PageProps) => {
         {state.access === AccessState.PAYMENT_REQUIRED && <button onClick={createOrder}>Buy article</button>}
         {state.access === AccessState.PAYMENT_PENDING && state.invoice &&
         <InvoiceView paymentReq={state.invoice.paymentRequest}/>}
-        {state.access === AccessState.ACCESS && state.blog &&
-        <div className="block" dangerouslySetInnerHTML={{__html: state.blog.payload}}/>}
+        {state.access === AccessState.ACCESS && state.product &&
+        <div className="block" dangerouslySetInnerHTML={{__html: state.product.payload}}/>}
         <Link to="/">Back</Link>
     </div>
-}
-
-interface Blog {
-    payload: string
 }
 
 const createOrderInvoice = (productId: string): Promise<Invoice> => {
@@ -95,25 +92,3 @@ const createOrderInvoice = (productId: string): Promise<Invoice> => {
         })
 }
 
-const fetchProduct = (id: string): Promise<Blog | undefined> => {
-    return fetch(`${baseUrl}/products/${id}`, {
-        method: 'GET',
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Accept': 'application/json',
-            'Authorization': `LSAT ${localStorage.getItem('macaroon')}:${localStorage.getItem("preimage")}`
-        },
-    })
-        .then(res => {
-            if (res.status === 200) {
-                return res.json() as Promise<Blog>
-            } else if (res.status === 402) {
-                console.log("Payment required")
-                return Promise.reject("Payment required")
-            }
-        })
-        .catch(err => {
-            console.log("err");
-            throw err
-        })
-}

@@ -1,11 +1,5 @@
-INSERT INTO products(id, name, price, payload)
-VALUES ('5b0b9c77-a576-411a-bee4-d02770c37689', 'IMAGE_AI_01', 1, null);
+ALTER TABLE products
+    ADD COLUMN uri varchar(200);
 
-INSERT INTO products(id, name, price, payload)
-VALUES ('ccdf8aa2-07d1-46aa-bbf2-c07067c4e117', 'IMAGE_AI_02', 1, null);
-
-INSERT INTO products(id, name, price, payload)
-VALUES ('260d5bbe-faeb-4436-89de-9d8c754a6ab7', 'IMAGE_AI_03', 1, null);
-
-INSERT INTO products(id, name, price, payload)
-VALUES ('ec533145-47fa-464e-8cf0-fd36e3709ad3', 'IMAGE_AI_04', 1, null);
+INSERT INTO products(id, name, price, payload, uri)
+VALUES ('a1afc48b-23bc-4297-872a-5e7884d6975a', 'IMAGE-1', 1, null, 'ai-1.png');

@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory
 import xyz.nygaard.db.Database
 import xyz.nygaard.lnd.LndApiWrapper
 import xyz.nygaard.lnd.LndClient
+import xyz.nygaard.store.ResourceFetcher
 import xyz.nygaard.store.auth.installLsatInterceptor
 import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.order.OrderService
@@ -44,7 +45,8 @@ fun main() {
             databaseUsername = System.getenv("LS_DATABASE_USERNAME"),
             databasePassword = System.getenv("LS_DATABASE_PASSWORD"),
             macaroonGeneratorSecret = System.getenv("LS_MACAROON_SECRET"),
-            location = System.getenv("LS_LOCATION")
+            location = System.getenv("LS_LOCATION"),
+            resourcesPath = "/Users/knut"
         )
 
         val database = Database(
@@ -91,7 +93,7 @@ internal fun Application.buildApplication(
         }
         registerSelftestApi(lndClient)
         registerRegisterApi(invoiceService, tokenService)
-        registerProducts(productService)
+        registerProducts(productService, environment.resourcesPath, ResourceFetcher())
         registerOrders(orderService, tokenService, productService, invoiceService)
     }
 }
@@ -136,6 +138,7 @@ data class Config(
     val cert: String,
     val macaroonGeneratorSecret: String,
     val location: String,
+    val resourcesPath: String,
 )
 
 class EnvironmentMacaroonContext(var currentMacaroonData: String) : MacaroonContext {

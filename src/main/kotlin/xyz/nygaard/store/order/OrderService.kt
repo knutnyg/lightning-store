@@ -11,6 +11,7 @@ import xyz.nygaard.store.invoice.InvoiceDto
 import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.user.Token
 import xyz.nygaard.store.user.TokenService
+import java.net.URI
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
@@ -86,7 +87,8 @@ class OrderService(
                                     id = this.getString("product_id").let { UUID.fromString(it) },
                                     name = this.getString("name"),
                                     price = this.getLong("price"),
-                                    payload = this.getString("payload")
+                                    payload = this.getString("payload"),
+                                    uri = this.getString("uri")?.let { URI.create(it) }
                                 ),
                                 settled = this.getTimestamp("order_settled")?.toLocalDateTime()
                             )
@@ -118,7 +120,8 @@ class OrderService(
                             id = UUID.fromString(this.getString("p.id")),
                             name = this.getString("name"),
                             price = this.getLong("price"),
-                            payload = this.getString("payload")
+                            payload = this.getString("payload"),
+                            uri = this.getString("uri")?.let { URI.create(it) }
                         ),
                         settled = this.getTimestamp("o.settled")?.toLocalDateTime()
                     )
