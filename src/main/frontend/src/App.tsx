@@ -43,7 +43,7 @@ function App() {
                         <Route path="/s/blog-paywall"><PaywallView onChange={newtitle}/></Route>
                         <Route path="/s/bitcoin-network"><Bitcoin onChange={newtitle}/></Route>
                         <Route path="/s/lightning-network"><Lightning onChange={newtitle}/></Route>
-                        <Route path="/s/ai-painting"><Kunstig onChange={newtitle}/></Route>
+                        <Route path="/s/kunstig"><Kunstig onChange={newtitle}/></Route>
                         <Route path="/"><Home onChange={newtitle}/></Route>
                     </Switch>
                 </Router>
