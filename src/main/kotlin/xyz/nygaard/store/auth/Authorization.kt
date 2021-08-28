@@ -25,8 +25,10 @@ fun Application.installLsatInterceptor(
     intercept(ApplicationCallPipeline.Call) {
         if (!call.request.path().contains("/open")) {
 
-            val authHeader = call.request.header("Authorization")
-            if (authHeader == null) {
+            val authorizationValue =
+                call.request.header("Authorization")
+                    ?: call.request.cookies["Authorization"]
+            if (authorizationValue == null) {
                 log.info("Caller missing authentication")
                 val tokenProduct = productService.getProduct(UUID.fromString("a64d4344-f964-4dfe-99a6-7b39a7eb91c1"))
                 val invoice =
@@ -45,7 +47,7 @@ fun Application.installLsatInterceptor(
                 return@intercept finish()
             }
 
-            val authorization = AuthHeader.deserialize(authHeader)
+            val authorization = AuthHeader.deserialize(authorizationValue)
 
             if (authorization.type != "LSAT") {
                 log.info("Caller using wrong authentication type, got ${authorization.type}")
@@ -100,5 +102,10 @@ class AuthHeader(
 
             return AuthHeader(type, macaroon, preimage)
         }
+    }
+
+    fun pack(): String {
+        val img = if (preimage != null) ":${preimage}" else ""
+        return "$type ${macaroon.serialize()}$img"
     }
 }

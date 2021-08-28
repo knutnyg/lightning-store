@@ -46,7 +46,7 @@ fun main() {
             databasePassword = System.getenv("LS_DATABASE_PASSWORD"),
             macaroonGeneratorSecret = System.getenv("LS_MACAROON_SECRET"),
             location = System.getenv("LS_LOCATION"),
-            resourcesPath = "/Users/knut"
+            resourcesPath = getEnvOrDefault("HOME", "/Users/knut"),
         )
 
         val database = Database(
@@ -145,4 +145,8 @@ class EnvironmentMacaroonContext(var currentMacaroonData: String) : MacaroonCont
     override fun getCurrentMacaroonAsHex(): String {
         return DatatypeConverter.printHexBinary(Base64.getDecoder().decode(currentMacaroonData))
     }
+}
+
+fun getEnvOrDefault(name: String, defaultValue: String): String {
+    return System.getenv(name) ?: defaultValue
 }

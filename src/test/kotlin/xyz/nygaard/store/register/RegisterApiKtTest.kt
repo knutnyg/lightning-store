@@ -2,6 +2,8 @@ package xyz.nygaard.store.register
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
+import io.ktor.application.*
+import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.routing.*
 import io.ktor.server.testing.*
@@ -52,6 +54,7 @@ internal class RegisterApiKtTest {
     @Test
     fun `fetch user balance`() {
         withTestApplication({
+            install(XForwardedHeaderSupport)
             installContentNegotiation()
             installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
             routing {
@@ -60,12 +63,14 @@ internal class RegisterApiKtTest {
         }) {
             with(handleRequest(HttpMethod.Get, "/register") {
                 addHeader(HttpHeaders.Accept, "application/json")
+                addHeader(HttpHeaders.XForwardedProto, "https")
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:$preimage")
             }) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                val response = mapper.readValue(response.content, TokenResponse::class.java)
-                assertEquals(0, response.balance)
-                assertNotNull(response.userId)
+                val data = mapper.readValue(response.content, TokenResponse::class.java)
+                assertEquals(0, data.balance)
+                assertNotNull(data.userId)
+                assertEquals( "LSAT ${macaroon.serialize()}:$preimage", response.cookies.get("Authorization")?.value)
             }
         }
     }

@@ -1,6 +1,7 @@
 package xyz.nygaard.store.register
 
 import io.ktor.application.*
+import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
@@ -37,7 +38,20 @@ fun Routing.registerRegisterApi(
         log.info("Caller looking up token")
         val authorization = AuthHeader.deserialize(authHeader)
 
-        val token = tokenService.fetchToken(authorization.macaroon) ?: return@get call.respond(HttpStatusCode.NotFound).also { log.info("Received token not stored in database. Probably because we have deleted our entry") }
+        val token = tokenService.fetchToken(authorization.macaroon)
+            ?: return@get call.respond(HttpStatusCode.NotFound)
+                .also { log.info("Received token not stored in database. Probably because we have deleted our entry") }
+
+        call.response.cookies.append(
+            name = "Authorization",
+            value = authorization.pack(),
+            path = "/",
+            httpOnly = true,
+            secure = true,
+            // TODO: check format of max age
+            // maxAge = Long.MAX_VALUE,
+        )
+
         return@get call.respond(token.toDTO())
     }
 }
