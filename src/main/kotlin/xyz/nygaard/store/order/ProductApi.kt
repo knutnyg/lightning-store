@@ -30,6 +30,8 @@ fun Routing.registerProducts(
                 call.respondBytes(contentType = ContentType.Image.JPEG, HttpStatusCode.OK) {
                     resourceFetcher.fetch(product.uri)
                 }
+            } else {
+                call.respond(product.toDto())
             }
         } else {
             call.respond(HttpStatusCode.PaymentRequired)

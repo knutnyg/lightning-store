@@ -217,7 +217,7 @@ class StoreE2ETest {
     }
 
     @Test
-    fun `purchase image`() {
+    fun `purchase image via bundle`() {
         tokenService.createToken(macaroon, 0)
         withTestApplication({
             installContentNegotiation()
@@ -228,7 +228,7 @@ class StoreE2ETest {
             }
         }) {
             var invoiceId: UUID? = null
-            with(handleRequest(HttpMethod.Post, "/orders/invoice/a1afc48b-23bc-4297-872a-5e7884d6975a") {
+            with(handleRequest(HttpMethod.Post, "/orders/invoice/ec533145-47fa-464e-8cf0-fd36e3709ad3") {
                 addHeader(HttpHeaders.Accept, "application/json")
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
             }) {
@@ -236,14 +236,6 @@ class StoreE2ETest {
                 val invoice = mapper.readValue(response.content, InvoiceDto::class.java)
                 invoiceId = invoice.id
             }
-
-            with(handleRequest(HttpMethod.Get, "/products/a1afc48b-23bc-4297-872a-5e7884d6975a") {
-                addHeader(HttpHeaders.Accept, "application/json")
-                addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
-            }) {
-                assertEquals(HttpStatusCode.PaymentRequired, response.status())
-            }
-
             lndMock.markInvoiceAsPaid()
 
             with(handleRequest(HttpMethod.Get, "/invoices/$invoiceId") {

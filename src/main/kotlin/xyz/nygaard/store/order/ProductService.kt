@@ -28,10 +28,11 @@ class ProductService(val dataSource: DataSource) {
 
     fun hasPurchased(tokenId: UUID, productId: UUID): Boolean {
         return dataSource.connectionAutoCommit().use {
-            it.prepareStatement("SELECT * FROM products p INNER JOIN orders o on p.id = o.product_id WHERE o.token_id = ? AND p.id = ? AND settled IS NOT null")
+            it.prepareStatement("SELECT * FROM products p INNER JOIN orders o on p.id = o.product_id LEFT JOIN bundle b on b.id = p.bundle_id LEFT JOIN bundle_product bp on bp.bundle_id = b.id WHERE o.token_id = ? AND (p.id = ? OR bp.product_id = ?) AND settled IS NOT null")
                 .use { preparedStatement ->
                     preparedStatement.setString(1, tokenId.toString())
                     preparedStatement.setString(2, productId.toString())
+                    preparedStatement.setString(3, productId.toString())
                     preparedStatement.executeQuery()
                         .toList {
                             true
