@@ -5,12 +5,18 @@ import pic2 from "./resources/AI-picture-2.png"
 import pic3 from "./resources/AI-picture-3.png"
 import pic4 from "./resources/AI-picture-4.png"
 import {AccessState, State} from "./Blog";
-import {fetchProduct} from "../product/products";
+import {createOrderInvoice, fetchProduct} from "../product/products";
 import useInterval from "../hooks/useInterval";
 import {updateInvoice} from "../invoice/invoices";
+import {InvoiceView} from "../invoice/Invoice";
 
 export interface PageProps {
     onChange: (title: string) => void;
+}
+
+interface ImageBlob {
+    id: string,
+    payload: string | undefined
 }
 
 export const Kunstig = (props: PageProps) => {
@@ -20,15 +26,41 @@ export const Kunstig = (props: PageProps) => {
         access: AccessState.INITIAL
     })
 
+    const [images, setImages] = useState<ImageBlob[]>([
+        {id: 'a1afc48b-23bc-4297-872a-5e7884d6975a', payload: undefined}
+    ])
+
+    // Hent bundle
+    // if bundle:
+    // hent hardkodeede refs
+    // plasser dem ut om de finnes med placeholdere
 
     useEffect(() => {
         props.onChange("Can a machine make art? 🎨")
         if (state.access === AccessState.INITIAL) {
-            fetchProduct("261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")
+            fetchProduct("ec533145-47fa-464e-8cf0-fd36e3709ad3")
                 .then(product => setState({...state, product: product, access: AccessState.ACCESS}))
                 .catch(res => setState({...state, access: AccessState.PAYMENT_REQUIRED}))
         }
+
+        if (state.access === AccessState.ACCESS) {
+            images.forEach((image, index, array) => {
+                if (image.payload === undefined) {
+                    fetchProduct(image.id)
+                        .then(product => {
+                                images[index].payload = product?.payload
+                                setImages(images)
+                            }
+                        )
+                }
+            })
+        }
     })
+
+    const createOrder = () => {
+        createOrderInvoice("ec533145-47fa-464e-8cf0-fd36e3709ad3")
+            .then(invoice => setState({...state, invoice: invoice, access: AccessState.PAYMENT_PENDING}))
+    }
 
     useInterval(() => {
         if (state.access === AccessState.PAYMENT_PENDING) {
@@ -40,7 +72,7 @@ export const Kunstig = (props: PageProps) => {
                     )
             }
             if (state.invoice?.settled) {
-                fetchProduct("awd")
+                fetchProduct("ec533145-47fa-464e-8cf0-fd36e3709ad3")
                     .then(product => {
                         setState({...state, product: product, access: AccessState.ACCESS, invoice: undefined})
                     })
@@ -64,8 +96,17 @@ export const Kunstig = (props: PageProps) => {
         </div>
 
         <div>
-            <button>Unlock more</button>
+            <button onClick={createOrder}>Buy article</button>
+            {state.access === AccessState.PAYMENT_PENDING && state.invoice &&
+            <InvoiceView paymentReq={state.invoice.paymentRequest}/>}
         </div>
+
+        <div className={"awd"}>{
+            images
+                .filter((i => i.payload !== undefined))
+                .map(((image, index) => {
+                    return (<img key={index} src={`data:image/jpeg;base64, ${image.payload}`}/>)
+                }))}</div>
 
         <p>Next steps:</p>
         <ul>

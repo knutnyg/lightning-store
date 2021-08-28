@@ -10,11 +10,10 @@ interface Fetcher {
 
 class ResourceFetcher : Fetcher {
     override fun fetch(uri: URI): ByteArray {
-        when (uri.fragment) {
-            "file" -> File(uri).readBytes()
+        when (uri.scheme) {
+            "file" -> return File("/Users/knut/code/lightning-store/resources/${uri.authority}").readBytes()
             "http" -> TODO()
             else -> TODO()
         }
-        throw RuntimeException("Halp")
     }
 }

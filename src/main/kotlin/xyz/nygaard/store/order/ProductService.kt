@@ -42,7 +42,7 @@ class ProductService(val dataSource: DataSource) {
     }
 }
 
-class Product(
+data class Product(
     val id: UUID,
     val name: String,
     val price: Long,

@@ -1,7 +1,8 @@
 import {baseUrl} from "../App";
+import {Invoice, InvoiceRaw} from "../invoice/invoices";
 
 export interface Product {
-    payload: string
+    payload: any
 }
 
 export const fetchProduct = (id: string): Promise<Product | undefined> => {
@@ -23,6 +24,26 @@ export const fetchProduct = (id: string): Promise<Product | undefined> => {
         })
         .catch(err => {
             console.log("err");
+            throw err
+        })
+}
+
+export const createOrderInvoice = (productId: string): Promise<Invoice> => {
+    return fetch(`${baseUrl}/orders/invoice/${productId}`, {
+        method: 'POST',
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Accept': 'application/json',
+            'Authorization': `LSAT ${localStorage.getItem('macaroon')}:${localStorage.getItem("preimage")}`
+        },
+    }).then(response => (response.json() as Promise<InvoiceRaw>))
+        .then((raw) => {
+            return {
+                ...raw,
+                inProgress: !raw.settled
+            }
+        })
+        .catch(err => {
             throw err
         })
 }

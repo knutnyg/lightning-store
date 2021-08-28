@@ -5,6 +5,7 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import io.ktor.util.*
 import xyz.nygaard.extractUserId
 import xyz.nygaard.store.Fetcher
 import xyz.nygaard.store.ResourceFetcher
@@ -27,9 +28,11 @@ fun Routing.registerProducts(
         if (productService.hasPurchased(authorization.macaroon.extractUserId(), productId)) {
             val product = productService.getProduct(productId)
             if (product.uri != null) {
-                call.respondBytes(contentType = ContentType.Image.JPEG, HttpStatusCode.OK) {
-                    resourceFetcher.fetch(product.uri)
-                }
+                call.respond(
+                    product.copy(
+                        payload = Base64.getEncoder().encodeToString(resourceFetcher.fetch(product.uri))
+                    ).toDto()
+                )
             } else {
                 call.respond(product.toDto())
             }

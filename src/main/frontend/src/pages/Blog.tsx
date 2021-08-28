@@ -4,7 +4,7 @@ import {baseUrl} from "../App";
 import {InvoiceView} from "../invoice/Invoice";
 import useInterval from "../hooks/useInterval";
 import {Link} from "react-router-dom";
-import {fetchProduct, Product} from "../product/products";
+import {createOrderInvoice, fetchProduct, Product} from "../product/products";
 
 export enum AccessState { INITIAL, PAYMENT_REQUIRED, PAYMENT_PENDING, ACCESS}
 
@@ -72,23 +72,4 @@ export const PaywallView = (props: PageProps) => {
     </div>
 }
 
-const createOrderInvoice = (productId: string): Promise<Invoice> => {
-    return fetch(`${baseUrl}/orders/invoice/${productId}`, {
-        method: 'POST',
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Accept': 'application/json',
-            'Authorization': `LSAT ${localStorage.getItem('macaroon')}:${localStorage.getItem("preimage")}`
-        },
-    }).then(response => (response.json() as Promise<InvoiceRaw>))
-        .then((raw) => {
-            return {
-                ...raw,
-                inProgress: !raw.settled
-            }
-        })
-        .catch(err => {
-            throw err
-        })
-}
 
