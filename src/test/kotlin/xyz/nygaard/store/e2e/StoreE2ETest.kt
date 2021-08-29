@@ -154,11 +154,7 @@ class StoreE2ETest {
             }
         }) {
             var invoiceId: UUID? = null
-            with(handleRequest(HttpMethod.Post, "/orders/invoice/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
-                addHeader(HttpHeaders.Accept, "application/json")
-                addHeader(HttpHeaders.XForwardedProto, "https")
-                addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
-            }) {
+            with(authenticated(HttpMethod.Post, "/orders/invoice/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val invoice = mapper.readValue(response.content, InvoiceDto::class.java)
                 invoiceId = invoice.id
@@ -168,29 +164,17 @@ class StoreE2ETest {
                 assertNull(invoice.settled)
             }
 
-            with(handleRequest(HttpMethod.Get, "/products/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
-                addHeader(HttpHeaders.Accept, "application/json")
-                addHeader(HttpHeaders.XForwardedProto, "https")
-                addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
-            }) {
+            with(authenticated(HttpMethod.Get, "/products/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")) {
                 assertEquals(HttpStatusCode.PaymentRequired, response.status())
             }
 
             lndMock.markInvoiceAsPaid()
 
-            with(handleRequest(HttpMethod.Get, "/invoices/$invoiceId") {
-                addHeader(HttpHeaders.Accept, "application/json")
-                addHeader(HttpHeaders.XForwardedProto, "https")
-                addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
-            }) {
+            with(authenticated(HttpMethod.Get, "/invoices/$invoiceId")) {
                 assertEquals(HttpStatusCode.OK, response.status())
             }
 
-            with(handleRequest(HttpMethod.Get, "/products/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
-                addHeader(HttpHeaders.Accept, "application/json")
-                addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
-            }) {
-                assertEquals(HttpStatusCode.OK, response.status())
+            with(authenticated(HttpMethod.Get, "/products/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")) {
                 assertNotNull(mapper.readValue(response.content, ProductDto::class.java).payload)
             }
         }
