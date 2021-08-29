@@ -22,7 +22,6 @@ import xyz.nygaard.store.register.registerRegisterApi
 import xyz.nygaard.store.user.TokenResponse
 import xyz.nygaard.store.user.TokenService
 import xyz.nygaard.util.sha256
-import java.io.File
 import java.io.FileInputStream
 import java.net.URI
 import java.util.*
@@ -208,18 +207,10 @@ class StoreE2ETest {
                 registerProducts(productService)
             }
         }) {
-            with(handleRequest(HttpMethod.Post, "/orders/balance/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
-                addHeader(HttpHeaders.Accept, "application/json")
-                addHeader(HttpHeaders.XForwardedProto, "https")
-                addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
-            }) {
+            with(authenticated(HttpMethod.Post, "/orders/balance/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")) {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
             }
-            with(handleRequest(HttpMethod.Get, "/products/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
-                addHeader(HttpHeaders.Accept, "application/json")
-                addHeader(HttpHeaders.XForwardedProto, "https")
-                addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
-            }) {
+            with(authenticated(HttpMethod.Get, "/products/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")) {
                 assertEquals(HttpStatusCode.PaymentRequired, response.status())
             }
         }
@@ -238,34 +229,31 @@ class StoreE2ETest {
             }
         }) {
             var invoiceId: UUID? = null
-            with(handleRequest(HttpMethod.Post, "/orders/invoice/ec533145-47fa-464e-8cf0-fd36e3709ad3") {
-                addHeader(HttpHeaders.Accept, "application/json")
-                addHeader(HttpHeaders.XForwardedProto, "https")
-                addHeader(HttpHeaders.Cookie, "authorization=LSAT ${macaroon.serialize()}:${preimage}")
-            }) {
+            with(authenticated(HttpMethod.Post, "/orders/invoice/ec533145-47fa-464e-8cf0-fd36e3709ad3")) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val invoice = mapper.readValue(response.content, InvoiceDto::class.java)
                 invoiceId = invoice.id
             }
             lndMock.markInvoiceAsPaid()
 
-            with(handleRequest(HttpMethod.Get, "/invoices/$invoiceId") {
-                addHeader(HttpHeaders.Accept, "application/json")
-                addHeader(HttpHeaders.XForwardedProto, "https")
-                addHeader(HttpHeaders.Cookie, "authorization=LSAT ${macaroon.serialize()}:${preimage}")
-            }) {
+            with(authenticated(HttpMethod.Get, "/invoices/$invoiceId")) {
                 assertEquals(HttpStatusCode.OK, response.status())
             }
 
-            with(handleRequest(HttpMethod.Get, "/products/a1afc48b-23bc-4297-872a-5e7884d6975a") {
-                addHeader(HttpHeaders.XForwardedProto, "https")
-                addHeader(HttpHeaders.Cookie, "authorization=LSAT ${macaroon.serialize()}:${preimage}")
-            }) {
+            with(authenticated(HttpMethod.Get, "/products/a1afc48b-23bc-4297-872a-5e7884d6975a")) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertNotNull(response.byteContent?.size)
             }
         }
     }
+
+
+    private fun TestApplicationEngine.authenticated(method: HttpMethod, uri: String) =
+        handleRequest(method, uri) {
+            addHeader(HttpHeaders.Accept, "application/json")
+            addHeader(HttpHeaders.XForwardedProto, "https")
+            addHeader(HttpHeaders.Cookie, "authorization=LSAT ${macaroon.serialize()}:${preimage}")
+        }
 }
 
 class TestFetcher : Fetcher {

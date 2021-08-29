@@ -9,8 +9,7 @@ import io.ktor.util.*
 import xyz.nygaard.extractUserId
 import xyz.nygaard.store.Fetcher
 import xyz.nygaard.store.ResourceFetcher
-import xyz.nygaard.store.auth.AuthHeader
-import java.io.File
+import xyz.nygaard.store.auth.AuthorizationKey
 import java.util.*
 
 fun Routing.registerProducts(
@@ -19,12 +18,10 @@ fun Routing.registerProducts(
     resourceFetcher: Fetcher = ResourceFetcher()
 ) {
     get("products/{id}") {
-        val authHeader = call.request.header("Authorization")
-            ?: call.request.cookies["authorization"] ?: return@get call.respond(HttpStatusCode.Unauthorized)
+        val authorization = call.attributes[AuthorizationKey]
 
         val productId =
             call.parameters["id"].let { UUID.fromString(it) } ?: return@get call.respond(HttpStatusCode.BadRequest)
-        val authorization = AuthHeader.deserialize(authHeader)
         if (productService.hasPurchased(authorization.macaroon.extractUserId(), productId)) {
             val product = productService.getProduct(productId)
             if (product.uri != null) {

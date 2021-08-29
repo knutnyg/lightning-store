@@ -8,6 +8,7 @@ import io.ktor.routing.*
 import xyz.nygaard.extractRHash
 import xyz.nygaard.log
 import xyz.nygaard.store.auth.AuthHeader
+import xyz.nygaard.store.auth.AuthorizationKey
 import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.user.TokenService
 
@@ -31,11 +32,9 @@ fun Routing.registerRegisterApi(
     put("/register") { call.respond("Ok") }
 
     get("/register") {
-        val authHeader = call.request.header("Authorization")
-            ?: return@get call.respond(HttpStatusCode.Unauthorized)
+        val authorization = call.attributes[AuthorizationKey]
 
         log.info("Caller looking up token")
-        val authorization = AuthHeader.deserialize(authHeader)
 
         val token = tokenService.fetchToken(authorization.macaroon) ?: return@get call.respond(HttpStatusCode.NotFound)
             .also { log.info("Received token not stored in database. Probably because we have deleted our entry") }

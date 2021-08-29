@@ -3,9 +3,11 @@ package xyz.nygaard.store.auth
 import com.github.nitram509.jmacaroons.Macaroon
 import com.github.nitram509.jmacaroons.MacaroonsBuilder
 import io.ktor.application.*
+import io.ktor.auth.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
+import io.ktor.util.*
 import xyz.nygaard.MacaroonService
 import xyz.nygaard.extractRHash
 import xyz.nygaard.store.invoice.InvoiceService
@@ -14,6 +16,8 @@ import xyz.nygaard.store.order.ProductService
 import xyz.nygaard.store.user.TokenService
 import xyz.nygaard.util.sha256
 import java.util.*
+
+val AuthorizationKey = AttributeKey<AuthHeader>("authorization")
 
 fun Application.installLsatInterceptor(
     invoiceService: InvoiceService,
@@ -24,7 +28,6 @@ fun Application.installLsatInterceptor(
 ) {
     intercept(ApplicationCallPipeline.Call) {
         if (!call.request.path().contains("/open")) {
-
             val authHeader = call.request.header("Authorization")
                 ?: call.request.cookies["authorization"]
             if (authHeader == null) {
@@ -65,6 +68,7 @@ fun Application.installLsatInterceptor(
                 call.respond(HttpStatusCode.BadRequest, "Preimage does not correspond to payment hash")
                 return@intercept finish()
             }
+            call.attributes.put(AuthorizationKey, authorization)
             return@intercept proceed()
         }
         return@intercept proceed()
@@ -89,7 +93,7 @@ class AuthHeader(
     val type: String,
     val macaroon: Macaroon,
     val preimage: String?
-) {
+) : Principal {
     companion object {
         fun deserialize(header: String): AuthHeader {
             val (type, rest) = header.split(" ").let { it.first() to it.last() }
