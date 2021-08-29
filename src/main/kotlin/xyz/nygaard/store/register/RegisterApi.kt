@@ -41,7 +41,7 @@ fun Routing.registerRegisterApi(
             .also { log.info("Received token not stored in database. Probably because we have deleted our entry") }
 
         call.response.cookies.append(
-            name = "Authorization",
+            name = "authorization",
             value = authorization.pack(),
             secure = true,
             httpOnly = true,

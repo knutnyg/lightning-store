@@ -67,9 +67,10 @@ internal class RegisterApiKtTest {
                 addHeader(HttpHeaders.XForwardedProto, "https")
             }) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                val response = mapper.readValue(response.content, TokenResponse::class.java)
-                assertEquals(0, response.balance)
-                assertNotNull(response.userId)
+                val data = mapper.readValue(response.content, TokenResponse::class.java)
+                assertEquals(0, data.balance)
+                assertNotNull(data.userId)
+                assertEquals("LSAT ${macaroon.serialize()}:$preimage", response.cookies["authorization"]?.value)
             }
         }
     }

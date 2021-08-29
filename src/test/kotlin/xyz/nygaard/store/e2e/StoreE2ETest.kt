@@ -241,7 +241,7 @@ class StoreE2ETest {
             with(handleRequest(HttpMethod.Post, "/orders/invoice/ec533145-47fa-464e-8cf0-fd36e3709ad3") {
                 addHeader(HttpHeaders.Accept, "application/json")
                 addHeader(HttpHeaders.XForwardedProto, "https")
-                addHeader(HttpHeaders.Cookie, "Authorization=LSAT ${macaroon.serialize()}:${preimage}")
+                addHeader(HttpHeaders.Cookie, "authorization=LSAT ${macaroon.serialize()}:${preimage}")
             }) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val invoice = mapper.readValue(response.content, InvoiceDto::class.java)
@@ -252,14 +252,14 @@ class StoreE2ETest {
             with(handleRequest(HttpMethod.Get, "/invoices/$invoiceId") {
                 addHeader(HttpHeaders.Accept, "application/json")
                 addHeader(HttpHeaders.XForwardedProto, "https")
-                addHeader(HttpHeaders.Cookie, "Authorization=LSAT ${macaroon.serialize()}:${preimage}")
+                addHeader(HttpHeaders.Cookie, "authorization=LSAT ${macaroon.serialize()}:${preimage}")
             }) {
                 assertEquals(HttpStatusCode.OK, response.status())
             }
 
             with(handleRequest(HttpMethod.Get, "/products/a1afc48b-23bc-4297-872a-5e7884d6975a") {
                 addHeader(HttpHeaders.XForwardedProto, "https")
-                addHeader(HttpHeaders.Cookie, "Authorization=LSAT ${macaroon.serialize()}:${preimage}")
+                addHeader(HttpHeaders.Cookie, "authorization=LSAT ${macaroon.serialize()}:${preimage}")
             }) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertNotNull(response.byteContent?.size)

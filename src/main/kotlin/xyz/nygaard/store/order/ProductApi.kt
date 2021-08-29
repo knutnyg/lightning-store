@@ -20,7 +20,7 @@ fun Routing.registerProducts(
 ) {
     get("products/{id}") {
         val authHeader = call.request.header("Authorization")
-            ?: call.request.cookies["Authorization"] ?: return@get call.respond(HttpStatusCode.Unauthorized)
+            ?: call.request.cookies["authorization"] ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
         val productId =
             call.parameters["id"].let { UUID.fromString(it) } ?: return@get call.respond(HttpStatusCode.BadRequest)
