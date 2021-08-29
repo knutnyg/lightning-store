@@ -2,6 +2,8 @@ package xyz.nygaard.store.register
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
+import io.ktor.application.*
+import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.routing.*
 import io.ktor.server.testing.*
@@ -53,6 +55,7 @@ internal class RegisterApiKtTest {
     fun `fetch user balance`() {
         withTestApplication({
             installContentNegotiation()
+            install(XForwardedHeaderSupport)
             installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
             routing {
                 registerRegisterApi(invoiceService, tokenService)
@@ -61,6 +64,7 @@ internal class RegisterApiKtTest {
             with(handleRequest(HttpMethod.Get, "/register") {
                 addHeader(HttpHeaders.Accept, "application/json")
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:$preimage")
+                addHeader(HttpHeaders.XForwardedProto, "https")
             }) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val response = mapper.readValue(response.content, TokenResponse::class.java)

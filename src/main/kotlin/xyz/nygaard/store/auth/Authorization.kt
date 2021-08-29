@@ -26,6 +26,7 @@ fun Application.installLsatInterceptor(
         if (!call.request.path().contains("/open")) {
 
             val authHeader = call.request.header("Authorization")
+                ?: call.request.cookies["Authorization"]
             if (authHeader == null) {
                 log.info("Caller missing authentication")
                 val tokenProduct = productService.getProduct(UUID.fromString("a64d4344-f964-4dfe-99a6-7b39a7eb91c1"))
@@ -101,4 +102,6 @@ class AuthHeader(
             return AuthHeader(type, macaroon, preimage)
         }
     }
+
+    fun pack() = "$type ${macaroon.serialize()}:$preimage"
 }

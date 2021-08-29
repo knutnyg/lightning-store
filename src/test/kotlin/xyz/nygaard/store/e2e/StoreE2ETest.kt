@@ -2,15 +2,15 @@ package xyz.nygaard.store.e2e
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
+import io.ktor.application.*
+import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.routing.*
 import io.ktor.server.testing.*
 import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
-import xyz.nygaard.MacaroonService
-import xyz.nygaard.extractUserId
-import xyz.nygaard.installContentNegotiation
+import xyz.nygaard.*
 import xyz.nygaard.lnd.LndClientMock
 import xyz.nygaard.store.Fetcher
 import xyz.nygaard.store.auth.AuthChallengeHeader
@@ -94,6 +94,7 @@ class StoreE2ETest {
         tokenService.createToken(macaroon, 0)
         withTestApplication({
             installContentNegotiation()
+            install(XForwardedHeaderSupport)
             installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
             routing {
                 registerRegisterApi(invoiceService, tokenService)
@@ -101,6 +102,7 @@ class StoreE2ETest {
         }) {
             with(handleRequest(HttpMethod.Get, "/register") {
                 addHeader(HttpHeaders.Accept, "application/json")
+                addHeader(HttpHeaders.XForwardedProto, "https")
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
             }) {
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -124,6 +126,7 @@ class StoreE2ETest {
         }) {
             with(handleRequest(HttpMethod.Post, "/orders/balance/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
                 addHeader(HttpHeaders.Accept, "application/json")
+                addHeader(HttpHeaders.XForwardedProto, "https")
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
             }) {
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -132,6 +135,7 @@ class StoreE2ETest {
             }
             with(handleRequest(HttpMethod.Get, "/products/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
                 addHeader(HttpHeaders.Accept, "application/json")
+                addHeader(HttpHeaders.XForwardedProto, "https")
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
             }) {
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -153,6 +157,7 @@ class StoreE2ETest {
             var invoiceId: UUID? = null
             with(handleRequest(HttpMethod.Post, "/orders/invoice/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
                 addHeader(HttpHeaders.Accept, "application/json")
+                addHeader(HttpHeaders.XForwardedProto, "https")
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
             }) {
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -166,6 +171,7 @@ class StoreE2ETest {
 
             with(handleRequest(HttpMethod.Get, "/products/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
                 addHeader(HttpHeaders.Accept, "application/json")
+                addHeader(HttpHeaders.XForwardedProto, "https")
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
             }) {
                 assertEquals(HttpStatusCode.PaymentRequired, response.status())
@@ -175,6 +181,7 @@ class StoreE2ETest {
 
             with(handleRequest(HttpMethod.Get, "/invoices/$invoiceId") {
                 addHeader(HttpHeaders.Accept, "application/json")
+                addHeader(HttpHeaders.XForwardedProto, "https")
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
             }) {
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -203,12 +210,14 @@ class StoreE2ETest {
         }) {
             with(handleRequest(HttpMethod.Post, "/orders/balance/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
                 addHeader(HttpHeaders.Accept, "application/json")
+                addHeader(HttpHeaders.XForwardedProto, "https")
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
             }) {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
             }
             with(handleRequest(HttpMethod.Get, "/products/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
                 addHeader(HttpHeaders.Accept, "application/json")
+                addHeader(HttpHeaders.XForwardedProto, "https")
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
             }) {
                 assertEquals(HttpStatusCode.PaymentRequired, response.status())
@@ -221,6 +230,7 @@ class StoreE2ETest {
         tokenService.createToken(macaroon, 0)
         withTestApplication({
             installContentNegotiation()
+            install(XForwardedHeaderSupport)
             installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
             routing {
                 registerOrders(orderService, tokenService, productService, invoiceService)
@@ -230,7 +240,8 @@ class StoreE2ETest {
             var invoiceId: UUID? = null
             with(handleRequest(HttpMethod.Post, "/orders/invoice/ec533145-47fa-464e-8cf0-fd36e3709ad3") {
                 addHeader(HttpHeaders.Accept, "application/json")
-                addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
+                addHeader(HttpHeaders.XForwardedProto, "https")
+                addHeader(HttpHeaders.Cookie, "Authorization=LSAT ${macaroon.serialize()}:${preimage}")
             }) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val invoice = mapper.readValue(response.content, InvoiceDto::class.java)
@@ -240,16 +251,17 @@ class StoreE2ETest {
 
             with(handleRequest(HttpMethod.Get, "/invoices/$invoiceId") {
                 addHeader(HttpHeaders.Accept, "application/json")
-                addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
+                addHeader(HttpHeaders.XForwardedProto, "https")
+                addHeader(HttpHeaders.Cookie, "Authorization=LSAT ${macaroon.serialize()}:${preimage}")
             }) {
                 assertEquals(HttpStatusCode.OK, response.status())
             }
 
             with(handleRequest(HttpMethod.Get, "/products/a1afc48b-23bc-4297-872a-5e7884d6975a") {
-                addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
+                addHeader(HttpHeaders.XForwardedProto, "https")
+                addHeader(HttpHeaders.Cookie, "Authorization=LSAT ${macaroon.serialize()}:${preimage}")
             }) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("image", response.contentType().contentType)
                 assertNotNull(response.byteContent?.size)
             }
         }

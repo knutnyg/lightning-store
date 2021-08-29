@@ -20,7 +20,7 @@ fun Routing.registerOrders(
 ) {
     post("/orders/invoice/{id}") {
         val authHeader = call.request.header("Authorization")
-            ?: return@post call.respond(HttpStatusCode.Unauthorized)
+            ?: call.request.cookies["Authorization"] ?: return@post call.respond(HttpStatusCode.Unauthorized)
 
         val productId = UUID.fromString(call.parameters["id"])
 
@@ -40,7 +40,7 @@ fun Routing.registerOrders(
 
     post("/orders/balance/{id}") {
         val authHeader = call.request.header("Authorization")
-            ?: return@post call.respond(HttpStatusCode.Unauthorized)
+            ?: call.request.cookies["Authorization"] ?: return@post call.respond(HttpStatusCode.Unauthorized)
 
         val productId = UUID.fromString(call.parameters["id"])
 
@@ -58,7 +58,7 @@ fun Routing.registerOrders(
 
     get("/orders") {
         val authHeader = call.request.header("Authorization")
-            ?: return@get call.respond(HttpStatusCode.Unauthorized)
+            ?: call.request.cookies["Authorization"] ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
         val authorization = AuthHeader.deserialize(authHeader)
         call.respond(orderService.getOrders(authorization.macaroon.extractUserId()).map { it.toDto() })
@@ -66,7 +66,7 @@ fun Routing.registerOrders(
 
     get("/orders/{id}") {
         val authHeader = call.request.header("Authorization")
-            ?: return@get call.respond(HttpStatusCode.Unauthorized)
+            ?: call.request.cookies["Authorization"] ?: return@get call.respond(HttpStatusCode.Unauthorized)
         val orderId = call.parameters["id"].let { UUID.fromString(it) } ?: return@get call.respond(
             HttpStatusCode.BadRequest,
             "Missing order id"
@@ -77,10 +77,10 @@ fun Routing.registerOrders(
     }
 
     get("/invoices/{uuid}") {
+        val authHeader = call.request.header("Authorization")
+            ?: call.request.cookies["Authorization"] ?: return@get call.respond(HttpStatusCode.Unauthorized)
         val invoiceUUID =
             call.parameters["uuid"].let { UUID.fromString(it) } ?: throw RuntimeException("Missing invoice uuid")
-        val authHeader = call.request.header("Authorization")
-            ?: return@get call.respond(HttpStatusCode.Unauthorized)
 
         val authorization = AuthHeader.deserialize(authHeader)
         log.info("Lookup on invoice: $invoiceUUID")
