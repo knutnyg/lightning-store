@@ -3,9 +3,7 @@ package xyz.nygaard.store.e2e
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import io.ktor.application.*
-import io.ktor.features.*
 import io.ktor.http.*
-import io.ktor.routing.*
 import io.ktor.server.testing.*
 import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.*
@@ -14,11 +12,8 @@ import xyz.nygaard.*
 import xyz.nygaard.lnd.LndClientMock
 import xyz.nygaard.store.Fetcher
 import xyz.nygaard.store.auth.AuthChallengeHeader
-import xyz.nygaard.store.auth.installLsatInterceptor
 import xyz.nygaard.store.invoice.InvoiceDto
-import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.order.*
-import xyz.nygaard.store.register.registerRegisterApi
 import xyz.nygaard.store.user.TokenResponse
 import xyz.nygaard.store.user.TokenService
 import xyz.nygaard.util.sha256
@@ -62,7 +57,7 @@ class StoreE2ETest {
     @Test
     fun `sign up as new user`() {
         withTestApplication({
-            buildApplication(embeddedPostgres.postgresDatabase, macaroonService, lndMock)
+            setup()
         }) {
             var authHeader: AuthChallengeHeader
             with(handleRequest(HttpMethod.Put, "/register") {
@@ -83,7 +78,7 @@ class StoreE2ETest {
     fun `fetch token balance as an authenticated user`() {
         tokenService.createToken(macaroon, 0)
         withTestApplication({
-            buildApplication(embeddedPostgres.postgresDatabase, macaroonService, lndMock)
+            setup()
         }) {
             with(handleRequest(HttpMethod.Get, "/register") {
                 addHeader(HttpHeaders.Accept, "application/json")
@@ -102,7 +97,7 @@ class StoreE2ETest {
     fun `purchase blogpost with balance`() {
         tokenService.createToken(macaroon, 110)
         withTestApplication({
-            buildApplication(embeddedPostgres.postgresDatabase, macaroonService, lndMock)
+            setup()
         }) {
             with(handleRequest(HttpMethod.Post, "/orders/balance/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
                 addHeader(HttpHeaders.Accept, "application/json")
@@ -127,7 +122,7 @@ class StoreE2ETest {
     fun `purchase blogpost with invoice`() {
         tokenService.createToken(macaroon, 0)
         withTestApplication({
-            buildApplication(embeddedPostgres.postgresDatabase, macaroonService, lndMock)
+            setup()
         }) {
             var invoiceId: UUID? = null
             with(authenticated(HttpMethod.Post, "/orders/invoice/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")) {
@@ -160,7 +155,7 @@ class StoreE2ETest {
     fun `fail to purchase blogpost with 0 balance`() {
         tokenService.createToken(macaroon, 0)
         withTestApplication({
-            buildApplication(embeddedPostgres.postgresDatabase, macaroonService, lndMock)
+            setup()
         }) {
             with(authenticated(HttpMethod.Post, "/orders/balance/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")) {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
@@ -175,7 +170,7 @@ class StoreE2ETest {
     fun `purchase image via bundle`() {
         tokenService.createToken(macaroon, 0)
         withTestApplication({
-            buildApplication(embeddedPostgres.postgresDatabase, macaroonService, lndMock, productService)
+            setup()
         }) {
             var invoiceId: UUID? = null
             with(authenticated(HttpMethod.Post, "/orders/invoice/ec533145-47fa-464e-8cf0-fd36e3709ad3")) {
@@ -203,8 +198,17 @@ class StoreE2ETest {
             addHeader(HttpHeaders.XForwardedProto, "https")
             addHeader(HttpHeaders.Cookie, "authorization=LSAT ${macaroon.serialize()}:${preimage}")
         }
+
+    private fun Application.setup() {
+        return buildApplication(
+            dataSource = embeddedPostgres.postgresDatabase,
+            macaroonService = macaroonService,
+            productService = productService,
+            lndClient = lndMock
+        )
+    }
 }
 
 class TestFetcher : Fetcher {
-    override fun fetch(uri: URI) = FileInputStream("src/test/resources/working.jpg").readAllBytes()
+    override fun fetch(uri: URI) = requireNotNull(FileInputStream("src/test/resources/working.jpg").readAllBytes())
 }
