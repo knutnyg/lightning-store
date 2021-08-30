@@ -4,6 +4,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import org.flywaydb.core.Flyway
 import xyz.nygaard.db.Database
+import xyz.nygaard.lnd.LndClient
 import java.io.FileInputStream
 import java.util.*
 
@@ -32,9 +33,19 @@ fun main() {
             environment.databasePassword
         )
 
+        val macaroonService = MacaroonService(environment.location, environment.macaroonGeneratorSecret)
+        val lndClient = LndClient(
+            environment.cert,
+            environment.hostUrl,
+            environment.hostPort,
+            environment.readOnlyMacaroon,
+            environment.invoiceMacaroon
+        )
+
         Flyway.configure().run {
             dataSource(database.dataSource).load().migrate()
         }
-        buildApplication(environment, database.dataSource)
+        buildApplication(
+            dataSource = database.dataSource, macaroonService = macaroonService, lndClient = lndClient)
     }.start(wait = true)
 }

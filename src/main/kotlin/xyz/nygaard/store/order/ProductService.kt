@@ -2,11 +2,13 @@ package xyz.nygaard.store.order
 
 import xyz.nygaard.db.connectionAutoCommit
 import xyz.nygaard.db.toList
+import xyz.nygaard.store.Fetcher
+import xyz.nygaard.store.ResourceFetcher
 import java.net.URI
 import java.util.*
 import javax.sql.DataSource
 
-class ProductService(val dataSource: DataSource) {
+class ProductService(val dataSource: DataSource, val resourceFetcher: Fetcher) {
     fun getProduct(uuid: UUID): Product {
         return dataSource.connectionAutoCommit().use { connection ->
             connection.prepareStatement("SELECT * FROM products WHERE id = ?")
@@ -22,6 +24,12 @@ class ProductService(val dataSource: DataSource) {
                                 uri = this.getString("uri")?.let { URI.create(it) }
                             )
                         }.first()
+                }
+                .let {
+                    if (it.uri != null) {
+                        it.payload = Base64.getEncoder().encodeToString(resourceFetcher.fetch(it.uri))
+                    }
+                    it
                 }
         }
     }
@@ -46,7 +54,7 @@ data class Product(
     val id: UUID,
     val name: String,
     val price: Long,
-    val payload: String?,
+    var payload: String?,
     val uri: URI?
 ) {
     fun toDto() = ProductDto(id, name, price, payload)

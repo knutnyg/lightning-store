@@ -34,15 +34,10 @@ class StoreE2ETest {
 
     private val lndMock = LndClientMock()
 
-    private val invoiceService = InvoiceService(
-        embeddedPostgres.postgresDatabase,
-        lndMock
-    )
-
     private val macaroonService = MacaroonService("localhost", "secret")
     private val tokenService = TokenService(embeddedPostgres.postgresDatabase)
-    private val productService = ProductService(embeddedPostgres.postgresDatabase)
     private val orderService = OrderService(embeddedPostgres.postgresDatabase)
+    private val productService = ProductService(embeddedPostgres.postgresDatabase, TestFetcher())
 
     private val preimage = "1234"
     private val rhash = preimage.sha256()
@@ -67,11 +62,7 @@ class StoreE2ETest {
     @Test
     fun `sign up as new user`() {
         withTestApplication({
-            installContentNegotiation()
-            installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
-            routing {
-                registerRegisterApi(invoiceService, tokenService)
-            }
+            buildApplication(embeddedPostgres.postgresDatabase, macaroonService, lndMock)
         }) {
             var authHeader: AuthChallengeHeader
             with(handleRequest(HttpMethod.Put, "/register") {
@@ -92,12 +83,7 @@ class StoreE2ETest {
     fun `fetch token balance as an authenticated user`() {
         tokenService.createToken(macaroon, 0)
         withTestApplication({
-            installContentNegotiation()
-            install(XForwardedHeaderSupport)
-            installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
-            routing {
-                registerRegisterApi(invoiceService, tokenService)
-            }
+            buildApplication(embeddedPostgres.postgresDatabase, macaroonService, lndMock)
         }) {
             with(handleRequest(HttpMethod.Get, "/register") {
                 addHeader(HttpHeaders.Accept, "application/json")
@@ -116,12 +102,7 @@ class StoreE2ETest {
     fun `purchase blogpost with balance`() {
         tokenService.createToken(macaroon, 110)
         withTestApplication({
-            installContentNegotiation()
-            installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
-            routing {
-                registerOrders(orderService, tokenService, productService, invoiceService)
-                registerProducts(productService, "/Users/knut")
-            }
+            buildApplication(embeddedPostgres.postgresDatabase, macaroonService, lndMock)
         }) {
             with(handleRequest(HttpMethod.Post, "/orders/balance/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
                 addHeader(HttpHeaders.Accept, "application/json")
@@ -146,12 +127,7 @@ class StoreE2ETest {
     fun `purchase blogpost with invoice`() {
         tokenService.createToken(macaroon, 0)
         withTestApplication({
-            installContentNegotiation()
-            installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
-            routing {
-                registerOrders(orderService, tokenService, productService, invoiceService)
-                registerProducts(productService)
-            }
+            buildApplication(embeddedPostgres.postgresDatabase, macaroonService, lndMock)
         }) {
             var invoiceId: UUID? = null
             with(authenticated(HttpMethod.Post, "/orders/invoice/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")) {
@@ -184,12 +160,7 @@ class StoreE2ETest {
     fun `fail to purchase blogpost with 0 balance`() {
         tokenService.createToken(macaroon, 0)
         withTestApplication({
-            installContentNegotiation()
-            installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
-            routing {
-                registerOrders(orderService, tokenService, productService, invoiceService)
-                registerProducts(productService)
-            }
+            buildApplication(embeddedPostgres.postgresDatabase, macaroonService, lndMock)
         }) {
             with(authenticated(HttpMethod.Post, "/orders/balance/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")) {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
@@ -204,13 +175,7 @@ class StoreE2ETest {
     fun `purchase image via bundle`() {
         tokenService.createToken(macaroon, 0)
         withTestApplication({
-            installContentNegotiation()
-            install(XForwardedHeaderSupport)
-            installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
-            routing {
-                registerOrders(orderService, tokenService, productService, invoiceService)
-                registerProducts(productService, resourceFetcher = TestFetcher())
-            }
+            buildApplication(embeddedPostgres.postgresDatabase, macaroonService, lndMock, productService)
         }) {
             var invoiceId: UUID? = null
             with(authenticated(HttpMethod.Post, "/orders/invoice/ec533145-47fa-464e-8cf0-fd36e3709ad3")) {

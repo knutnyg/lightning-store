@@ -16,6 +16,7 @@ import xyz.nygaard.MacaroonService
 import xyz.nygaard.installContentNegotiation
 import xyz.nygaard.lnd.LndClientMock
 import xyz.nygaard.store.auth.installLsatInterceptor
+import xyz.nygaard.store.e2e.TestFetcher
 import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.order.OrderService
 import xyz.nygaard.store.order.ProductService
@@ -37,7 +38,7 @@ internal class RegisterApiKtTest {
     private val macaroonService = MacaroonService("localhost", "secret")
     private val tokenService = TokenService(embeddedPostgres.postgresDatabase)
     private val orderService = OrderService(embeddedPostgres.postgresDatabase)
-    private val productService = ProductService(embeddedPostgres.postgresDatabase)
+    private val productService = ProductService(embeddedPostgres.postgresDatabase, TestFetcher())
 
     private val preimage = "1234"
     private val rhash = preimage.sha256()

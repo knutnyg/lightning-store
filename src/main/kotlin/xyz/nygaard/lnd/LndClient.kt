@@ -7,7 +7,6 @@ import org.lightningj.lnd.wrapper.message.AddInvoiceResponse
 import org.lightningj.lnd.wrapper.message.GetInfoRequest
 import org.lightningj.lnd.wrapper.message.GetInfoResponse
 import org.lightningj.lnd.wrapper.message.PaymentHash
-import xyz.nygaard.Config
 import xyz.nygaard.EnvironmentMacaroonContext
 import xyz.nygaard.store.invoice.Invoice
 import xyz.nygaard.util.decodeHex
@@ -15,29 +14,28 @@ import xyz.nygaard.util.toHex
 import java.io.ByteArrayInputStream
 import java.util.*
 
-class LndClient(environment: Config) : LndApiWrapper {
+class LndClient(certificate: String, hostUrl: String, hostPort: Int, readOnlyMacaroon: String, invoiceMacaroon: String) :
+    LndApiWrapper {
 
     private val cert = GrpcSslContexts.configure(
         io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder.forClient(),
         SslProvider.OPENSSL
     )
-        .trustManager(ByteArrayInputStream(Base64.getDecoder().decode(environment.cert)))
+        .trustManager(ByteArrayInputStream(Base64.getDecoder().decode(certificate)))
         .build()
-
-    private val readonlyMacaroon = EnvironmentMacaroonContext(currentMacaroonData = environment.readOnlyMacaroon)
+    
     private val readOnlyApi = SynchronousLndAPI(
-        environment.hostUrl,
-        environment.hostPort,
+        hostUrl,
+        hostPort,
         cert,
-        readonlyMacaroon
+        EnvironmentMacaroonContext(currentMacaroonData = readOnlyMacaroon)
     )
 
-    private val invoiceMacaroon = EnvironmentMacaroonContext(currentMacaroonData = environment.invoiceMacaroon)
     private val lndInvoiceApi = SynchronousLndAPI(
-        environment.hostUrl,
-        environment.hostPort,
+        hostUrl,
+        hostPort,
         cert,
-        invoiceMacaroon
+        EnvironmentMacaroonContext(currentMacaroonData = invoiceMacaroon)
     )
 
     override fun addInvoice(value: Long, memo: String): LndCreatedInvoice =
@@ -49,7 +47,7 @@ class LndClient(environment: Config) : LndApiWrapper {
             .map2()
 
 
-    override fun lookupInvoice(invoice:Invoice) : LndInvoice =
+    override fun lookupInvoice(invoice: Invoice): LndInvoice =
         lndInvoiceApi.lookupInvoice(PaymentHash()
             .apply {
                 rHash = invoice.rhash.decodeHex()

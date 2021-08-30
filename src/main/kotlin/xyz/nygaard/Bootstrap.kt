@@ -54,20 +54,29 @@ fun main() {
             environment.databaseUsername,
             environment.databasePassword
         )
-        buildApplication(environment, database.dataSource)
+        val lndClient = LndClient(
+            environment.cert,
+            environment.hostUrl,
+            environment.hostPort, environment.readOnlyMacaroon, environment.invoiceMacaroon
+        )
+        val macaroonService = MacaroonService(environment.location, environment.macaroonGeneratorSecret)
+        buildApplication(
+            dataSource = database.dataSource,
+            macaroonService = macaroonService,
+            lndClient = lndClient
+        )
     }.start(wait = true)
 }
 
 internal fun Application.buildApplication(
-    environment: Config,
-    dataSource: DataSource
+    dataSource: DataSource,
+    macaroonService: MacaroonService,
+    lndClient: LndApiWrapper,
+    productService: ProductService = ProductService(dataSource, ResourceFetcher())
 ) {
-    val lndClient = LndClient(environment)
     val invoiceService = InvoiceService(dataSource, lndClient)
-    val macaroonService = MacaroonService(environment.location, environment.macaroonGeneratorSecret)
     val tokenService = TokenService(dataSource)
     val orderService = OrderService(dataSource)
-    val productService = ProductService(dataSource)
 
     installContentNegotiation()
     install(XForwardedHeaderSupport)
@@ -93,7 +102,7 @@ internal fun Application.buildApplication(
         }
         registerSelftestApi(lndClient)
         registerRegisterApi(invoiceService, tokenService)
-        registerProducts(productService, environment.resourcesPath, ResourceFetcher())
+        registerProducts(productService)
         registerOrders(orderService, tokenService, productService, invoiceService)
     }
 }
