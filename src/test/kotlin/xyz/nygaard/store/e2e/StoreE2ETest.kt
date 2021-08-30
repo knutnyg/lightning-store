@@ -199,14 +199,12 @@ class StoreE2ETest {
             addHeader(HttpHeaders.Cookie, "authorization=LSAT ${macaroon.serialize()}:${preimage}")
         }
 
-    private fun Application.setup() {
-        return buildApplication(
-            dataSource = embeddedPostgres.postgresDatabase,
-            macaroonService = macaroonService,
-            productService = productService,
-            lndClient = lndMock
-        )
-    }
+    private fun Application.setup() = buildApplication(
+        dataSource = embeddedPostgres.postgresDatabase,
+        macaroonService = macaroonService,
+        productService = productService,
+        lndClient = lndMock
+    )
 }
 
 class TestFetcher : Fetcher {
