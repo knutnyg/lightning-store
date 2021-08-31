@@ -14,8 +14,18 @@ import {Home} from './pages/Home';
 import {useEffect} from "react";
 import {Kunstig} from "./pages/Kunstig";
 
-export const baseUrl = process.env.NODE_ENV === 'production'
-    ? 'https://store-api.nygaard.xyz' : 'http://localhost:8081';
+const resolveBaseUrl = (host: string): string => {
+    switch (host) {
+        // switch port if react dev-server
+        case 'http://localhost:8080':
+            return `http://localhost:8081/api`
+        // use current host
+        default:
+            return `${host}/api`
+    }
+}
+
+export const baseUrl = resolveBaseUrl(window.location.origin)
 
 function App() {
     const [user, setUser] = useUser()
