@@ -50,11 +50,11 @@ function App() {
             <div className="content">
                 <Router>
                     <Switch>
-                        <Route path="/s/lsat"><LSATView onChange={newtitle}/></Route>
-                        <Route path="/s/blog-paywall"><PaywallView onChange={newtitle}/></Route>
-                        <Route path="/s/bitcoin-network"><Bitcoin onChange={newtitle}/></Route>
-                        <Route path="/s/lightning-network"><Lightning onChange={newtitle}/></Route>
-                        <Route path="/s/kunstig"><Kunstig onChange={newtitle}/></Route>
+                        <Route path="/lsat"><LSATView onChange={newtitle}/></Route>
+                        <Route path="/blog-paywall"><PaywallView onChange={newtitle}/></Route>
+                        <Route path="/bitcoin-network"><Bitcoin onChange={newtitle}/></Route>
+                        <Route path="/lightning-network"><Lightning onChange={newtitle}/></Route>
+                        <Route path="/kunstig"><Kunstig onChange={newtitle}/></Route>
                         <Route path="/"><Home onChange={newtitle}/></Route>
                     </Switch>
                 </Router>
