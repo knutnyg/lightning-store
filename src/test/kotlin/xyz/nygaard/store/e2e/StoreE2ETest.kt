@@ -1,58 +1,21 @@
 package xyz.nygaard.store.e2e
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.opentable.db.postgres.embedded.EmbeddedPostgres
-import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 import xyz.nygaard.*
-import xyz.nygaard.lnd.LndClientMock
 import xyz.nygaard.store.Fetcher
 import xyz.nygaard.store.auth.AuthChallengeHeader
 import xyz.nygaard.store.invoice.InvoiceDto
 import xyz.nygaard.store.order.*
 import xyz.nygaard.store.user.TokenResponse
-import xyz.nygaard.store.user.TokenService
-import xyz.nygaard.util.sha256
 import java.io.FileInputStream
 import java.net.URI
 import java.util.*
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class StoreE2ETest {
 
-    private val embeddedPostgres: EmbeddedPostgres = EmbeddedPostgres.builder()
-        .setPort(5534).start()
-
-    private val lndMock = LndClientMock()
-
-    private val macaroonService = MacaroonService("localhost", "secret")
-    private val tokenService = TokenService(embeddedPostgres.postgresDatabase)
-    private val orderService = OrderService(embeddedPostgres.postgresDatabase)
-    private val productService = ProductService(embeddedPostgres.postgresDatabase, TestFetcher())
-
-    private val preimage = "1234"
-    private val rhash = preimage.sha256()
-    private val macaroon = macaroonService.createMacaroon(rhash)
-
-    private val mapper = jacksonObjectMapper()
-
-    @BeforeAll
-    fun setup() {
-        Flyway.configure().dataSource(embeddedPostgres.postgresDatabase).load().migrate()
-    }
-
-    @BeforeEach
-    fun reset() {
-        embeddedPostgres.postgresDatabase.connection.use {
-            it.prepareStatement("DELETE FROM orders;").execute()
-            it.prepareStatement("DELETE FROM token;").execute()
-            it.prepareStatement("DELETE FROM invoices;").execute()
-        }
-    }
+class StoreE2ETest : AbstractE2ETest() {
 
     @Test
     fun `sign up as new user`() {
@@ -190,22 +153,6 @@ class StoreE2ETest {
             }
         }
     }
-
-
-    private fun TestApplicationEngine.authenticated(method: HttpMethod, uri: String) =
-        handleRequest(method, uri) {
-            addHeader(HttpHeaders.Accept, "application/json")
-            addHeader(HttpHeaders.XForwardedProto, "https")
-            addHeader(HttpHeaders.Cookie, "authorization=LSAT ${macaroon.serialize()}:${preimage}")
-        }
-
-    private fun Application.setup() = buildApplication(
-        dataSource = embeddedPostgres.postgresDatabase,
-        macaroonService = macaroonService,
-        productService = productService,
-        lndClient = lndMock,
-        staticResourcesPath = "static"
-    )
 }
 
 class TestFetcher : Fetcher {
