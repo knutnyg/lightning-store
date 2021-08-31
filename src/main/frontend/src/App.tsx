@@ -18,6 +18,7 @@ const resolveBaseUrl = (host: string): string => {
     switch (host) {
         // switch port if react dev-server
         case 'http://localhost:8080':
+        case 'http://localhost:3000':
             return `http://localhost:8081/api`
         // use current host
         default:

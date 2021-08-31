@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import xyz.nygaard.MacaroonService
 import xyz.nygaard.buildApplication
-import xyz.nygaard.lnd.LndClientMock
+import xyz.nygaard.store.invoice.LndClientMock
 import xyz.nygaard.store.order.OrderService
 import xyz.nygaard.store.order.ProductService
 import xyz.nygaard.store.user.TokenService

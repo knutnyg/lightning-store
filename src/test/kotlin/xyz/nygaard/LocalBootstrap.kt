@@ -1,5 +1,6 @@
 package xyz.nygaard
 
+import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.http.*
@@ -8,7 +9,8 @@ import io.ktor.server.netty.*
 import org.flywaydb.core.Flyway
 import xyz.nygaard.db.Database
 import xyz.nygaard.lnd.LndClient
-import xyz.nygaard.log
+import xyz.nygaard.store.invoice.LndClientMock
+import java.io.File
 import java.io.FileInputStream
 import java.util.*
 
@@ -16,46 +18,58 @@ import java.util.*
 fun main() {
     embeddedServer(Netty, 8081) {
         val props = Properties()
-        props.load(FileInputStream("src/test/resources/local.properties"))
+
+        val propertiesFile = File("src/test/resources/local.properties")
+        if (propertiesFile.exists()) {
+            log.info("loaded local.properties")
+            props.load(FileInputStream("src/test/resources/local.properties"))
+        }
+
         val environment = Config(
-            hostUrl = props.getProperty("lshost"),
-            hostPort = props.getProperty("lsport").toInt(),
-            readOnlyMacaroon = props.getProperty("readonly_macaroon"),
-            invoiceMacaroon = props.getProperty("invoice_macaroon"),
-            cert = props.getProperty("tls_cert"),
-            databaseName = "",
-            databaseUsername = "postgres",
-            databasePassword = "",
-            macaroonGeneratorSecret = props.getProperty("ls_macaroon_secret"),
-            location = "localhost",
-            resourcesPath = "/Users/knut",
-            staticResourcesPath = "src/main/frontend/build"
+                hostUrl = props.getProperty("lshost", "localhost"),
+                hostPort = props.getProperty("lsport", "10009").toInt(),
+                readOnlyMacaroon = props.getProperty("readonly_macaroon", "readonly_macaroon"),
+                invoiceMacaroon = props.getProperty("invoice_macaroon", "invoice_macaroon"),
+                cert = props.getProperty("tls_cert", "tls_cert"),
+                databaseName = "",
+                databaseUsername = "postgres",
+                databasePassword = "",
+                macaroonGeneratorSecret = props.getProperty("ls_macaroon_secret", "secret"),
+                location = "localhost",
+                resourcesPath = props.getProperty("resourcesPath", "src/main/resources"),
+                staticResourcesPath = "src/main/frontend/build"
         )
 
-        val database = Database(
-            "jdbc:postgresql://localhost:5432/${environment.databaseName}",
-            environment.databaseUsername,
-            environment.databasePassword
-        )
+        val useRealPostgres = false
+        val useRealLnd = false
+
+        val dataSource = if (useRealPostgres) {
+            Database(
+                    "jdbc:postgresql://localhost:5432/${environment.databaseName}",
+                    environment.databaseUsername,
+                    environment.databasePassword
+            ).dataSource
+        } else EmbeddedPostgres.builder()
+                .setPort(5534).start().postgresDatabase
 
         val macaroonService = MacaroonService(environment.location, environment.macaroonGeneratorSecret)
-        val lndClient = LndClient(
-            environment.cert,
-            environment.hostUrl,
-            environment.hostPort,
-            environment.readOnlyMacaroon,
-            environment.invoiceMacaroon
-        )
+        val lndClient = if (useRealLnd) { LndClient(
+                environment.cert,
+                environment.hostUrl,
+                environment.hostPort,
+                environment.readOnlyMacaroon,
+                environment.invoiceMacaroon
+        ) } else LndClientMock()
 
         Flyway.configure().run {
-            dataSource(database.dataSource).load().migrate()
+            dataSource(dataSource).load().migrate()
         }
         buildApplication(
-            dataSource = database.dataSource,
-            macaroonService = macaroonService,
-            lndClient = lndClient,
-            inProduction = false,
-            staticResourcesPath = environment.staticResourcesPath
+                dataSource = dataSource,
+                macaroonService = macaroonService,
+                lndClient = lndClient,
+                inProduction = false,
+                staticResourcesPath = environment.staticResourcesPath
         ).apply {
             install(CORS) {
                 method(HttpMethod.Options)
@@ -68,7 +82,7 @@ fun main() {
                 header(HttpHeaders.AccessControlExposeHeaders)
                 allowSameOrigin = true
                 host("localhost:8080", listOf("http", "https"))
-                host("localhost:8081", listOf("http", "https"))
+                host("localhost:3000", listOf("http", "https"))
                 log.info("CORS enabled for $hosts")
             }
         }
