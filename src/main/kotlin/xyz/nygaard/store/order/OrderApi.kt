@@ -12,12 +12,34 @@ import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.user.TokenService
 import java.util.*
 
-fun Routing.registerOrders(
+fun Route.registerOrders(
     orderService: OrderService,
     tokenService: TokenService,
     productService: ProductService,
     invoiceService: InvoiceService
 ) {
+    get("/invoices/{uuid}") {
+        val authorization = call.attributes[AuthorizationKey]
+        val invoiceUUID =
+            call.parameters["uuid"].let { UUID.fromString(it) } ?: throw RuntimeException("Missing invoice uuid")
+
+        log.info("Lookup on invoice: $invoiceUUID")
+
+        val invoice = invoiceService.lookupAndUpdate(invoiceUUID, authorization.macaroon)
+
+        if (invoice != null) {
+            call.respond(invoice)
+        } else {
+            call.respond(HttpStatusCode.NotFound)
+        }
+    }
+
+    get("/orders") {
+        val authorization = call.attributes[AuthorizationKey]
+
+        call.respond(orderService.getOrders(authorization.macaroon.extractUserId()).map { it.toDto() })
+    }
+
     post("/orders/invoice/{id}") {
         val authorization = call.attributes[AuthorizationKey]
 
@@ -52,11 +74,7 @@ fun Routing.registerOrders(
         call.respond(HttpStatusCode.OK)
     }
 
-    get("/orders") {
-        val authorization = call.attributes[AuthorizationKey]
 
-        call.respond(orderService.getOrders(authorization.macaroon.extractUserId()).map { it.toDto() })
-    }
 
     get("/orders/{id}") {
         val authorization = call.attributes[AuthorizationKey]
@@ -68,19 +86,5 @@ fun Routing.registerOrders(
         orderService.getOrder(authorization.macaroon.extractUserId(), orderId)
     }
 
-    get("/invoices/{uuid}") {
-        val authorization = call.attributes[AuthorizationKey]
-        val invoiceUUID =
-            call.parameters["uuid"].let { UUID.fromString(it) } ?: throw RuntimeException("Missing invoice uuid")
 
-        log.info("Lookup on invoice: $invoiceUUID")
-
-        val invoice = invoiceService.lookupAndUpdate(invoiceUUID, authorization.macaroon)
-
-        if (invoice != null) {
-            call.respond(invoice)
-        } else {
-            call.respond(HttpStatusCode.NotFound)
-        }
-    }
 }

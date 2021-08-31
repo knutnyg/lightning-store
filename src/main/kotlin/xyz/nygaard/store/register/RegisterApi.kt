@@ -12,9 +12,10 @@ import xyz.nygaard.store.auth.AuthorizationKey
 import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.user.TokenService
 
-fun Routing.registerRegisterApi(
+fun Route.registerRegisterApi(
     invoiceService: InvoiceService,
-    tokenService: TokenService
+    tokenService: TokenService,
+    inProduction: Boolean = true,
 ) {
     get("/open/register") {
         val authHeader = call.request.header("Authorization")
@@ -42,9 +43,9 @@ fun Routing.registerRegisterApi(
         call.response.cookies.append(
             name = "authorization",
             value = authorization.pack(),
-            secure = true,
+            secure = inProduction,
             httpOnly = true,
-            domain = "/"
+            domain = if (inProduction) "nygaard.xyz" else "localhost:8080"
         )
         return@get call.respond(token.toDTO())
     }

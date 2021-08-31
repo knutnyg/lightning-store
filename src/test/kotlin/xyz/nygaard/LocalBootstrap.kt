@@ -24,7 +24,8 @@ fun main() {
             databasePassword = "",
             macaroonGeneratorSecret = props.getProperty("ls_macaroon_secret"),
             location = "localhost",
-            resourcesPath = "/Users/knut"
+            resourcesPath = "/Users/knut",
+            staticResourcesPath = "src/main/frontend/build"
         )
 
         val database = Database(
@@ -46,6 +47,11 @@ fun main() {
             dataSource(database.dataSource).load().migrate()
         }
         buildApplication(
-            dataSource = database.dataSource, macaroonService = macaroonService, lndClient = lndClient)
+            dataSource = database.dataSource,
+            macaroonService = macaroonService,
+            lndClient = lndClient,
+            inProduction = false,
+            staticResourcesPath = environment.staticResourcesPath
+        )
     }.start(wait = true)
 }

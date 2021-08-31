@@ -12,10 +12,10 @@ import xyz.nygaard.store.ResourceFetcher
 import xyz.nygaard.store.auth.AuthorizationKey
 import java.util.*
 
-fun Routing.registerProducts(
+fun Route.registerProducts(
     productService: ProductService,
 ) {
-    get("products/{id}") {
+    get("/products/{id}") {
         val authorization = call.attributes[AuthorizationKey]
 
         val productId =

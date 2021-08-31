@@ -60,7 +60,7 @@ class StoreE2ETest {
             setup()
         }) {
             var authHeader: AuthChallengeHeader
-            with(handleRequest(HttpMethod.Put, "/register") {
+            with(handleRequest(HttpMethod.Put, "/api/register") {
                 addHeader(HttpHeaders.Accept, "application/json")
             }) {
                 assertTrue(response.headers.contains("WWW-Authenticate"))
@@ -80,7 +80,7 @@ class StoreE2ETest {
         withTestApplication({
             setup()
         }) {
-            with(handleRequest(HttpMethod.Get, "/register") {
+            with(handleRequest(HttpMethod.Get, "/api/register") {
                 addHeader(HttpHeaders.Accept, "application/json")
                 addHeader(HttpHeaders.XForwardedProto, "https")
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
@@ -99,7 +99,7 @@ class StoreE2ETest {
         withTestApplication({
             setup()
         }) {
-            with(handleRequest(HttpMethod.Post, "/orders/balance/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
+            with(handleRequest(HttpMethod.Post, "/api/orders/balance/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
                 addHeader(HttpHeaders.Accept, "application/json")
                 addHeader(HttpHeaders.XForwardedProto, "https")
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
@@ -108,7 +108,7 @@ class StoreE2ETest {
                 assertEquals(109, tokenService.fetchToken(macaroon)?.balance)
                 assertEquals(1, orderService.getOrders(macaroon.extractUserId()).size)
             }
-            with(handleRequest(HttpMethod.Get, "/products/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
+            with(handleRequest(HttpMethod.Get, "/api/products/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
                 addHeader(HttpHeaders.Accept, "application/json")
                 addHeader(HttpHeaders.XForwardedProto, "https")
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
@@ -125,7 +125,7 @@ class StoreE2ETest {
             setup()
         }) {
             var invoiceId: UUID? = null
-            with(authenticated(HttpMethod.Post, "/orders/invoice/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")) {
+            with(authenticated(HttpMethod.Post, "/api/orders/invoice/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val invoice = mapper.readValue(response.content, InvoiceDto::class.java)
                 invoiceId = invoice.id
@@ -135,17 +135,17 @@ class StoreE2ETest {
                 assertNull(invoice.settled)
             }
 
-            with(authenticated(HttpMethod.Get, "/products/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")) {
+            with(authenticated(HttpMethod.Get, "/api/products/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")) {
                 assertEquals(HttpStatusCode.PaymentRequired, response.status())
             }
 
             lndMock.markInvoiceAsPaid()
 
-            with(authenticated(HttpMethod.Get, "/invoices/$invoiceId")) {
+            with(authenticated(HttpMethod.Get, "/api/invoices/$invoiceId")) {
                 assertEquals(HttpStatusCode.OK, response.status())
             }
 
-            with(authenticated(HttpMethod.Get, "/products/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")) {
+            with(authenticated(HttpMethod.Get, "/api/products/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")) {
                 assertNotNull(mapper.readValue(response.content, ProductDto::class.java).payload)
             }
         }
@@ -157,10 +157,10 @@ class StoreE2ETest {
         withTestApplication({
             setup()
         }) {
-            with(authenticated(HttpMethod.Post, "/orders/balance/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")) {
+            with(authenticated(HttpMethod.Post, "/api/orders/balance/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")) {
                 assertEquals(HttpStatusCode.BadRequest, response.status())
             }
-            with(authenticated(HttpMethod.Get, "/products/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")) {
+            with(authenticated(HttpMethod.Get, "/api/products/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")) {
                 assertEquals(HttpStatusCode.PaymentRequired, response.status())
             }
         }
@@ -173,18 +173,18 @@ class StoreE2ETest {
             setup()
         }) {
             var invoiceId: UUID? = null
-            with(authenticated(HttpMethod.Post, "/orders/invoice/ec533145-47fa-464e-8cf0-fd36e3709ad3")) {
+            with(authenticated(HttpMethod.Post, "/api/orders/invoice/ec533145-47fa-464e-8cf0-fd36e3709ad3")) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val invoice = mapper.readValue(response.content, InvoiceDto::class.java)
                 invoiceId = invoice.id
             }
             lndMock.markInvoiceAsPaid()
 
-            with(authenticated(HttpMethod.Get, "/invoices/$invoiceId")) {
+            with(authenticated(HttpMethod.Get, "/api/invoices/$invoiceId")) {
                 assertEquals(HttpStatusCode.OK, response.status())
             }
 
-            with(authenticated(HttpMethod.Get, "/products/a1afc48b-23bc-4297-872a-5e7884d6975a")) {
+            with(authenticated(HttpMethod.Get, "/api/products/a1afc48b-23bc-4297-872a-5e7884d6975a")) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertNotNull(response.byteContent?.size)
             }
@@ -203,7 +203,8 @@ class StoreE2ETest {
         dataSource = embeddedPostgres.postgresDatabase,
         macaroonService = macaroonService,
         productService = productService,
-        lndClient = lndMock
+        lndClient = lndMock,
+        staticResourcesPath = "static"
     )
 }
 

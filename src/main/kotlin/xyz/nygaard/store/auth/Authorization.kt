@@ -20,7 +20,8 @@ import java.util.*
 val AuthorizationKey = AttributeKey<AuthHeader>("authorization")
 
 val openPaths = listOf(
-    "/open/register"
+    "/api/open/register",
+    "/"
 )
 
 fun Application.installLsatInterceptor(
@@ -31,7 +32,8 @@ fun Application.installLsatInterceptor(
     productService: ProductService
 ) {
     intercept(ApplicationCallPipeline.Call) {
-        if (call.request.path() !in openPaths) {
+        val path = call.request.path()
+        if (path !in openPaths && path.startsWith("/api/")) {
             val authHeader = call.request.header("Authorization")
                 ?: call.request.cookies["authorization"]
             if (authHeader == null) {

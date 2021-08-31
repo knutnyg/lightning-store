@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.jackson.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -47,6 +48,7 @@ fun main() {
             macaroonGeneratorSecret = System.getenv("LS_MACAROON_SECRET"),
             location = System.getenv("LS_LOCATION"),
             resourcesPath = getEnvOrDefault("HOME", "/Users/knut"),
+            staticResourcesPath = getEnvOrDefault("LS_STATIC_RESOURCES", "src/main/frontend/build"),
         )
 
         val database = Database(
@@ -63,16 +65,19 @@ fun main() {
         buildApplication(
             dataSource = database.dataSource,
             macaroonService = macaroonService,
-            lndClient = lndClient
+            lndClient = lndClient,
+            staticResourcesPath = environment.staticResourcesPath
         )
     }.start(wait = true)
 }
 
 internal fun Application.buildApplication(
     dataSource: DataSource,
+    staticResourcesPath: String,
     macaroonService: MacaroonService,
     lndClient: LndApiWrapper,
-    productService: ProductService = ProductService(dataSource, ResourceFetcher())
+    productService: ProductService = ProductService(dataSource, ResourceFetcher()),
+    inProduction: Boolean = true
 ) {
     val invoiceService = InvoiceService(dataSource, lndClient)
     val tokenService = TokenService(dataSource)
@@ -92,22 +97,27 @@ internal fun Application.buildApplication(
         allowSameOrigin = true
         host("store.nygaard.xyz", listOf("http", "https"))
         host("localhost:8080", listOf("http", "https"))
+        host("localhost:8081", listOf("http", "https"))
         log.info("CORS enabled for $hosts")
     }
     install(CallLogging)
     installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
     routing {
-        get("/") {
-            call.respondText("Hello, world!")
+        route("/api") {
+            registerOrders(orderService, tokenService, productService, invoiceService)
+            registerSelftestApi(lndClient)
+            registerRegisterApi(invoiceService, tokenService, inProduction)
+            registerProducts(productService)
         }
-        registerSelftestApi(lndClient)
-        registerRegisterApi(invoiceService, tokenService)
-        registerProducts(productService)
-        registerOrders(orderService, tokenService, productService, invoiceService)
+        static("/") {
+            files(staticResourcesPath)
+            default("${staticResourcesPath}/index.html")
+        }
+
     }
 }
 
-fun Routing.registerSelftestApi(lndClient: LndApiWrapper) {
+fun Route.registerSelftestApi(lndClient: LndApiWrapper) {
     get("/nodeInfo") {
         log.info("Requesting Status")
         call.respond(lndClient.getInfo())
@@ -148,6 +158,7 @@ data class Config(
     val macaroonGeneratorSecret: String,
     val location: String,
     val resourcesPath: String,
+    val staticResourcesPath: String
 )
 
 class EnvironmentMacaroonContext(var currentMacaroonData: String) : MacaroonContext {
