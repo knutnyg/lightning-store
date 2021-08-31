@@ -85,21 +85,6 @@ internal fun Application.buildApplication(
 
     installContentNegotiation()
     install(XForwardedHeaderSupport)
-    install(CORS) {
-        method(HttpMethod.Options)
-        method(HttpMethod.Post)
-        method(HttpMethod.Get)
-        method(HttpMethod.Put)
-        header(HttpHeaders.Authorization)
-        header(HttpHeaders.AccessControlAllowOrigin)
-        header(HttpHeaders.ContentType)
-        header(HttpHeaders.AccessControlExposeHeaders)
-        allowSameOrigin = true
-        host("store.nygaard.xyz", listOf("http", "https"))
-        host("localhost:8080", listOf("http", "https"))
-        host("localhost:8081", listOf("http", "https"))
-        log.info("CORS enabled for $hosts")
-    }
     install(CallLogging)
     installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
     routing {

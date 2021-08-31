@@ -1,10 +1,14 @@
 package xyz.nygaard
 
+import io.ktor.application.*
+import io.ktor.features.*
+import io.ktor.http.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import org.flywaydb.core.Flyway
 import xyz.nygaard.db.Database
 import xyz.nygaard.lnd.LndClient
+import xyz.nygaard.log
 import java.io.FileInputStream
 import java.util.*
 
@@ -52,6 +56,21 @@ fun main() {
             lndClient = lndClient,
             inProduction = false,
             staticResourcesPath = environment.staticResourcesPath
-        )
+        ).apply {
+            install(CORS) {
+                method(HttpMethod.Options)
+                method(HttpMethod.Post)
+                method(HttpMethod.Get)
+                method(HttpMethod.Put)
+                header(HttpHeaders.Authorization)
+                header(HttpHeaders.AccessControlAllowOrigin)
+                header(HttpHeaders.ContentType)
+                header(HttpHeaders.AccessControlExposeHeaders)
+                allowSameOrigin = true
+                host("localhost:8080", listOf("http", "https"))
+                host("localhost:8081", listOf("http", "https"))
+                log.info("CORS enabled for $hosts")
+            }
+        }
     }.start(wait = true)
 }
