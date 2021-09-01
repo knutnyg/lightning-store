@@ -19,8 +19,8 @@ export const Home = (props: PageProps) => {
         <p>Lets start by setting you up with an account. Not a normal boring account. We live in the future and use a
             new technique
             named <Link
-                to="/s/lsat">LSAT</Link>.</p>
-        <Link className={"centered"} to="/s/lsat">Read more and sign up here️</Link>
+                to="/lsat">LSAT</Link>.</p>
+        <Link className={"centered"} to="/lsat">Read more and sign up here️</Link>
 
         <p>All my code is freely available at <a
             href={"https://github.com/knutnyg/lightning-store/"}>github</a> and my <a
