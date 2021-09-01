@@ -27,6 +27,7 @@ import xyz.nygaard.store.order.registerOrders
 import xyz.nygaard.store.order.registerProducts
 import xyz.nygaard.store.register.registerRegisterApi
 import xyz.nygaard.store.user.TokenService
+import java.io.File
 import java.util.*
 import javax.sql.DataSource
 import javax.xml.bind.DatatypeConverter
@@ -94,11 +95,22 @@ internal fun Application.buildApplication(
             registerRegisterApi(invoiceService, tokenService, inProduction)
             registerProducts(productService)
         }
-        static("/") {
-            files(staticResourcesPath)
-            default("${staticResourcesPath}/index.html")
+
+        // Serves all static content i.e: example.com/static/css/styles.css
+        static("/static") {
+            staticRootFolder = File(staticResourcesPath)
+            files("static")
         }
 
+        // Serves index.html on example.com
+        static("/") {
+            default("$staticResourcesPath/index.html")
+        }
+
+        // Serves index.html on other paths like: example.com/register
+        static("*") {
+            default("$staticResourcesPath/index.html")
+        }
     }
 }
 
