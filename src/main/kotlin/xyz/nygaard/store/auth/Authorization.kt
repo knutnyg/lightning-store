@@ -23,6 +23,21 @@ val openPaths = listOf(
     "/api/open/register",
     "/"
 )
+interface CookieBakery {
+    fun createAuthCookie(authHeader: AuthHeader):Cookie
+}
+class CookieJar: CookieBakery  {
+    override fun createAuthCookie(authHeader: AuthHeader): Cookie {
+        return Cookie(
+            name = "authorization",
+            value = authHeader.pack(),
+            secure = true,
+            httpOnly = true,
+            domain = "nygaard.xyz",
+            extensions = mapOf("SameSite" to "Strict")
+        )
+    }
+}
 
 fun Application.installLsatInterceptor(
     invoiceService: InvoiceService,

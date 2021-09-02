@@ -9,13 +9,14 @@ import xyz.nygaard.extractRHash
 import xyz.nygaard.log
 import xyz.nygaard.store.auth.AuthHeader
 import xyz.nygaard.store.auth.AuthorizationKey
+import xyz.nygaard.store.auth.CookieBakery
 import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.user.TokenService
 
 fun Route.registerRegisterApi(
     invoiceService: InvoiceService,
     tokenService: TokenService,
-    inProduction: Boolean = true,
+    cookieBakery: CookieBakery
 ) {
     get("/open/register") {
         val authHeader = call.request.header("Authorization")
@@ -40,13 +41,7 @@ fun Route.registerRegisterApi(
         val token = tokenService.fetchToken(authorization.macaroon) ?: return@get call.respond(HttpStatusCode.NotFound)
             .also { log.info("Received token not stored in database. Probably because we have deleted our entry") }
 
-        call.response.cookies.append(
-            name = "authorization",
-            value = authorization.pack(),
-            secure = inProduction,
-            httpOnly = true,
-            domain = if (inProduction) "nygaard.xyz" else "localhost:8080"
-        )
+        call.response.cookies.append(cookieBakery.createAuthCookie(authorization))
         return@get call.respond(token.toDTO())
     }
 }

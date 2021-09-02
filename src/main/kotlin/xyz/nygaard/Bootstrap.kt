@@ -5,7 +5,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.application.*
 import io.ktor.features.*
-import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.jackson.*
 import io.ktor.response.*
@@ -19,6 +18,8 @@ import xyz.nygaard.db.Database
 import xyz.nygaard.lnd.LndApiWrapper
 import xyz.nygaard.lnd.LndClient
 import xyz.nygaard.store.ResourceFetcher
+import xyz.nygaard.store.auth.CookieBakery
+import xyz.nygaard.store.auth.CookieJar
 import xyz.nygaard.store.auth.installLsatInterceptor
 import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.order.OrderService
@@ -78,7 +79,7 @@ internal fun Application.buildApplication(
     macaroonService: MacaroonService,
     lndClient: LndApiWrapper,
     productService: ProductService = ProductService(dataSource, ResourceFetcher()),
-    inProduction: Boolean = true
+    cookieBakery: CookieBakery = CookieJar()
 ) {
     val invoiceService = InvoiceService(dataSource, lndClient)
     val tokenService = TokenService(dataSource)
@@ -92,7 +93,7 @@ internal fun Application.buildApplication(
         route("/api") {
             registerOrders(orderService, tokenService, productService, invoiceService)
             registerSelftestApi(lndClient)
-            registerRegisterApi(invoiceService, tokenService, inProduction)
+            registerRegisterApi(invoiceService, tokenService, cookieBakery)
             registerProducts(productService)
         }
 

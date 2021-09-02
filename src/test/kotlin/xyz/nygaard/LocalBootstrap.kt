@@ -9,6 +9,8 @@ import io.ktor.server.netty.*
 import org.flywaydb.core.Flyway
 import xyz.nygaard.db.Database
 import xyz.nygaard.lnd.LndClient
+import xyz.nygaard.store.auth.AuthHeader
+import xyz.nygaard.store.auth.CookieBakery
 import xyz.nygaard.store.invoice.LndClientMock
 import java.io.File
 import java.io.FileInputStream
@@ -26,18 +28,18 @@ fun main() {
         }
 
         val environment = Config(
-                hostUrl = props.getProperty("lshost", "localhost"),
-                hostPort = props.getProperty("lsport", "10009").toInt(),
-                readOnlyMacaroon = props.getProperty("readonly_macaroon", "readonly_macaroon"),
-                invoiceMacaroon = props.getProperty("invoice_macaroon", "invoice_macaroon"),
-                cert = props.getProperty("tls_cert", "tls_cert"),
-                databaseName = "",
-                databaseUsername = "postgres",
-                databasePassword = "",
-                macaroonGeneratorSecret = props.getProperty("ls_macaroon_secret", "secret"),
-                location = "localhost",
-                resourcesPath = props.getProperty("resourcesPath", "src/main/resources"),
-                staticResourcesPath = "src/main/frontend/build"
+            hostUrl = props.getProperty("lshost", "localhost"),
+            hostPort = props.getProperty("lsport", "10009").toInt(),
+            readOnlyMacaroon = props.getProperty("readonly_macaroon", "readonly_macaroon"),
+            invoiceMacaroon = props.getProperty("invoice_macaroon", "invoice_macaroon"),
+            cert = props.getProperty("tls_cert", "tls_cert"),
+            databaseName = "",
+            databaseUsername = "postgres",
+            databasePassword = "",
+            macaroonGeneratorSecret = props.getProperty("ls_macaroon_secret", "secret"),
+            location = "localhost",
+            resourcesPath = props.getProperty("resourcesPath", "src/main/resources"),
+            staticResourcesPath = "src/main/frontend/build"
         )
 
         val useRealPostgres = false
@@ -45,31 +47,33 @@ fun main() {
 
         val dataSource = if (useRealPostgres) {
             Database(
-                    "jdbc:postgresql://localhost:5432/${environment.databaseName}",
-                    environment.databaseUsername,
-                    environment.databasePassword
+                "jdbc:postgresql://localhost:5432/${environment.databaseName}",
+                environment.databaseUsername,
+                environment.databasePassword
             ).dataSource
         } else EmbeddedPostgres.builder()
-                .setPort(5534).start().postgresDatabase
+            .setPort(5534).start().postgresDatabase
 
         val macaroonService = MacaroonService(environment.location, environment.macaroonGeneratorSecret)
-        val lndClient = if (useRealLnd) { LndClient(
+        val lndClient = if (useRealLnd) {
+            LndClient(
                 environment.cert,
                 environment.hostUrl,
                 environment.hostPort,
                 environment.readOnlyMacaroon,
                 environment.invoiceMacaroon
-        ) } else LndClientMock()
+            )
+        } else LndClientMock()
 
         Flyway.configure().run {
             dataSource(dataSource).load().migrate()
         }
         buildApplication(
-                dataSource = dataSource,
-                macaroonService = macaroonService,
-                lndClient = lndClient,
-                inProduction = false,
-                staticResourcesPath = environment.staticResourcesPath
+            dataSource = dataSource,
+            macaroonService = macaroonService,
+            lndClient = lndClient,
+            cookieBakery = LocalhostCookieJar(),
+            staticResourcesPath = environment.staticResourcesPath
         ).apply {
             install(CORS) {
                 method(HttpMethod.Options)
@@ -87,4 +91,17 @@ fun main() {
             }
         }
     }.start(wait = true)
+}
+
+internal class LocalhostCookieJar : CookieBakery {
+    override fun createAuthCookie(authHeader: AuthHeader): Cookie {
+        return Cookie(
+            name = "authorization",
+            value = authHeader.pack(),
+            secure = false,
+            httpOnly = true,
+            domain = null,
+            extensions = mapOf("SameSite" to "Lax")
+        )
+    }
 }
