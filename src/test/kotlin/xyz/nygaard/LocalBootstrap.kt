@@ -42,7 +42,7 @@ fun main() {
             staticResourcesPath = "src/main/frontend/build"
         )
 
-        val useRealPostgres = false
+        val useRealPostgres = true
         val useRealLnd = false
 
         val dataSource = if (useRealPostgres) {
@@ -100,7 +100,7 @@ internal class LocalhostCookieJar : CookieBakery {
             value = authHeader.pack(),
             secure = false,
             httpOnly = true,
-            domain = null,
+            domain = "localhost",
             extensions = mapOf("SameSite" to "Lax")
         )
     }
