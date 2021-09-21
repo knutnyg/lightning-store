@@ -93,10 +93,12 @@ export const LSATView = (props: PageProps) => {
                 const invoice = wwwchallenge.split(' ')[2].split('=')[1].slice(1, -1)
 
                 setState({
-                    ...state, invoice: {
+                    ...state,
+                    invoice: {
                         paymentRequest: invoice,
                         settled: false,
-                    }, state: AccessState.PAYMENT_PENDING
+                    },
+                    state: AccessState.PAYMENT_PENDING
                 })
                 localStorage.setItem("macaroon", macaroon)
             }
