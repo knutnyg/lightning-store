@@ -56,19 +56,21 @@ fun main() {
         val database = Database(
             "jdbc:postgresql://localhost:5432/${environment.databaseName}",
             environment.databaseUsername,
-            environment.databasePassword
+            environment.databasePassword,
         )
         val lndClient = LndClient(
             environment.cert,
             environment.hostUrl,
-            environment.hostPort, environment.readOnlyMacaroon, environment.invoiceMacaroon
+            environment.hostPort,
+            environment.readOnlyMacaroon,
+            environment.invoiceMacaroon,
         )
         val macaroonService = MacaroonService(environment.location, environment.macaroonGeneratorSecret)
         buildApplication(
             dataSource = database.dataSource,
             macaroonService = macaroonService,
             lndClient = lndClient,
-            staticResourcesPath = environment.staticResourcesPath
+            staticResourcesPath = environment.staticResourcesPath,
         )
     }.start(wait = true)
 }
