@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package xyz.nygaard.internal.v1;
+
+message AuthHeader {
+  string type = 1;
+  string macaroon = 2;
+  string preimage = 3;
+}

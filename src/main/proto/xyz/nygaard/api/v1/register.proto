@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package xyz.nygaard.api.v1;
+
+message StartRequest {}
+message StartResponse {
+    string type = 1;
+    string macaroon = 2;
+    string invoice = 3;
+}
+message RegisterPaymentRequest {
+
+}
+message RegisterPaymentResponse {
+
+}
+
+service RegisterService {
+  rpc Start(StartRequest) returns (StartResponse);
+  rpc RegisterPayment(RegisterPaymentRequest) returns (RegisterPaymentResponse);
+  //rpc Restore(RestoreRequest) returns (RestoreResponse);
+}
+
+message Invoice {
+  string id = 1;
+  string payment_request = 2;
+  string preimage = 3;
+  bool settled = 4;
+}
