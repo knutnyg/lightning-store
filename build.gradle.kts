@@ -1,3 +1,5 @@
+import com.google.protobuf.gradle.*
+import java.util.regex.Pattern.compile
 
 val ktorVersion = "1.5.1"
 val logbackVersion = "1.2.3"
@@ -8,22 +10,31 @@ val postgresVersion = "42.2.5"
 val flywayVersion = "5.2.4"
 val hikariVersion = "3.3.0"
 val junitJupiterVersion = "5.6.2"
+val protoGradlePluginVersion = "0.8.17"
+val protocVersion = "3.18.0"
+val grpcVersion = "1.40.1"
 
 group = "xyz.nygaard"
 version = "1.1"
 
 plugins {
+    java
     kotlin("jvm") version "1.5.0"
+    id("com.parmet.buf") version "0.3.0"
+    id("com.google.protobuf") version "0.8.17"
 }
 
 buildscript {
     repositories {
         mavenCentral()
     }
+    dependencies {
+        classpath("com.google.protobuf:protobuf-gradle-plugin:0.8.17")
+    }
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
@@ -52,6 +63,13 @@ dependencies {
     implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
+
+    // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
+    implementation("com.google.protobuf:protobuf-java:$protocVersion")
+    implementation("io.grpc:grpc-stub:$grpcVersion")
+    implementation("io.grpc:grpc-protobuf:$grpcVersion")
+    implementation("io.grpc:grpc-netty-shaded:$grpcVersion")
+    compileOnly("org.apache.tomcat:annotations-api:6.0.53") // necessary for Java 9+
 
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
@@ -100,5 +118,28 @@ tasks {
 
     withType<Wrapper> {
         gradleVersion = "7.1.1"
+    }
+}
+
+protobuf {
+    protoc {
+        // The artifact spec for the Protobuf Compiler
+        artifact = "com.google.protobuf:protoc:$protocVersion"
+    }
+    plugins {
+        // Optional: an artifact spec for a protoc plugin, with "grpc" as
+        // the identifier, which can be referred to in the "plugins"
+        // container of the "generateProtoTasks" closure.
+        id("grpc") {
+            artifact = "io.grpc:protoc-gen-grpc-java:$grpcVersion"
+        }
+    }
+    generateProtoTasks {
+        ofSourceSet("main").forEach {
+            it.plugins {
+                // Apply the "grpc" plugin whose spec is defined above, without options.
+                id("grpc")
+            }
+        }
     }
 }
