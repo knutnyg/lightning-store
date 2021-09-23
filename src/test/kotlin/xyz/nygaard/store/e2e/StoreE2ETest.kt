@@ -87,7 +87,7 @@ class StoreE2ETest : AbstractE2ETest() {
         withTestApplication({
             setup()
         }) {
-            var invoiceId: UUID? = null
+            var invoiceId: UUID?
             with(authenticated(HttpMethod.Post, "/api/orders/invoice/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc")) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val invoice = mapper.readValue(response.content, InvoiceDto::class.java)
@@ -135,7 +135,7 @@ class StoreE2ETest : AbstractE2ETest() {
         withTestApplication({
             setup()
         }) {
-            var invoiceId: UUID? = null
+            var invoiceId: UUID?
             with(authenticated(HttpMethod.Post, "/api/orders/invoice/ec533145-47fa-464e-8cf0-fd36e3709ad3")) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val invoice = mapper.readValue(response.content, InvoiceDto::class.java)
