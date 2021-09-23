@@ -2,28 +2,50 @@ syntax = "proto3";
 
 package xyz.nygaard.api.v1;
 
-message StartRequest {}
+service RegisterService {
+  rpc Start(StartRequest) returns (StartResponse);
+  rpc RegisterPayment(RegisterPaymentRequest) returns (RegisterPaymentResponse);
+  rpc GetAccount(GetAccountRequest) returns (GetAccountResponse);
+}
+
+message Account {
+  string user_id = 1;
+  // balance in satoshi
+  int64 balance = 2;
+}
+
+message Invoice {
+  string id = 1;
+  string memo = 2;
+  string rhash = 3;
+  bool settled = 4;
+  // settled_at_millis is only set when settled
+  int64 settled_at_millis = 5;
+  string payment_request = 6;
+  string preimage = 7;
+  int64 amount = 8;
+}
+
+message StartRequest {
+  // product id to start authenticating for.
+  // leave blank for the default product.
+  string product_id = 1;
+}
+
 message StartResponse {
-    string type = 1;
-    string macaroon = 2;
-    string invoice = 3;
+  string type = 1;
+  string macaroon = 2;
+  string invoice = 3;
 }
 message RegisterPaymentRequest {
 
 }
 message RegisterPaymentResponse {
-
+  Invoice invoice = 1;
 }
 
-service RegisterService {
-  rpc Start(StartRequest) returns (StartResponse);
-  rpc RegisterPayment(RegisterPaymentRequest) returns (RegisterPaymentResponse);
-  //rpc Restore(RestoreRequest) returns (RestoreResponse);
+message GetAccountResponse {
+  Account account = 1;
 }
+message GetAccountRequest {}
 
-message Invoice {
-  string id = 1;
-  string payment_request = 2;
-  string preimage = 3;
-  bool settled = 4;
-}

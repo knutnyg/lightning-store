@@ -41,6 +41,8 @@ class CookieJar: CookieBakery  {
     }
 }
 
+val AuthorizationTypeLSAT = "LSAT"
+
 fun Application.installLsatInterceptor(
     invoiceService: InvoiceService,
     macaroonService: MacaroonService,
@@ -74,7 +76,7 @@ fun Application.installLsatInterceptor(
 
             val authorization = AuthHeader.deserialize(authHeader)
 
-            if (authorization.type != "LSAT") {
+            if (authorization.type != AuthorizationTypeLSAT) {
                 log.info("Caller using wrong authentication type, got ${authorization.type}")
                 call.respond(HttpStatusCode.BadRequest, "Authentication digest must be LSAT")
                 return@intercept finish()

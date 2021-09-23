@@ -1,6 +1,7 @@
 package xyz.nygaard.store.invoice
 
 import com.github.nitram509.jmacaroons.Macaroon
+import xyz.nygaard.api.v1.Register
 import xyz.nygaard.db.connectionAutoCommit
 import xyz.nygaard.db.toList
 import xyz.nygaard.extractUserId
@@ -9,12 +10,13 @@ import xyz.nygaard.lnd.LndCreatedInvoice
 import xyz.nygaard.log
 import java.sql.Timestamp
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.*
 import javax.sql.DataSource
 
 class InvoiceService(
     private val dataSource: DataSource,
-    private val lndClient: LndApiWrapper
+    private val lndClient: LndApiWrapper,
 ) {
     private fun getInvoice(uuid: UUID, macaroon: Macaroon): Invoice? {
         return dataSource.connectionAutoCommit().use { connection ->
@@ -82,7 +84,7 @@ class InvoiceService(
 
     fun createInvoice(
         amount: Long = 10,
-        memo: String = ""
+        memo: String = "",
     ): Invoice {
         val lndInvoice = lndClient.addInvoice(amount, memo)
         val uuid = newInvoice(lndInvoice, memo, amount)
@@ -180,9 +182,19 @@ data class Invoice(
     val settled: LocalDateTime? = null,
     val paymentRequest: String,
     val preimage: String? = null,
-    val amount: Long
+    val amount: Long,
 ) {
     fun toDto() = InvoiceDto(id, memo, rhash, settled, paymentRequest, preimage, amount)
+    fun toApiInvoice(): Register.Invoice = Register.Invoice.newBuilder()
+        .setId(id?.toString() ?: "")
+        .setMemo(memo ?: "")
+        .setRhash(rhash)
+        .setSettled(settled != null)
+        .setSettledAtMillis(settled?.toInstant(ZoneOffset.UTC)?.toEpochMilli() ?: 0)
+        .setPaymentRequest(paymentRequest)
+        .setPreimage(preimage ?: "")
+        .setAmount(amount)
+        .build()
 }
 
 data class InvoiceDto(
@@ -192,5 +204,5 @@ data class InvoiceDto(
     val settled: LocalDateTime? = null,
     val paymentRequest: String,
     val preimage: String? = null,
-    val amount: Long
+    val amount: Long,
 )
