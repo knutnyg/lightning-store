@@ -34,7 +34,9 @@ class CookieJar: CookieBakery  {
             secure = true,
             httpOnly = true,
             domain = "nygaard.xyz",
-            extensions = mapOf("SameSite" to "Strict")
+            extensions = mapOf("SameSite" to "Strict"),
+            maxAge = 60000,
+            path = "/"
         )
     }
 }

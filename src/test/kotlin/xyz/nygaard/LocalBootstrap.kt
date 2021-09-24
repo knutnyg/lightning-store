@@ -100,8 +100,9 @@ internal class LocalhostCookieJar : CookieBakery {
             value = authHeader.pack(),
             secure = false,
             httpOnly = true,
-            domain = "localhost",
-            extensions = mapOf("SameSite" to "Lax")
+            path = "/",
+            extensions = mapOf("SameSite" to "Lax"),
+            maxAge = 60000,
         )
     }
 }
