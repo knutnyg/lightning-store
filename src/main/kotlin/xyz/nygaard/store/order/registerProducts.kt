@@ -6,7 +6,9 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import xyz.nygaard.store.auth.AuthorizationKey
 import java.util.*
 
@@ -21,14 +23,17 @@ fun Route.registerAdmin(
 
         val mediaType = call.request.contentType().toString()
 
-        runBlocking {
-            val data = call.receiveStream().readAllBytes();
-
-            productService.updateProduct(UpdateProduct(
-                id = productId,
-                mediaType = mediaType,
-                payload_v2 = data,
-            ))
+        withContext(Dispatchers.IO) {
+            val data = runBlocking {
+                call.receiveStream().readAllBytes();
+            }
+            productService.updateProduct(
+                UpdateProduct(
+                    id = productId,
+                    mediaType = mediaType,
+                    payload_v2 = data,
+                )
+            )
             call.respond(productService.getProduct(productId).toDto())
         }
     }

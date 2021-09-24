@@ -3,6 +3,7 @@ package xyz.nygaard.store.e2e
 import com.google.common.io.Resources
 import io.ktor.http.*
 import io.ktor.server.testing.*
+import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 import xyz.nygaard.*
@@ -77,7 +78,7 @@ class StoreE2ETest : AbstractE2ETest() {
                 System.err.println("body=" + body)
                 assertEquals(HttpStatusCode.OK, response.status())
                 val response = mapper.readValue(response.content, ProductDto::class.java)
-
+                Assertions.assertThat(response.id.toString()).isEqualTo(productId)
             }
         }
     }
