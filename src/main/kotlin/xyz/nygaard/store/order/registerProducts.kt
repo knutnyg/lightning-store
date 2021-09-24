@@ -40,11 +40,14 @@ fun Route.registerAdmin(
                         payload_v2 = data,
                     )
                 )
+                log.info("after update")
             } catch (e: Exception) {
                 log.error("Failed to update product", e)
             }
+            log.info("get product")
             productService.getProduct(productId).toDto()
         }
+        log.info("respond")
         call.respond(product)
     }
 }
