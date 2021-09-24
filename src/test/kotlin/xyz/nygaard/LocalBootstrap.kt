@@ -38,7 +38,6 @@ fun main() {
             databasePassword = "",
             macaroonGeneratorSecret = props.getProperty("ls_macaroon_secret", "secret"),
             location = "localhost",
-            resourcesPath = props.getProperty("resourcesPath", "src/main/resources"),
             staticResourcesPath = "src/main/frontend/build"
         )
 

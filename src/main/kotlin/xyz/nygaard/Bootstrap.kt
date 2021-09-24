@@ -51,7 +51,6 @@ fun main() {
             databasePassword = System.getenv("LS_DATABASE_PASSWORD"),
             macaroonGeneratorSecret = System.getenv("LS_MACAROON_SECRET"),
             location = System.getenv("LS_LOCATION"),
-            resourcesPath = getEnvOrDefault("HOME", "/Users/knut"),
             staticResourcesPath = getEnvOrDefault("LS_STATIC_RESOURCES", "src/main/frontend/build"),
         )
 
@@ -162,7 +161,6 @@ data class Config(
     val cert: String,
     val macaroonGeneratorSecret: String,
     val location: String,
-    val resourcesPath: String,
     val staticResourcesPath: String
 )
 
