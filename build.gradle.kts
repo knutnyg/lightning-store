@@ -124,6 +124,17 @@ tasks {
     }
 }
 
+// Inform IDEs like IntelliJ IDEA, Eclipse or NetBeans about the generated code.
+sourceSets {
+    main {
+        java {
+            srcDirs("build/generated/source/proto/main/java")
+            srcDirs("build/generated/source/proto/main/grpc")
+            srcDirs("build/generated/source/proto/main/grpckt")
+        }
+    }
+}
+
 protobuf {
     protoc {
         // The artifact spec for the Protobuf Compiler
