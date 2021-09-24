@@ -19,7 +19,7 @@ group = "xyz.nygaard"
 version = "1.1"
 
 plugins {
-    java
+    //java
     kotlin("jvm") version "1.5.0"
     id("com.parmet.buf") version "0.3.0"
     id("com.google.protobuf") version "0.8.17"
