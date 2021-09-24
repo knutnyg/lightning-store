@@ -133,7 +133,7 @@ export const Kunstig = (props: PageProps) => {
             <InvoiceView paymentReq={state.invoice.paymentRequest}/>}
         </div>
 
-        <img src={`${baseUrl}/products/a1afc48b-23bc-4297-872a-5e7884d6975a`}/>
+        <img src={`${baseUrl}/products/a1afc48b-23bc-4297-872a-5e7884d6975a/data`}/>
 
 
         <p>Next steps:</p>

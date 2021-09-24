@@ -27,12 +27,6 @@ class ProductService(val dataSource: DataSource, val resourceFetcher: Fetcher) {
                             )
                         }.first()
                 }
-                .let {
-                    if (it.uri != null) {
-                        it.payload = Base64.getEncoder().encodeToString(resourceFetcher.fetch(it.uri))
-                    }
-                    it
-                }
         }
     }
 
