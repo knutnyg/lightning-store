@@ -13,7 +13,6 @@ interface Image {
 export const Admin = (props: PageProps) => {
 
     const [image, setImage] = useState<undefined | Image>(undefined)
-    const [type, setType] = useState<undefined | string>("image")
     const [id, setId] = useState<undefined | string>(undefined)
 
     useEffect(() => {
@@ -22,15 +21,12 @@ export const Admin = (props: PageProps) => {
 
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault()
-        console.log("sending")
-        console.log("id", id)
         return fetch(`${baseUrl}/admin/product/${id}/upload`, {
             method: 'POST',
             headers: {
                 'Access-Control-Allow-Origin': '*',
                 'Accept': 'application/json',
                 'Authorization': `LSAT ${localStorage.getItem('macaroon')}:${localStorage.getItem("preimage")}`,
-                'uploaded-media-type': `${type}`
             },
             body: image?.payload
         }).catch(err => {
@@ -43,8 +39,6 @@ export const Admin = (props: PageProps) => {
         <div>
             {image && <img src={image.objUrl}/>}
             <form onSubmit={handleSubmit}>
-                <input type="radio" name="type" value="image" onChange={(ev) => setType("image")}/>Image
-                <input type="radio" name="type" value="other" onChange={(ev) => setType("image")}/>Other
                 <input type="text" name="id" onChange={(ev) => setId(ev.target.value)}/>
                 <div>
                     <h1>Select Image</h1>
