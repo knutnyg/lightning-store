@@ -69,7 +69,7 @@ class StoreE2ETest : AbstractE2ETest() {
             with(handleRequest(HttpMethod.Post, "/api/admin/product/$productId/upload") {
                 addHeader(HttpHeaders.Accept, "application/json")
                 addHeader(HttpHeaders.XForwardedProto, "https")
-                addHeader(mediaTypeHeaderKey, "image/jpeg")
+                addHeader("content-type", "image/jpeg")
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
                 setBody(imgData)
             }) {

@@ -10,8 +10,6 @@ import kotlinx.coroutines.runBlocking
 import xyz.nygaard.store.auth.AuthorizationKey
 import java.util.*
 
-val mediaTypeHeaderKey = "uploaded-media-type"
-
 fun Route.registerAdmin(
     productService: ProductService,
 ) {
@@ -21,13 +19,8 @@ fun Route.registerAdmin(
         val productId =
             call.parameters["id"].let { UUID.fromString(it) } ?: return@post call.respond(HttpStatusCode.BadRequest)
 
-        val mediaType = call.request.header(mediaTypeHeaderKey).let {
-            // validate mediatype format:
-            MediaType.parse(it)
-            it
-        } ?: return@post call.respond(HttpStatusCode.BadRequest,
-            "set a valid media type in header: uploaded-media-type"
-        )
+        val mediaType = call.request.contentType().toString()
+
         runBlocking {
             val data = call.receiveStream().readAllBytes();
 
