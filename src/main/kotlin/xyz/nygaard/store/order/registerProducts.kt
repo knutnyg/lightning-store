@@ -43,7 +43,7 @@ fun Route.registerAdmin(
             } catch (e: Exception) {
                 log.error("Failed to update product", e)
             }
-            call.respond(productService.getProduct(productId).toDto())
         }
+        call.respond(productService.getProduct(productId).toDto())
     }
 }
