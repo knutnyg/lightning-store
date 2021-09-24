@@ -11,6 +11,7 @@ import {updateInvoice} from "../invoice/invoices";
 import {InvoiceView} from "../invoice/Invoice";
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
+import {baseUrl} from "../App";
 
 export interface PageProps {
     onChange: (title: string) => void;
@@ -132,7 +133,7 @@ export const Kunstig = (props: PageProps) => {
             <InvoiceView paymentReq={state.invoice.paymentRequest}/>}
         </div>
 
-        {/*<img src={`${baseUrl}/products/a1afc48b-23bc-4297-872a-5e7884d6975a`}/>*/}
+        <img src={`${baseUrl}/products/a1afc48b-23bc-4297-872a-5e7884d6975a`}/>
 
 
         <p>Next steps:</p>
