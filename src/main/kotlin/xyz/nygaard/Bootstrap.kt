@@ -14,6 +14,7 @@ import io.ktor.server.netty.*
 import org.lightningj.lnd.wrapper.MacaroonContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.slf4j.event.Level
 import xyz.nygaard.db.Database
 import xyz.nygaard.lnd.LndApiWrapper
 import xyz.nygaard.lnd.LndClient
@@ -90,7 +91,9 @@ internal fun Application.buildApplication(
 
     installContentNegotiation()
     install(XForwardedHeaderSupport)
-    install(CallLogging)
+    install(CallLogging) {
+        level = Level.TRACE
+    }
     installLsatInterceptor(invoiceService, macaroonService, tokenService, orderService, productService)
     routing {
         route("/api") {
