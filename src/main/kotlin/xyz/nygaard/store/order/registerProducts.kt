@@ -24,9 +24,8 @@ fun Route.registerAdmin(
         val mediaType = call.request.contentType().toString()
 
         withContext(Dispatchers.IO) {
-            val data = runBlocking {
-                call.receiveStream().readAllBytes();
-            }
+            val data = call.receiveStream().readAllBytes()
+
             productService.updateProduct(
                 UpdateProduct(
                     id = productId,
