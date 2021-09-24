@@ -27,21 +27,23 @@ fun Route.registerAdmin(
 
         log.info("mediatype", mediaType)
 
-        log.info("in dispatcher")
-        val data = call.receiveStream().use { it.readBytes() }
-        log.info("read stream")
-        try {
-            log.info("in try")
-            productService.updateProduct(
-                UpdateProduct(
-                    id = productId,
-                    mediaType = mediaType,
-                    payload_v2 = data,
+        withContext(Dispatchers.IO) {
+            log.info("in dispatcher")
+            val data = call.receiveStream().use { it.readBytes() }
+            log.info("read stream")
+            try {
+                log.info("in try")
+                productService.updateProduct(
+                    UpdateProduct(
+                        id = productId,
+                        mediaType = mediaType,
+                        payload_v2 = data,
+                    )
                 )
-            )
-        } catch (e: Exception) {
-            log.error("Failed to update product", e)
+            } catch (e: Exception) {
+                log.error("Failed to update product", e)
+            }
+            call.respond(productService.getProduct(productId).toDto())
         }
-        call.respond(productService.getProduct(productId).toDto())
     }
 }
