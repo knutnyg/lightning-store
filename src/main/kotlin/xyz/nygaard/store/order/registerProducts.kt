@@ -45,7 +45,9 @@ fun Route.registerAdmin(
                 log.error("Failed to update product", e)
             }
             log.info("get product")
-            productService.getProduct(productId).toDto()
+            try { productService.getProduct(productId).toDto() } catch (e: Exception) {
+                log.error("Failed to get product", e)
+            }
         }
         log.info("respond")
         call.respond(product)
