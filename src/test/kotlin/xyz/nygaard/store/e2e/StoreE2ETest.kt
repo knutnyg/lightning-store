@@ -1,5 +1,6 @@
 package xyz.nygaard.store.e2e
 
+import com.google.common.io.Resources
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.junit.jupiter.api.*
@@ -14,6 +15,7 @@ import java.io.FileInputStream
 import java.net.URI
 import java.util.*
 
+val imgData = requireNotNull(FileInputStream("src/test/resources/working.jpg").readAllBytes())
 
 class StoreE2ETest : AbstractE2ETest() {
 
@@ -52,6 +54,30 @@ class StoreE2ETest : AbstractE2ETest() {
                 val response = mapper.readValue(response.content, TokenResponse::class.java)
                 assertEquals(0, response.balance)
                 assertNotNull(response.userId)
+            }
+        }
+    }
+
+    val productId = "ec533145-47fa-464e-8cf0-fd36e3709ad3"
+
+    @Test
+    fun `admin update product image`() {
+        tokenService.createToken(macaroon, 0)
+        withTestApplication({
+            setup()
+        }) {
+            with(handleRequest(HttpMethod.Post, "/api/admin/product/$productId/upload") {
+                addHeader(HttpHeaders.Accept, "application/json")
+                addHeader(HttpHeaders.XForwardedProto, "https")
+                addHeader(mediaTypeHeaderKey, "image/jpeg")
+                addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
+                setBody(imgData)
+            }) {
+                val body = response.content
+                System.err.println("body=" + body)
+                assertEquals(HttpStatusCode.OK, response.status())
+                val response = mapper.readValue(response.content, ProductDto::class.java)
+
             }
         }
     }

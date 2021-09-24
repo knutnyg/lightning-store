@@ -24,6 +24,7 @@ import xyz.nygaard.store.auth.installLsatInterceptor
 import xyz.nygaard.store.invoice.InvoiceService
 import xyz.nygaard.store.order.OrderService
 import xyz.nygaard.store.order.ProductService
+import xyz.nygaard.store.order.registerAdmin
 import xyz.nygaard.store.order.registerOrders
 import xyz.nygaard.store.order.registerProducts
 import xyz.nygaard.store.register.registerRegisterApi
@@ -97,6 +98,7 @@ internal fun Application.buildApplication(
             registerSelftestApi(lndClient)
             registerRegisterApi(invoiceService, tokenService, cookieBakery)
             registerProducts(productService)
+            registerAdmin(productService)
         }
 
         // Serves all static content i.e: example.com/static/css/styles.css

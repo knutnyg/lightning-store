@@ -21,6 +21,8 @@ class ProductService(val dataSource: DataSource, val resourceFetcher: Fetcher) {
                                 name = this.getString("name"),
                                 price = this.getLong("price"),
                                 payload = this.getString("payload"),
+                                mediaType = this.getString("mediatype"),
+                                payload_v2 = this.getBytes("payload_v2"),
                                 uri = this.getString("uri")?.let { URI.create(it) }
                             )
                         }.first()
@@ -48,11 +50,30 @@ class ProductService(val dataSource: DataSource, val resourceFetcher: Fetcher) {
                 }
         }
     }
+
+    fun updateProduct(update: UpdateProduct): Int {
+        return dataSource.connectionAutoCommit().use {
+            it.prepareStatement("UPDATE products SET (mediatype = ?, purchase_v2 = ?) WHERE id = ? ").use { preparedStatement ->
+                preparedStatement.setString(1, update.mediaType)
+                preparedStatement.setBytes(2, update.payload_v2)
+                preparedStatement.setString(3, update.id.toString())
+                preparedStatement.executeUpdate()
+            }
+        }
+    }
 }
+
+data class UpdateProduct(
+    val id: UUID,
+    val mediaType: String,
+    val payload_v2: ByteArray,
+)
 
 data class Product(
     val id: UUID,
     val name: String,
+    val mediaType: String? = null,
+    val payload_v2: ByteArray? = null,
     val price: Long,
     var payload: String?,
     val uri: URI?
