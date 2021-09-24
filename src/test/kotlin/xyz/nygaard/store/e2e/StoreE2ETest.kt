@@ -1,6 +1,5 @@
 package xyz.nygaard.store.e2e
 
-import com.google.common.io.Resources
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.assertj.core.api.Assertions
