@@ -26,4 +26,28 @@ fun Route.registerProducts(
             call.respond(HttpStatusCode.PaymentRequired)
         }
     }
+
+    get("/products/{id}/data") {
+        val authorization = call.attributes[AuthorizationKey]
+
+        val productId =
+            call.parameters["id"].let { UUID.fromString(it) } ?: return@get call.respond(HttpStatusCode.BadRequest)
+        if (productService.hasPurchased(authorization.macaroon.extractUserId(), productId)) {
+            val product = productService.getProduct(productId)
+            if (product == null) {
+                call.respond(HttpStatusCode.NotFound)
+            } else {
+                if (product.payload_v2 != null) {
+                    call.respondBytes(
+                        product.payload_v2,
+                        contentType = ContentType.parse(product.mediaType ?: "application/octet-stream")
+                    )
+                } else {
+                    call.respondText(product.payload ?: "")
+                }
+            }
+        } else {
+            call.respond(HttpStatusCode.PaymentRequired)
+        }
+    }
 }
