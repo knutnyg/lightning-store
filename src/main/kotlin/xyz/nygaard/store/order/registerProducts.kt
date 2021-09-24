@@ -1,13 +1,11 @@
 package xyz.nygaard.store.order
 
-import com.google.common.net.MediaType
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import xyz.nygaard.store.auth.AuthorizationKey
 import java.util.*
@@ -24,7 +22,7 @@ fun Route.registerAdmin(
         val mediaType = call.request.contentType().toString()
 
         withContext(Dispatchers.IO) {
-            val data = call.receiveStream().readAllBytes()
+            val data = call.receiveStream().use { it.readBytes() }
 
             productService.updateProduct(
                 UpdateProduct(
