@@ -53,7 +53,7 @@ class ProductService(val dataSource: DataSource, val resourceFetcher: Fetcher) {
 
     fun updateProduct(update: UpdateProduct): Int {
         return dataSource.connectionAutoCommit().use {
-            it.prepareStatement("UPDATE products SET (mediatype = ?, purchase_v2 = ?) WHERE id = ? ").use { preparedStatement ->
+            it.prepareStatement("UPDATE products SET mediatype = ?, payload_v2 = ? WHERE id = ? ").use { preparedStatement ->
                 preparedStatement.setString(1, update.mediaType)
                 preparedStatement.setBytes(2, update.payload_v2)
                 preparedStatement.setString(3, update.id.toString())
