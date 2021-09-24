@@ -31,11 +31,6 @@ export const Kunstig = (props: PageProps) => {
 
     let images
 
-    // Hent bundle
-    // if bundle:
-    // hent hardkodeede refs
-    // plasser dem ut om de finnes med placeholdere
-
     useEffect(() => {
         props.onChange("Can a machine make art? 🎨")
         if (state.access === AccessState.INITIAL) {
