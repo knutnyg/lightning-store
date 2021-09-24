@@ -16,26 +16,32 @@ fun Route.registerAdmin(
 ) {
     post("/admin/product/{id}/upload") {
         val authorization = call.attributes[AuthorizationKey]
+        log.info("in upload")
 
         val productId =
             call.parameters["id"].let { UUID.fromString(it) } ?: return@post call.respond(HttpStatusCode.BadRequest)
 
+        log.info("productid", productId)
+
         val mediaType = call.request.contentType().toString()
 
-        withContext(Dispatchers.IO) {
-            val data = call.receiveStream().use { it.readBytes() }
+        log.info("mediatype", mediaType)
 
-            try {
+        log.info("in dispatcher")
+        val data = call.receiveStream().use { it.readBytes() }
+        log.info("read stream")
+        try {
+            log.info("in try")
             productService.updateProduct(
                 UpdateProduct(
                     id = productId,
                     mediaType = mediaType,
                     payload_v2 = data,
                 )
-            )} catch (e: Exception) {
-                log.error("Failed to update product", e)
-            }
-            call.respond(productService.getProduct(productId).toDto())
+            )
+        } catch (e: Exception) {
+            log.error("Failed to update product", e)
         }
+        call.respond(productService.getProduct(productId).toDto())
     }
 }
