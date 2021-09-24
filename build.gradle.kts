@@ -1,5 +1,4 @@
 import com.google.protobuf.gradle.*
-import java.util.regex.Pattern.compile
 
 val ktorVersion = "1.5.1"
 val logbackVersion = "1.2.3"
@@ -23,6 +22,8 @@ plugins {
     kotlin("jvm") version "1.5.0"
     id("com.parmet.buf") version "0.3.0"
     id("com.google.protobuf") version "0.8.17"
+    // Generate IntelliJ IDEA's .idea & .iml project files
+    id("idea")
 }
 
 buildscript {
@@ -68,7 +69,7 @@ dependencies {
     // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
     implementation("com.google.protobuf:protobuf-java:$protocVersion")
     implementation("io.grpc:grpc-stub:$grpcVersion")
-    implementation("io.grpc:grpc-netty-shaded:$grpcVersion")
+    runtimeOnly("io.grpc:grpc-netty-shaded:$grpcVersion")
     implementation("io.grpc:grpc-protobuf:$grpcVersion")
     implementation("io.grpc:grpc-kotlin-stub:$grpcKotlinVersion")
     compileOnly("org.apache.tomcat:annotations-api:6.0.53") // necessary for Java 9+

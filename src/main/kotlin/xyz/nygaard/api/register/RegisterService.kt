@@ -2,6 +2,8 @@ package xyz.nygaard.api.register
 
 import io.grpc.*
 import xyz.nygaard.MacaroonService
+import xyz.nygaard.api.v1.Register.*
+import xyz.nygaard.api.v1.RegisterServiceGrpcKt
 import xyz.nygaard.extractRHash
 import xyz.nygaard.log
 import xyz.nygaard.store.auth.AuthHeader
