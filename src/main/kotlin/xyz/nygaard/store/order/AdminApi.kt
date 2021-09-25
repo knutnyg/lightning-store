@@ -39,8 +39,7 @@ fun Route.registerAdmin(
         val price: Long,
     )
 
-    post("/admin/product/{id}/upload") {
-
+    post("/admin/product") {
         val product = withContext(Dispatchers.IO) {
             val req = call.receive(CreateProduct::class)
 
