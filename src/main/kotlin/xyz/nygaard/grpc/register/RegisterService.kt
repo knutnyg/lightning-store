@@ -1,4 +1,4 @@
-package xyz.nygaard.api.register
+package xyz.nygaard.grpc.register
 
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
