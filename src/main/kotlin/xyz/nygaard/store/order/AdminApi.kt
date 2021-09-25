@@ -31,4 +31,33 @@ fun Route.registerAdmin(
         }
         call.respond(product)
     }
+
+    data class CreateProduct(
+        val name: String,
+        val mediaType: String,
+        val data: ByteArray,
+        val price: Long,
+    )
+
+    post("/admin/product/{id}/upload") {
+
+        val product = withContext(Dispatchers.IO) {
+            val req = call.receive(CreateProduct::class)
+
+            val id = UUID.randomUUID()
+
+            productService.insertProduct(
+                InsertProduct(
+                    id = id,
+                    name = req.name,
+                    price = req.price,
+                    mediaType = req.mediaType,
+                    payload_v2 = req.data,
+                    uri = null,
+                )
+            )
+            productService.getProduct(id).toDto()
+        }
+        call.respond(product)
+    }
 }
