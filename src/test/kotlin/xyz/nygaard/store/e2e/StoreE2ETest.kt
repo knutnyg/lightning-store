@@ -2,14 +2,14 @@ package xyz.nygaard.store.e2e
 
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.*
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.*
-import xyz.nygaard.*
+import org.junit.jupiter.api.Test
+import xyz.nygaard.extractUserId
 import xyz.nygaard.store.Fetcher
 import xyz.nygaard.store.auth.AuthChallengeHeader
 import xyz.nygaard.store.invoice.InvoiceDto
-import xyz.nygaard.store.order.*
+import xyz.nygaard.store.order.ProductDto
 import xyz.nygaard.store.user.TokenResponse
 import java.io.FileInputStream
 import java.net.URI
@@ -73,11 +73,10 @@ class StoreE2ETest : AbstractE2ETest() {
                 addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
                 setBody(imgData)
             }) {
-                val body = response.content
-                System.err.println("body=" + body)
-                assertEquals(HttpStatusCode.OK, response.status())
+                assertThat(response.status()).isEqualTo(HttpStatusCode.OK)
                 val response = mapper.readValue(response.content, ProductDto::class.java)
-                Assertions.assertThat(response.id.toString()).isEqualTo(productId)
+                assertThat(response.id.toString()).isEqualTo(productId)
+                assertThat(response.name).isEqualTo("GALLERY-BUNDLE")
             }
         }
     }
