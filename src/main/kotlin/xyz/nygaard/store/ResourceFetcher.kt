@@ -1,12 +1,10 @@
 package xyz.nygaard.store
 
 import java.io.File
-import java.lang.RuntimeException
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse.BodyHandlers
-import kotlin.RuntimeException
 
 interface Fetcher {
     fun fetch(uri: URI): ByteArray
@@ -16,11 +14,11 @@ class ResourceFetcher : Fetcher {
     val client = HttpClient.newBuilder().build()
 
     override fun fetch(uri: URI): ByteArray {
-        when (uri.scheme) {
-            "file" -> return File("/Users/knut/code/lightning-store/resources/${uri.authority}").readBytes()
+        return when (uri.scheme) {
+            "file" -> File("/Users/knut/code/lightning-store/resources/${uri.authority}").readBytes()
             "http" -> loadRemote(uri)
             "https" -> loadRemote(uri)
-            else -> TODO()
+            else -> throw RuntimeException("unhandled uri=$uri")
         }
     }
 
