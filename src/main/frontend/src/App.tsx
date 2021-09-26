@@ -46,14 +46,11 @@ function App() {
     }
 
     const callbackUpdateUser = () => {
-        if (!user) {
-            updateUser()
-                .then(_user => {
-                    setUser(_user);
-                    return _user
-                })
-                .catch(err => console.log(err))
-        }
+        updateUser()
+            .then(_user => {
+                setUser(_user);
+            })
+            .catch(err => console.log(err))
     }
 
     return (

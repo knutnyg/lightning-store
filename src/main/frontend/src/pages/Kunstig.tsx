@@ -94,10 +94,6 @@ export const Kunstig = (props: PageProps) => {
                     })
                     if (invoice.settled) {
                         localStorage.setItem("preimage", invoice.preimage!!)
-                    }
-                })
-                .then(() => {
-                    if (state.state === AccessState.ACCESS) {
                         props.updateUser()
                     }
                 })
@@ -112,18 +108,6 @@ export const Kunstig = (props: PageProps) => {
             setState({...state, state: AccessState.ACCESS})
         }
         props.onChange("Can a machine make art? 🎨")
-        if (state.state === AccessState.INITIAL) {
-
-            // fetchProduct("ec533145-47fa-464e-8cf0-fd36e3709ad3")
-            //     .then(product => setState({...state, product: product, state: AccessState.ACCESS}))
-            //     .catch(res => setState({...state, state: AccessState.PAYMENT_REQUIRED}))
-        }
-
-        if (state.state === AccessState.ACCESS) {
-            images = (<div>
-                <img src={`baseUrl/products/a1afc48b-23bc-4297-872a-5e7884d6975a`}/>
-            </div>)
-        }
     })
 
     const buyAccess = () => {
