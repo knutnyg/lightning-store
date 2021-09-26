@@ -7,6 +7,7 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import xyz.nygaard.log
 import java.util.*
 
 fun Route.registerAdmin(
@@ -20,13 +21,13 @@ fun Route.registerAdmin(
 
         val product = withContext(Dispatchers.IO) {
             val data = call.receiveStream().use { it.readBytes() }
-                productService.updateProduct(
-                    UpdateProduct(
-                        id = productId,
-                        mediaType = mediaType,
-                        payload_v2 = data,
-                    )
+            productService.updateProduct(
+                UpdateProduct(
+                    id = productId,
+                    mediaType = mediaType,
+                    payload_v2 = data,
                 )
+            )
             productService.getProduct(productId).toDto()
         }
         call.respond(product)
@@ -35,27 +36,32 @@ fun Route.registerAdmin(
     data class CreateProduct(
         val name: String,
         val mediaType: String,
-        val data: ByteArray,
+        val data: String,
         val price: Long,
     )
 
     post("/admin/product") {
+        log.info("before")
+        val req = call.receive(CreateProduct::class)
+        log.info("after")
         val product = withContext(Dispatchers.IO) {
-            val req = call.receive(CreateProduct::class)
-
             val id = UUID.randomUUID()
-
-            productService.insertProduct(
-                InsertProduct(
-                    id = id,
-                    name = req.name,
-                    price = req.price,
-                    mediaType = req.mediaType,
-                    payload_v2 = req.data,
-                    uri = null,
+            try {
+                productService.insertProduct(
+                    InsertProduct(
+                        id = id,
+                        name = req.name,
+                        price = req.price,
+                        mediaType = req.mediaType,
+                        payload_v2 = Base64.getDecoder().decode(req.data),
+                        uri = null,
+                    )
                 )
-            )
-            productService.getProduct(id).toDto()
+                productService.getProduct(id).toDto()
+            } catch (e: Exception) {
+                println("fail")
+                log.error("failed to insert product", e)
+            }
         }
         call.respond(product)
     }

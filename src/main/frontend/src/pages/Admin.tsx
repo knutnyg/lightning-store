@@ -13,7 +13,8 @@ export interface Image {
 export const Admin = (props: PageProps) => {
 
     const [image, setImage] = useState<undefined | Image>(undefined)
-    const [id, setId] = useState<undefined | string>(undefined)
+    const [name, setName] = useState<undefined | string>(undefined)
+    const [price, setPrice] = useState<undefined | number>(1)
 
     useEffect(() => {
         props.onChange("Admin 🔐")
@@ -21,26 +22,39 @@ export const Admin = (props: PageProps) => {
 
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault()
-        return fetch(`${baseUrl}/admin/product/${id}/upload`, {
-            method: 'POST',
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Accept': 'application/json',
-                'Authorization': `LSAT ${localStorage.getItem('macaroon')}:${localStorage.getItem("preimage")}`,
-            },
-            body: image?.payload
-        }).catch(err => {
-            console.log(err)
-            throw err
-        })
+        toBase64(image?.payload!!)
+            .then((payload) => {
+                return fetch(`${baseUrl}/admin/product`, {
+                    method: 'POST',
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `LSAT ${localStorage.getItem('macaroon')}:${localStorage.getItem("preimage")}`,
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        mediaType: image?.payload.type,
+                        data: payload,
+                        price: 1,
+                    })
+                }).catch(err => {
+                    console.log(err)
+                    throw err
+                })
+            })
     }
 
     return (
         <div>
             {image && <img src={image.objUrl}/>}
             <form onSubmit={handleSubmit}>
-                <input type="text" name="id" onChange={(ev) => setId(ev.target.value)}/>
                 <div>
+                    <label>name:</label><input type="text" name="name" onChange={(ev) => setName(ev.target.value)}/>
+                    <label>mime-type</label><input type="text" defaultValue={image?.payload.type}
+                                                   onChange={(ev) => setName(ev.target.value)}/>
+                    <label>price:</label><input type="text" name="price" defaultValue={"1"}
+                                                onChange={(ev) => setName(ev.target.value)}/>
                     <h1>Select Image</h1>
                     <input type="file" name="media"
                            onChange={(ev) => setImage({
@@ -54,3 +68,10 @@ export const Admin = (props: PageProps) => {
         </div>
     )
 }
+
+const toBase64 = (file: File) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+});
