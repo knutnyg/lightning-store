@@ -4,6 +4,7 @@ import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.http.*
+import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import org.flywaydb.core.Flyway
@@ -87,6 +88,14 @@ fun main() {
                 host("localhost:8080", listOf("http", "https"))
                 host("localhost:3000", listOf("http", "https"))
                 log.info("CORS enabled for $hosts")
+            }
+            routing {
+                get("/local/invoice/markPaid") {
+                    log.info("marking invoice as paid")
+                    if (lndClient is LndClientMock) {
+                        lndClient.markInvoiceAsPaid()
+                    }
+                }
             }
         }
     }.start(wait = true)

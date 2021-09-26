@@ -21,6 +21,7 @@ val AuthorizationKey = AttributeKey<AuthHeader>("authorization")
 
 val openPaths = listOf(
     "/api/open/register",
+    "/api/local/invoice/markPaid",
     "/"
 )
 interface CookieBakery {
