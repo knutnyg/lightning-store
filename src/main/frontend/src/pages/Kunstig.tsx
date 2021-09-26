@@ -160,7 +160,7 @@ export const Kunstig = (props: PageProps) => {
             {state.state === AccessState.PENDING_REGISTER && state.register &&
             <InvoiceView paymentReq={state.register.paymentRequest}/>}
         </div>}
-        {state.state === AccessState.ACCESS && <div>
+        {state.state === AccessState.ACCESS && props.user && <div>
             <p>ACCESS 🎉</p>
             <img src={`${baseUrl}/products/a1afc48b-23bc-4297-872a-5e7884d6975a/data`}/>
         </div>
