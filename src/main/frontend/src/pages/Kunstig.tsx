@@ -4,14 +4,12 @@ import pic1 from "./resources/AI-picture-1.png"
 import pic2 from "./resources/AI-picture-2.png"
 import pic3 from "./resources/AI-picture-3.png"
 import pic4 from "./resources/AI-picture-4.png"
-import {AccessState, State} from "./Blog";
-import {createOrderInvoice, fetchProduct} from "../product/products";
-import useInterval from "../hooks/useInterval";
-import {updateInvoice} from "../invoice/invoices";
+import {AccessState} from "./Blog";
 import {InvoiceView} from "../invoice/Invoice";
-import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 import {baseUrl} from "../App";
+import useInterval from "../hooks/useInterval";
+import {updateTokenInvoice} from "./Register";
 
 export interface PageProps {
     onChange: (title: string) => void;
@@ -22,24 +20,88 @@ interface ImageBlob {
     payload: string | undefined
 }
 
+// 1. lookup register
+
+export interface MyState {
+    state: AccessState
+    invoice?: InvoiceKunstig,
+    register?: Register,
+}
+
+interface InvoiceKunstig {
+    paymentRequest: string,
+    settled: boolean,
+    id: string
+}
+
+interface Register {
+    paymentRequest: string,
+}
+
 export const Kunstig = (props: PageProps) => {
-    const [state, setState] = useState<State>({
+    const [state, setState] = useState<MyState>({
         invoice: undefined,
-        product: undefined,
-        access: AccessState.INITIAL
+        state: AccessState.INITIAL
     })
 
     let images
 
+    const handleRegister = (): Promise<void> => {
+        return fetch(`${baseUrl}/register`, {
+                method: 'PUT',
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                },
+            }
+        ).then(response => {
+            if (response.status === 402) {
+                const wwwchallenge = response.headers.get('WWW-Authenticate')!
+                const type = wwwchallenge.split(' ')[0]
+                const macaroon = wwwchallenge.split(' ')[1].slice(0, -1).split('=')[1].slice(1, -1)
+                const invoice = wwwchallenge.split(' ')[2].split('=')[1].slice(1, -1)
+
+                setState({
+                    ...state,
+                    register: {
+                        paymentRequest: invoice,
+                    },
+                    state: AccessState.PENDING_REGISTER
+                })
+                localStorage.setItem("macaroon", macaroon)
+            }
+        })
+            .catch(err => {
+                console.log(err)
+                return Promise.reject()
+            });
+    }
+
+    useInterval(() => {
+        if (state.state === AccessState.PENDING_REGISTER) {
+            updateTokenInvoice()
+                .then(invoice => {
+                    setState({
+                        ...state, invoice: {
+                            paymentRequest: invoice.paymentRequest,
+                            settled: invoice.settled,
+                            id: invoice.id!!
+                        },
+                        state: invoice.settled ? AccessState.ACCESS : AccessState.PENDING_REGISTER
+                    })
+                })
+        }
+    }, 1000)
+
     useEffect(() => {
         props.onChange("Can a machine make art? 🎨")
-        if (state.access === AccessState.INITIAL) {
-            fetchProduct("ec533145-47fa-464e-8cf0-fd36e3709ad3")
-                .then(product => setState({...state, product: product, access: AccessState.ACCESS}))
-                .catch(res => setState({...state, access: AccessState.PAYMENT_REQUIRED}))
+        if (state.state === AccessState.INITIAL) {
+
+            // fetchProduct("ec533145-47fa-464e-8cf0-fd36e3709ad3")
+            //     .then(product => setState({...state, product: product, state: AccessState.ACCESS}))
+            //     .catch(res => setState({...state, state: AccessState.PAYMENT_REQUIRED}))
         }
 
-        if (state.access === AccessState.ACCESS) {
+        if (state.state === AccessState.ACCESS) {
             images = (<div>
                 <img src={`baseUrl/products/a1afc48b-23bc-4297-872a-5e7884d6975a`}/>
             </div>)
@@ -47,28 +109,12 @@ export const Kunstig = (props: PageProps) => {
     })
 
     const buyAccess = () => {
-        createOrderInvoice("ec533145-47fa-464e-8cf0-fd36e3709ad3")
-            .then(invoice => setState({...state, invoice: invoice, access: AccessState.PAYMENT_PENDING}))
+        handleRegister()
+        // createOrderInvoice("ec533145-47fa-464e-8cf0-fd36e3709ad3")
+        //     .then(invoice => setState({...state, invoice: invoice, access: AccessState.PAYMENT_PENDING}))
     }
+    //
 
-    useInterval(() => {
-        if (state.access === AccessState.PAYMENT_PENDING) {
-            if (state.invoice && !state.invoice?.settled) {
-                updateInvoice(state.invoice)
-                    .then(invoice => {
-                            setState({...state, invoice: invoice})
-                        }
-                    )
-            }
-            if (state.invoice?.settled) {
-                fetchProduct("ec533145-47fa-464e-8cf0-fd36e3709ad3")
-                    .then(product => {
-                        setState({...state, product: product, access: AccessState.ACCESS, invoice: undefined})
-                    })
-                    .catch(_ => setState({...state, access: AccessState.PAYMENT_REQUIRED, invoice: undefined}))
-            }
-        }
-    }, 1000)
 
     const responsive = {
         superLargeDesktop: {
@@ -97,45 +143,51 @@ export const Kunstig = (props: PageProps) => {
             can produce an infinite amount of unique artworks, meaning there will never exist two identical pieces.
         </p>
         <h2>Heres a few samples:</h2>
-        <div>
-            <Carousel
-                swipeable={false}
-                draggable={false}
-                showDots={true}
-                responsive={responsive}
-                ssr={true} // means to render carousel on server-side.
-                infinite={true}
-                autoPlay={true}
-                autoPlaySpeed={7000}
-                keyBoardControl={true}
-                customTransition="all .5"
-                transitionDuration={500}
-                containerClass="carousel-container"
-                removeArrowOnDeviceType={["tablet", "mobile"]}
-                dotListClass="custom-dot-list-style"
-                itemClass="carousel-item-padding-40-px"
-            >
-                <img className={"ai-image"} src={pic1}/>
-                <img className={"ai-image"} src={pic2}/>
-                <img className={"ai-image"} src={pic3}/>
-                <img className={"ai-image"} src={pic4}/>
-            </Carousel>
+        <div className={"gallery-sample"}>
+            <img className={"ai-image"} src={pic1}/>
+            <img className={"ai-image"} src={pic2}/>
+            <img className={"ai-image"} src={pic3}/>
+            <img className={"ai-image"} src={pic4}/>
         </div>
-
+        {state.state !== AccessState.ACCESS &&
         <div>
-            <button onClick={buyAccess}>Purchase a ticket</button>
-            {state.access === AccessState.PAYMENT_PENDING && state.invoice &&
-            <InvoiceView paymentReq={state.invoice.paymentRequest}/>}
-        </div>
+            {state.state === AccessState.INITIAL && <div>
+                <p>To enter the gallery you must purchase a ticket</p>
+                <button onClick={buyAccess}>Purchase a ticket</button>
+            </div>}
+            {state.state === AccessState.PENDING_REGISTER && state.register &&
+            <InvoiceView paymentReq={state.register.paymentRequest}/>}
+        </div>}
+        {state.state === AccessState.ACCESS && <p>ACCESS 🎉</p>}
 
-        <img src={`${baseUrl}/products/a1afc48b-23bc-4297-872a-5e7884d6975a/data`}/>
 
+        {/*<img src={`${baseUrl}/products/a1afc48b-23bc-4297-872a-5e7884d6975a/data`}/>*/}
 
-        <p>Next steps:</p>
-        <ul>
-            <li>Buy the rest of the image set</li>
-            <li>Order freshly generated art</li>
-        </ul>
+        {/*<Carousel*/}
+        {/*    swipeable={false}*/}
+        {/*    draggable={false}*/}
+        {/*    showDots={true}*/}
+        {/*    responsive={responsive}*/}
+        {/*    ssr={true} // means to render carousel on server-side.*/}
+        {/*    infinite={true}*/}
+        {/*    autoPlay={true}*/}
+        {/*    autoPlaySpeed={7000}*/}
+        {/*    keyBoardControl={true}*/}
+        {/*    customTransition="all .5"*/}
+        {/*    transitionDuration={500}*/}
+        {/*    containerClass="carousel-container"*/}
+        {/*    removeArrowOnDeviceType={["tablet", "mobile"]}*/}
+        {/*    dotListClass="custom-dot-list-style"*/}
+        {/*    itemClass="carousel-item-padding-40-px"*/}
+        {/*>*/}
+
+        {/*</Carousel>*/}
+
+        {/*<p>Next steps:</p>*/}
+        {/*<ul>*/}
+        {/*    <li>Buy the rest of the image set</li>*/}
+        {/*    <li>Order freshly generated art</li>*/}
+        {/*</ul>*/}
 
         <Link to="/">Back</Link>
     </div>
