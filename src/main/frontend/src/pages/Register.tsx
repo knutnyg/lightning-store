@@ -143,3 +143,36 @@ export const LSATView = (props: PageProps) => {
         </div>
     </div>
 }
+
+export interface Register {
+    paymentRequest: string,
+    macaroon: string,
+}
+
+export const handleRegister = (): Promise<Register> => {
+    return fetch(`${baseUrl}/register`, {
+            method: 'PUT',
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+            },
+        }
+    ).then(response => {
+        if (response.status === 402) {
+            const wwwchallenge = response.headers.get('WWW-Authenticate')!
+            const type = wwwchallenge.split(' ')[0]
+            const macaroon = wwwchallenge.split(' ')[1].slice(0, -1).split('=')[1].slice(1, -1)
+            const invoice = wwwchallenge.split(' ')[2].split('=')[1].slice(1, -1)
+
+            return {
+                paymentRequest: invoice,
+                macaroon: macaroon
+            }
+        } else {
+            throw Error("Expected invoice")
+        }
+    })
+        .catch(err => {
+            console.log(err)
+            return Promise.reject()
+        });
+}

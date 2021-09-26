@@ -9,8 +9,9 @@ import {InvoiceView} from "../invoice/Invoice";
 import 'react-multi-carousel/lib/styles.css';
 import {baseUrl} from "../App";
 import useInterval from "../hooks/useInterval";
-import {updateTokenInvoice} from "./Register";
+import {handleRegister, Register, updateTokenInvoice} from "./Register";
 import {User} from "../hooks/useUser";
+import Carousel from "react-multi-carousel";
 
 export interface PageProps {
     onChange: (title: string) => void;
@@ -18,14 +19,7 @@ export interface PageProps {
     user?: User
 }
 
-interface ImageBlob {
-    id: string,
-    payload: string | undefined
-}
-
-// 1. lookup register
-
-export interface MyState {
+interface PageState {
     state: AccessState
     invoice?: InvoiceKunstig,
     register?: Register,
@@ -38,47 +32,10 @@ interface InvoiceKunstig {
     preimage?: string
 }
 
-interface Register {
-    paymentRequest: string,
-}
-
 export const Kunstig = (props: PageProps) => {
-    const [state, setState] = useState<MyState>({
-        invoice: undefined,
+    const [state, setState] = useState<PageState>({
         state: AccessState.INITIAL
     })
-
-    let images
-
-    const handleRegister = (): Promise<void> => {
-        return fetch(`${baseUrl}/register`, {
-                method: 'PUT',
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                },
-            }
-        ).then(response => {
-            if (response.status === 402) {
-                const wwwchallenge = response.headers.get('WWW-Authenticate')!
-                const type = wwwchallenge.split(' ')[0]
-                const macaroon = wwwchallenge.split(' ')[1].slice(0, -1).split('=')[1].slice(1, -1)
-                const invoice = wwwchallenge.split(' ')[2].split('=')[1].slice(1, -1)
-
-                setState({
-                    ...state,
-                    register: {
-                        paymentRequest: invoice,
-                    },
-                    state: AccessState.PENDING_REGISTER
-                })
-                localStorage.setItem("macaroon", macaroon)
-            }
-        })
-            .catch(err => {
-                console.log(err)
-                return Promise.reject()
-            });
-    }
 
     useInterval(() => {
         if (state.state === AccessState.PENDING_REGISTER) {
@@ -99,7 +56,6 @@ export const Kunstig = (props: PageProps) => {
                 })
         }
     }, 1000)
-
     useEffect(() => {
         if (!props.user) {
             props.updateUser()
@@ -112,31 +68,18 @@ export const Kunstig = (props: PageProps) => {
 
     const buyAccess = () => {
         handleRegister()
-        // createOrderInvoice("ec533145-47fa-464e-8cf0-fd36e3709ad3")
-        //     .then(invoice => setState({...state, invoice: invoice, access: AccessState.PAYMENT_PENDING}))
+            .then((register) => {
+                setState({
+                    ...state,
+                    register: register,
+                    state: AccessState.PENDING_REGISTER
+                })
+                localStorage.setItem("macaroon", register.macaroon)
+            })
+            .catch((error) => {
+                console.log(error)
+            })
     }
-    //
-
-
-    const responsive = {
-        superLargeDesktop: {
-            // the naming can be any, depends on you.
-            breakpoint: {max: 4000, min: 3000},
-            items: 1
-        },
-        desktop: {
-            breakpoint: {max: 3000, min: 1024},
-            items: 1
-        },
-        tablet: {
-            breakpoint: {max: 1024, min: 464},
-            items: 1
-        },
-        mobile: {
-            breakpoint: {max: 464, min: 0},
-            items: 1
-        }
-    };
 
     return <div className="page">
         <p>
@@ -161,38 +104,45 @@ export const Kunstig = (props: PageProps) => {
             <InvoiceView paymentReq={state.register.paymentRequest}/>}
         </div>}
         {state.state === AccessState.ACCESS && props.user && <div>
-            <p>ACCESS 🎉</p>
-            <img src={`${baseUrl}/products/a1afc48b-23bc-4297-872a-5e7884d6975a/data`}/>
+            <Carousel
+                swipeable={false}
+                draggable={false}
+                showDots={true}
+                responsive={{
+                    superLargeDesktop: {
+                        // the naming can be any, depends on you.
+                        breakpoint: {max: 4000, min: 3000},
+                        items: 1
+                    },
+                    desktop: {
+                        breakpoint: {max: 3000, min: 1024},
+                        items: 1
+                    },
+                    tablet: {
+                        breakpoint: {max: 1024, min: 464},
+                        items: 1
+                    },
+                    mobile: {
+                        breakpoint: {max: 464, min: 0},
+                        items: 1
+                    }
+                }}
+                ssr={true} // means to render carousel on server-side.
+                infinite={true}
+                autoPlay={true}
+                autoPlaySpeed={7000}
+                keyBoardControl={true}
+                customTransition="all .5"
+                transitionDuration={500}
+                containerClass="carousel-container"
+                removeArrowOnDeviceType={["tablet", "mobile"]}
+                dotListClass="custom-dot-list-style"
+                itemClass="carousel-item-padding-40-px"
+            >
+                <img src={`${baseUrl}/products/a1afc48b-23bc-4297-872a-5e7884d6975a/data`}/>
+            </Carousel>
         </div>
         }
-
-
-        {/*<Carousel*/}
-        {/*    swipeable={false}*/}
-        {/*    draggable={false}*/}
-        {/*    showDots={true}*/}
-        {/*    responsive={responsive}*/}
-        {/*    ssr={true} // means to render carousel on server-side.*/}
-        {/*    infinite={true}*/}
-        {/*    autoPlay={true}*/}
-        {/*    autoPlaySpeed={7000}*/}
-        {/*    keyBoardControl={true}*/}
-        {/*    customTransition="all .5"*/}
-        {/*    transitionDuration={500}*/}
-        {/*    containerClass="carousel-container"*/}
-        {/*    removeArrowOnDeviceType={["tablet", "mobile"]}*/}
-        {/*    dotListClass="custom-dot-list-style"*/}
-        {/*    itemClass="carousel-item-padding-40-px"*/}
-        {/*>*/}
-
-        {/*</Carousel>*/}
-
-        {/*<p>Next steps:</p>*/}
-        {/*<ul>*/}
-        {/*    <li>Buy the rest of the image set</li>*/}
-        {/*    <li>Order freshly generated art</li>*/}
-        {/*</ul>*/}
-
         <Link to="/">Back</Link>
     </div>
 }
