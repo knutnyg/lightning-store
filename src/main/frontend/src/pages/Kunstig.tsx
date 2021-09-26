@@ -12,6 +12,8 @@ import useInterval from "../hooks/useInterval";
 import {handleRegister, Register, updateTokenInvoice} from "./Register";
 import {User} from "../hooks/useUser";
 import Carousel from "react-multi-carousel";
+import {Image} from "./Admin";
+import {fetchProduct} from "../product/products";
 
 export interface PageProps {
     onChange: (title: string) => void;
@@ -19,10 +21,18 @@ export interface PageProps {
     user?: User
 }
 
+interface CustomImage {
+    id?: string
+    paymentRequest?: string,
+    image?: Image,
+    pending: boolean,
+}
+
 interface PageState {
     state: AccessState
     invoice?: InvoiceKunstig,
     register?: Register,
+    customImage?: CustomImage
 }
 
 interface InvoiceKunstig {
@@ -55,6 +65,13 @@ export const Kunstig = (props: PageProps) => {
                     }
                 })
         }
+        if (state.customImage?.pending) {
+            fetchProduct(state.customImage?.id!!)
+                .then((product) => setState({
+                    ...state,
+                    customImage: {...state.customImage, pending: false, id: product?.payload}
+                }))
+        }
     }, 1000)
     useEffect(() => {
         if (!props.user) {
@@ -79,6 +96,10 @@ export const Kunstig = (props: PageProps) => {
             .catch((error) => {
                 console.log(error)
             })
+    }
+
+    const buyImage = () => {
+        setState({...state, customImage: {...state.customImage, pending: true}})
     }
 
     return <div className="page">
@@ -142,6 +163,14 @@ export const Kunstig = (props: PageProps) => {
                 <img className={"carousel-image"}
                      src={`${baseUrl}/products/a1afc48b-23bc-4297-872a-5e7884d6975a/data`}/>
             </Carousel>
+            <div>
+                <p>Kunstig can also draw paintings just for you!</p>
+                <button onClick={buyImage}>Buy a custom box fresh image</button>
+                {state.customImage?.pending && <InvoiceView paymentReq={state.customImage?.paymentRequest!!}/>}
+                {state.customImage?.id &&
+                <img src={`${baseUrl}/products/${state.customImage.id}/data`} alt={'my special image'}/>}
+            </div>
+
         </div>
         }
     </div>

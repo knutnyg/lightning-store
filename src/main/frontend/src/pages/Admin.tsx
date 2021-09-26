@@ -5,7 +5,7 @@ export interface PageProps {
     onChange: (title: string) => void;
 }
 
-interface Image {
+export interface Image {
     objUrl: string,
     payload: File
 }

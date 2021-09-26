@@ -2,7 +2,7 @@ import {baseUrl} from "../App";
 import {Invoice, InvoiceRaw} from "../invoice/invoices";
 
 export interface Product {
-    payload: any
+    payload: string
 }
 
 export const fetchProduct = (id: string): Promise<Product | undefined> => {
