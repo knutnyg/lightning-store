@@ -10,6 +10,7 @@ import xyz.nygaard.store.Fetcher
 import xyz.nygaard.store.auth.AuthChallengeHeader
 import xyz.nygaard.store.invoice.InvoiceDto
 import xyz.nygaard.store.order.ProductDto
+import xyz.nygaard.store.order.UpdateProduct
 import xyz.nygaard.store.user.TokenResponse
 import java.io.FileInputStream
 import java.net.URI
@@ -18,6 +19,7 @@ import java.util.*
 val imgData = requireNotNull(FileInputStream("src/test/resources/working.jpg").readAllBytes())
 
 class StoreE2ETest : AbstractE2ETest() {
+
 
     @Test
     fun `sign up as new user`() {
@@ -175,6 +177,52 @@ class StoreE2ETest : AbstractE2ETest() {
             with(authenticated(HttpMethod.Get, "/api/products/a1afc48b-23bc-4297-872a-5e7884d6975a")) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertNotNull(response.byteContent?.size)
+            }
+        }
+    }
+
+    @Test
+    fun `buy custom image`() {
+        tokenService.createToken(macaroon, 0)
+        withTestApplication({
+            setup()
+        }) {
+            var invoiceId: UUID?
+            var memo: String
+            with(authenticated(HttpMethod.Post, "/api/products/image")) {
+                assertEquals(HttpStatusCode.OK, response.status())
+                val invoice = mapper.readValue(response.content, InvoiceDto::class.java)
+                invoiceId = invoice.id
+                memo = requireNotNull(invoice.memo)
+            }
+
+            // No access before payment is done
+            with(authenticated(HttpMethod.Get, "/api/products/${memo}/data")) {
+                assertEquals(HttpStatusCode.PaymentRequired, response.status())
+            }
+
+            lndMock.markInvoiceAsPaid()
+            with(authenticated(HttpMethod.Get, "/api/invoices/$invoiceId")) {
+                assertEquals(HttpStatusCode.OK, response.status())
+            }
+
+            // Resource unavailable before backend has image
+            with(authenticated(HttpMethod.Get, "/api/products/${memo}/data")) {
+                assertEquals(HttpStatusCode.NoContent, response.status())
+            }
+
+            //populate image
+            productService.updateProduct(
+                UpdateProduct(
+                    id = UUID.fromString(memo),
+                    mediaType = "text/plain",
+                    payload_v2 = "hello".toByteArray()
+                )
+            )
+
+            with(authenticated(HttpMethod.Get, "/api/products/${memo}/data")) {
+                assertEquals(HttpStatusCode.OK, response.status())
+                assertEquals("hello", String(response.byteContent!!))
             }
         }
     }

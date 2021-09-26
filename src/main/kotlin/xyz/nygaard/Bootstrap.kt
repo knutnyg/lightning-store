@@ -99,7 +99,7 @@ internal fun Application.buildApplication(
             registerOrders(orderService, tokenService, productService, invoiceService)
             registerSelftestApi(lndClient)
             registerRegisterApi(invoiceService, tokenService, cookieBakery)
-            registerProducts(productService)
+            registerProducts(productService, invoiceService, orderService)
             registerAdmin(productService)
         }
 

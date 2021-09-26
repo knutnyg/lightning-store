@@ -93,7 +93,7 @@ data class InsertProduct(
     val mediaType: String? = null,
     val payload_v2: ByteArray? = null,
     val price: Long,
-    val uri: URI?,
+    val uri: URI? = null,
 )
 
 data class ProductDto(

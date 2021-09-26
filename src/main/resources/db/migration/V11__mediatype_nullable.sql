@@ -1,0 +1,2 @@
+ALTER TABLE products
+    ALTER COLUMN mediatype DROP NOT NULL;

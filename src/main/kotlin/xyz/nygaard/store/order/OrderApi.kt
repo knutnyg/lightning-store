@@ -2,7 +2,6 @@ package xyz.nygaard.store.order
 
 import io.ktor.application.*
 import io.ktor.http.*
-import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import xyz.nygaard.extractUserId
@@ -52,7 +51,7 @@ fun Route.registerOrders(
         return@post call.respond(
             orderService.createWithInvoice(
                 macaroon = authorization.macaroon,
-                product = product,
+                productId = product.id,
                 invoice = invoice
             )
         )

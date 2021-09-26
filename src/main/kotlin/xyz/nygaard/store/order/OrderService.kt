@@ -1,16 +1,12 @@
 package xyz.nygaard.store.order
 
 import com.github.nitram509.jmacaroons.Macaroon
-import com.github.nitram509.jmacaroons.MacaroonsBuilder
 import xyz.nygaard.db.connectionAutoCommit
 import xyz.nygaard.db.toList
 import xyz.nygaard.extractUserId
 import xyz.nygaard.log
 import xyz.nygaard.store.invoice.Invoice
 import xyz.nygaard.store.invoice.InvoiceDto
-import xyz.nygaard.store.invoice.InvoiceService
-import xyz.nygaard.store.user.Token
-import xyz.nygaard.store.user.TokenService
 import java.net.URI
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -20,7 +16,7 @@ import javax.sql.DataSource
 class OrderService(
     private val dataSource: DataSource
 ) {
-    fun createWithInvoice(invoice: Invoice, product: Product, macaroon: Macaroon): Invoice {
+    fun createWithInvoice(invoice: Invoice, productId: UUID, macaroon: Macaroon): Invoice {
         dataSource.connectionAutoCommit().use { connection ->
             val id = UUID.randomUUID()
             connection.prepareStatement("INSERT INTO orders(id, token_id, invoice_id, product_id, settled) VALUES(?, ?, ?, ?, null)")
@@ -28,7 +24,7 @@ class OrderService(
                     statement.setString(1, id.toString())
                     statement.setString(2, macaroon.extractUserId().toString())
                     statement.setString(3, invoice.id.toString())
-                    statement.setString(4, product.id.toString())
+                    statement.setString(4, productId.toString())
                     statement.executeUpdate()
                 }
             return invoice

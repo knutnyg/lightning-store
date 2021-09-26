@@ -28,7 +28,7 @@ abstract class AbstractE2ETest {
     private val macaroonService = MacaroonService("localhost", "secret")
     protected val tokenService = TokenService(embeddedPostgres.postgresDatabase)
     protected val orderService = OrderService(embeddedPostgres.postgresDatabase)
-    private val productService = ProductService(embeddedPostgres.postgresDatabase, TestFetcher())
+    protected val productService = ProductService(embeddedPostgres.postgresDatabase, TestFetcher())
 
     protected val preimage = "1234"
     private val rhash = preimage.sha256()

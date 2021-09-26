@@ -61,7 +61,7 @@ fun Application.installLsatInterceptor(
                     invoiceService.createInvoice(tokenProduct.price, "1x${tokenProduct.name}: ${tokenProduct.id}")
                 val macaroon = macaroonService.createMacaroon(invoice.rhash)
                 tokenService.createToken(macaroon)
-                orderService.createWithInvoice(invoice, tokenProduct, macaroon)
+                orderService.createWithInvoice(invoice, tokenProduct.id, macaroon)
                 call.response.headers.append(
                     "WWW-Authenticate",
                     "LSAT macaroon=\"${macaroon.serialize()}\", invoice=\"${invoice.paymentRequest}\""
