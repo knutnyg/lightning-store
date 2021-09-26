@@ -185,3 +185,8 @@ textarea {
     margin-right: 30px;
     margin-bottom: 30px;
 }
+
+.carousel-image {
+    width: 300px;
+    height: 300px;
+}

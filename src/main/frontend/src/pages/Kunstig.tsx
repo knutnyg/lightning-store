@@ -139,7 +139,8 @@ export const Kunstig = (props: PageProps) => {
                 dotListClass="custom-dot-list-style"
                 itemClass="carousel-item-padding-40-px"
             >
-                <img src={`${baseUrl}/products/a1afc48b-23bc-4297-872a-5e7884d6975a/data`}/>
+                <img className={"carousel-image"}
+                     src={`${baseUrl}/products/a1afc48b-23bc-4297-872a-5e7884d6975a/data`}/>
             </Carousel>
         </div>
         }
