@@ -45,6 +45,17 @@ function App() {
         setTitle(title)
     }
 
+    const callbackUpdateUser = () => {
+        if (!user) {
+            updateUser()
+                .then(_user => {
+                    setUser(_user);
+                    return _user
+                })
+                .catch(err => console.log(err))
+        }
+    }
+
     return (
         <div className="main">
             <Header title={title} user={user}/>
@@ -55,7 +66,8 @@ function App() {
                         <Route path="/blog-paywall"><PaywallView onChange={newtitle}/></Route>
                         <Route path="/bitcoin-network"><Bitcoin onChange={newtitle}/></Route>
                         <Route path="/lightning-network"><Lightning onChange={newtitle}/></Route>
-                        <Route path="/kunstig"><Kunstig onChange={newtitle}/></Route>
+                        <Route path="/kunstig"><Kunstig onChange={newtitle} updateUser={callbackUpdateUser}
+                                                        user={user}/></Route>
                         <Route path="/admin"><Admin onChange={newtitle}/></Route>
                         <Route path="/"><Home onChange={newtitle}/></Route>
                     </Switch>

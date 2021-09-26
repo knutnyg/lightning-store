@@ -10,9 +10,12 @@ import 'react-multi-carousel/lib/styles.css';
 import {baseUrl} from "../App";
 import useInterval from "../hooks/useInterval";
 import {updateTokenInvoice} from "./Register";
+import {User} from "../hooks/useUser";
 
 export interface PageProps {
     onChange: (title: string) => void;
+    updateUser: () => void;
+    user?: User
 }
 
 interface ImageBlob {
@@ -31,7 +34,8 @@ export interface MyState {
 interface InvoiceKunstig {
     paymentRequest: string,
     settled: boolean,
-    id: string
+    id: string,
+    preimage?: string
 }
 
 interface Register {
@@ -88,11 +92,25 @@ export const Kunstig = (props: PageProps) => {
                         },
                         state: invoice.settled ? AccessState.ACCESS : AccessState.PENDING_REGISTER
                     })
+                    if (invoice.settled) {
+                        localStorage.setItem("preimage", invoice.preimage!!)
+                    }
+                })
+                .then(() => {
+                    if (state.state === AccessState.ACCESS) {
+                        props.updateUser()
+                    }
                 })
         }
     }, 1000)
 
     useEffect(() => {
+        if (!props.user) {
+            props.updateUser()
+        }
+        if (props.user && state.state === AccessState.INITIAL) {
+            setState({...state, state: AccessState.ACCESS})
+        }
         props.onChange("Can a machine make art? 🎨")
         if (state.state === AccessState.INITIAL) {
 
@@ -158,10 +176,12 @@ export const Kunstig = (props: PageProps) => {
             {state.state === AccessState.PENDING_REGISTER && state.register &&
             <InvoiceView paymentReq={state.register.paymentRequest}/>}
         </div>}
-        {state.state === AccessState.ACCESS && <p>ACCESS 🎉</p>}
+        {state.state === AccessState.ACCESS && <div>
+            <p>ACCESS 🎉</p>
+            <img src={`${baseUrl}/products/a1afc48b-23bc-4297-872a-5e7884d6975a/data`}/>
+        </div>
+        }
 
-
-        {/*<img src={`${baseUrl}/products/a1afc48b-23bc-4297-872a-5e7884d6975a/data`}/>*/}
 
         {/*<Carousel*/}
         {/*    swipeable={false}*/}

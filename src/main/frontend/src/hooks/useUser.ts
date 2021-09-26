@@ -24,7 +24,7 @@ export const updateUser = () => {
 }
 
 export const useUser = () => {
-    return useState<User | null>(null);
+    return useState<User | undefined>(undefined);
 }
 
 export const useTitle = () => {
