@@ -143,6 +143,5 @@ export const Kunstig = (props: PageProps) => {
             </Carousel>
         </div>
         }
-        <Link to="/">Back</Link>
     </div>
 }
