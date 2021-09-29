@@ -6,14 +6,12 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import xyz.nygaard.extractUserId
-import xyz.nygaard.store.Fetcher
 import xyz.nygaard.store.auth.AuthChallengeHeader
 import xyz.nygaard.store.invoice.InvoiceDto
 import xyz.nygaard.store.order.ProductDto
 import xyz.nygaard.store.order.UpdateProduct
 import xyz.nygaard.store.user.TokenResponse
 import java.io.FileInputStream
-import java.net.URI
 import java.util.*
 
 val imgData = requireNotNull(FileInputStream("src/test/resources/working.jpg").readAllBytes())
@@ -226,8 +224,4 @@ class StoreE2ETest : AbstractE2ETest() {
             }
         }
     }
-}
-
-class TestFetcher : Fetcher {
-    override fun fetch(uri: URI) = requireNotNull(FileInputStream("src/test/resources/working.jpg").readAllBytes())
 }

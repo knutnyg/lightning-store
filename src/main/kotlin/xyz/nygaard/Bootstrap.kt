@@ -31,6 +31,7 @@ import xyz.nygaard.store.order.registerProducts
 import xyz.nygaard.store.register.registerRegisterApi
 import xyz.nygaard.store.user.TokenService
 import java.io.File
+import java.net.URI
 import java.util.*
 import javax.sql.DataSource
 import javax.xml.bind.DatatypeConverter
@@ -81,7 +82,7 @@ internal fun Application.buildApplication(
     staticResourcesPath: String,
     macaroonService: MacaroonService,
     lndClient: LndApiWrapper,
-    productService: ProductService = ProductService(dataSource, ResourceFetcher()),
+    productService: ProductService = ProductService(dataSource),
     cookieBakery: CookieBakery = CookieJar()
 ) {
     val invoiceService = InvoiceService(dataSource, lndClient)
@@ -99,7 +100,7 @@ internal fun Application.buildApplication(
             registerOrders(orderService, tokenService, productService, invoiceService)
             registerSelftestApi(lndClient)
             registerRegisterApi(invoiceService, tokenService, cookieBakery)
-            registerProducts(productService, invoiceService, orderService)
+            registerProducts(productService, invoiceService, orderService, ResourceFetcher(URI.create("")))
             registerAdmin(productService)
         }
 

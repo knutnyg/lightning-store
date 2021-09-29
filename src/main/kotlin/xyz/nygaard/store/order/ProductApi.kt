@@ -4,15 +4,23 @@ import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import xyz.nygaard.extractUserId
+import xyz.nygaard.log
+import xyz.nygaard.store.ResourceFetcher
 import xyz.nygaard.store.auth.AuthorizationKey
 import xyz.nygaard.store.invoice.InvoiceService
 import java.util.*
 
+val inProgress = mutableListOf<UUID>()
+val inProgressSynchronized = Collections.synchronizedList(inProgress)
+
 fun Route.registerProducts(
     productService: ProductService,
     invoiceService: InvoiceService,
-    orderService: OrderService
+    orderService: OrderService,
+    resourceFetcher: ResourceFetcher
 ) {
     get("/products/{id}") {
         val authorization = call.attributes[AuthorizationKey]
@@ -44,7 +52,21 @@ fun Route.registerProducts(
                         contentType = ContentType.parse(product.mediaType ?: "application/octet-stream")
                     )
                 } else {
-                    call.respondText(product.payload ?: "")
+                    call.respond(HttpStatusCode.NoContent)
+                    synchronized(inProgress) {
+                        if (productId in inProgressSynchronized) {
+                            return@get
+                        }
+                    }
+                    withContext(Dispatchers.IO) {
+                        inProgressSynchronized.add(productId)
+                        log.info("Fetching new image")
+                        val image = resourceFetcher.requestNewImage()
+                        log.info("Fetched new image")
+                        productService.updateProduct(UpdateProduct(productId, product.mediaType!!, image))
+                        log.info("Saved new image")
+                        inProgressSynchronized.remove(productId)
+                    }
                 }
             }
         } else {

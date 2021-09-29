@@ -83,8 +83,7 @@ class OrderService(
                                     id = this.getString("product_id").let { UUID.fromString(it) },
                                     name = this.getString("name"),
                                     price = this.getLong("price"),
-                                    payload = this.getString("payload"),
-                                    uri = this.getString("uri")?.let { URI.create(it) }
+                                    payload = this.getString("payload")
                                 ),
                                 settled = this.getTimestamp("order_settled")?.toLocalDateTime()
                             )
@@ -117,7 +116,6 @@ class OrderService(
                             name = this.getString("name"),
                             price = this.getLong("price"),
                             payload = this.getString("payload"),
-                            uri = this.getString("uri")?.let { URI.create(it) }
                         ),
                         settled = this.getTimestamp("o.settled")?.toLocalDateTime()
                     )

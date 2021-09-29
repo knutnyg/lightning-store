@@ -54,7 +54,6 @@ fun Route.registerAdmin(
                         price = req.price,
                         mediaType = req.mediaType,
                         payload_v2 = Base64.getDecoder().decode(req.data),
-                        uri = null,
                     )
                 )
                 productService.getProduct(id).toDto()

@@ -2,12 +2,10 @@ package xyz.nygaard.store.order
 
 import xyz.nygaard.db.connectionAutoCommit
 import xyz.nygaard.db.toList
-import xyz.nygaard.store.Fetcher
-import java.net.URI
 import java.util.*
 import javax.sql.DataSource
 
-class ProductService(val dataSource: DataSource, val resourceFetcher: Fetcher) {
+class ProductService(val dataSource: DataSource) {
     fun getProduct(uuid: UUID): Product {
         return dataSource.connectionAutoCommit().use { connection ->
             connection.prepareStatement("SELECT * FROM products WHERE id = ?")
@@ -22,7 +20,6 @@ class ProductService(val dataSource: DataSource, val resourceFetcher: Fetcher) {
                                 payload = this.getString("payload"),
                                 mediaType = this.getString("mediatype"),
                                 payload_v2 = this.getBytes("payload_v2"),
-                                uri = this.getString("uri")?.let { URI.create(it) }
                             )
                         }.first()
                 }
@@ -46,13 +43,12 @@ class ProductService(val dataSource: DataSource, val resourceFetcher: Fetcher) {
 
     fun insertProduct(p: InsertProduct): Int {
         return dataSource.connectionAutoCommit().use {
-            it.prepareStatement("INSERT INTO products (id, name, price, mediatype, payload_v2, uri) VALUES (?, ?, ?, ?, ?, ?) ").use { preparedStatement ->
+            it.prepareStatement("INSERT INTO products (id, name, price, mediatype, payload_v2) VALUES (?, ?, ?, ?, ?) ").use { preparedStatement ->
                 preparedStatement.setString(1, p.id.toString())
                 preparedStatement.setString(2, p.name)
                 preparedStatement.setLong(3, p.price)
                 preparedStatement.setString(4, p.mediaType)
                 preparedStatement.setBytes(5, p.payload_v2)
-                preparedStatement.setString(6, p.uri?.toString())
                 preparedStatement.executeUpdate()
             }
         }
@@ -83,7 +79,6 @@ data class Product(
     val payload_v2: ByteArray? = null,
     val price: Long,
     var payload: String?,
-    val uri: URI?
 ) {
     fun toDto() = ProductDto(id, name, price, payload)
 }
@@ -93,7 +88,6 @@ data class InsertProduct(
     val mediaType: String? = null,
     val payload_v2: ByteArray? = null,
     val price: Long,
-    val uri: URI? = null,
 )
 
 data class ProductDto(
