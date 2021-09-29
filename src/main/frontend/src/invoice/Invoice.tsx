@@ -45,7 +45,7 @@ export const DonateView = () => {
 
     useInterval(() => {
         if (invoice && invoice?.inProgress) {
-            updateInvoice(invoice)
+            updateInvoice(invoice.id)
                 .then(_invoice => setInvoice(_invoice))
         }
     }, 500)

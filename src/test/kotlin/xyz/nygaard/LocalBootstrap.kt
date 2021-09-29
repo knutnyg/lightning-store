@@ -4,6 +4,7 @@ import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.http.*
+import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -12,6 +13,8 @@ import xyz.nygaard.db.Database
 import xyz.nygaard.lnd.LndClient
 import xyz.nygaard.store.auth.AuthHeader
 import xyz.nygaard.store.auth.CookieBakery
+import xyz.nygaard.store.e2e.FakeFetcher
+import xyz.nygaard.store.e2e.imgData
 import xyz.nygaard.store.invoice.LndClientMock
 import java.io.File
 import java.io.FileInputStream
@@ -73,7 +76,8 @@ fun main() {
             macaroonService = macaroonService,
             lndClient = lndClient,
             cookieBakery = LocalhostCookieJar(),
-            staticResourcesPath = environment.staticResourcesPath
+            staticResourcesPath = environment.staticResourcesPath,
+            resourceFetcher = FakeFetcher(imgData)
         ).apply {
             install(CORS) {
                 method(HttpMethod.Options)
@@ -91,10 +95,18 @@ fun main() {
             }
             routing {
                 get("/local/invoice/markPaid") {
-                    log.info("marking invoice as paid")
+                    log.info("marking invoice as settled")
                     if (lndClient is LndClientMock) {
-                        lndClient.markInvoiceAsPaid()
+                        lndClient.markSettled(true)
                     }
+                    call.respond("Invoice marked as paid")
+                }
+                get("/local/invoice/markUnpaid") {
+                    log.info("marking invoice as unsettled")
+                    if (lndClient is LndClientMock) {
+                        lndClient.markSettled(false)
+                    }
+                    call.respond("Invoice marked as unpaid")
                 }
             }
         }

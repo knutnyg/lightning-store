@@ -9,7 +9,6 @@ import xyz.nygaard.extractUserId
 import xyz.nygaard.store.auth.AuthChallengeHeader
 import xyz.nygaard.store.invoice.InvoiceDto
 import xyz.nygaard.store.order.ProductDto
-import xyz.nygaard.store.order.UpdateProduct
 import xyz.nygaard.store.user.TokenResponse
 import java.util.*
 
@@ -124,7 +123,7 @@ class StoreE2ETest : AbstractE2ETest() {
                 assertEquals(HttpStatusCode.PaymentRequired, response.status())
             }
 
-            lndMock.markInvoiceAsPaid()
+            lndMock.markSettled()
 
             with(authenticated(HttpMethod.Get, "/api/invoices/$invoiceId")) {
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -163,7 +162,7 @@ class StoreE2ETest : AbstractE2ETest() {
                 val invoice = mapper.readValue(response.content, InvoiceDto::class.java)
                 invoiceId = invoice.id
             }
-            lndMock.markInvoiceAsPaid()
+            lndMock.markSettled()
 
             with(authenticated(HttpMethod.Get, "/api/invoices/$invoiceId")) {
                 assertEquals(HttpStatusCode.OK, response.status())
@@ -196,7 +195,7 @@ class StoreE2ETest : AbstractE2ETest() {
                 assertEquals(HttpStatusCode.PaymentRequired, response.status())
             }
 
-            lndMock.markInvoiceAsPaid()
+            lndMock.markSettled()
             with(authenticated(HttpMethod.Get, "/api/invoices/$invoiceId")) {
                 assertEquals(HttpStatusCode.OK, response.status())
             }

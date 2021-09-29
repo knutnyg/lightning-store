@@ -7,7 +7,7 @@ export interface PageProps {
 
 export interface Image {
     objUrl: string,
-    payload: File
+    payload: Blob
 }
 
 export const Admin = (props: PageProps) => {
@@ -69,7 +69,7 @@ export const Admin = (props: PageProps) => {
     )
 }
 
-const toBase64 = (file: File) => new Promise((resolve, reject) => {
+const toBase64 = (file: Blob) => new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => resolve(reader.result);

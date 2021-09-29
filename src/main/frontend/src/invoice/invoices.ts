@@ -11,8 +11,9 @@ export interface Invoice extends InvoiceRaw {
     inProgress: boolean,
 }
 
-export const updateInvoice = (invoice: Invoice): Promise<Invoice> => {
-    return fetch(`${baseUrl}/invoices/${invoice.id}`, {
+export const updateInvoice = (invoiceId: string): Promise<Invoice> => {
+    console.log('Updating invoice:', invoiceId)
+    return fetch(`${baseUrl}/invoices/${invoiceId}`, {
         method: 'GET',
         headers: {
             'Access-Control-Allow-Origin': '*',

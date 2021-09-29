@@ -12,7 +12,7 @@ import {handleRegister, Register, updateTokenInvoice} from "./Register";
 import {User} from "../hooks/useUser";
 import Carousel from "react-multi-carousel";
 import {Image} from "./Admin";
-import {fetchProduct} from "../product/products";
+import {Invoice, updateInvoice} from "../invoice/invoices";
 
 export interface PageProps {
     onChange: (title: string) => void;
@@ -22,9 +22,9 @@ export interface PageProps {
 
 interface CustomImage {
     id?: string
-    paymentRequest?: string,
     image?: Image,
-    pending: boolean,
+    inflight: boolean,
+    invoice?: InvoiceKunstig
 }
 
 interface PageState {
@@ -38,7 +38,6 @@ interface InvoiceKunstig {
     paymentRequest: string,
     settled: boolean,
     id: string,
-    preimage?: string
 }
 
 export const Kunstig = (props: PageProps) => {
@@ -47,31 +46,44 @@ export const Kunstig = (props: PageProps) => {
     })
 
     useInterval(() => {
-        if (state.state === AccessState.PENDING_REGISTER) {
-            updateTokenInvoice()
-                .then(invoice => {
-                    setState({
-                        ...state, invoice: {
-                            paymentRequest: invoice.paymentRequest,
-                            settled: invoice.settled,
-                            id: invoice.id!!
-                        },
-                        state: invoice.settled ? AccessState.ACCESS : AccessState.PENDING_REGISTER
+            if (state.state === AccessState.PENDING_REGISTER) {
+                updateTokenInvoice()
+                    .then(invoice => {
+                        setState({
+                            ...state, invoice: {
+                                paymentRequest: invoice.paymentRequest,
+                                settled: invoice.settled,
+                                id: invoice.id!!
+                            },
+                            state: invoice.settled ? AccessState.ACCESS : AccessState.PENDING_REGISTER
+                        })
+                        if (invoice.settled) {
+                            localStorage.setItem("preimage", invoice.preimage!!)
+                            props.updateUser()
+                        }
                     })
-                    if (invoice.settled) {
-                        localStorage.setItem("preimage", invoice.preimage!!)
-                        props.updateUser()
-                    }
-                })
+            }
+            if (state.customImage?.invoice) {
+                updateInvoice(state.customImage?.invoice?.id!!)
+                    .then(res => {
+                            if (!!res.settled) {
+                                setState({
+                                    ...state, customImage: {
+                                        ...state.customImage, inflight: false, invoice: {...state.customImage?.invoice!!, settled: true}
+                                    }
+                                })
+                            }
+                        }
+                    )
+            }
+            if (state.customImage?.invoice?.settled && !state.customImage?.inflight) {
+                setState({...state, customImage: {...state.customImage, inflight: true, invoice: undefined}})
+                getImage(state.customImage.id!!)
+            }
         }
-        if (state.customImage?.pending) {
-            fetchProduct(state.customImage?.id!!)
-                .then((product) => setState({
-                    ...state,
-                    customImage: {...state.customImage, pending: false, id: product?.payload}
-                }))
-        }
-    }, 1000)
+        ,
+        5000
+    )
     useEffect(() => {
         if (!props.user) {
             props.updateUser()
@@ -98,13 +110,69 @@ export const Kunstig = (props: PageProps) => {
     }
 
     const buyImage = () => {
-        setState({...state, customImage: {...state.customImage, pending: true}})
+        return fetch(`${baseUrl}/products/image`, {
+            method: 'POST',
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Accept': 'application/json',
+                'Authorization': `LSAT ${localStorage.getItem('macaroon')}:${localStorage.getItem("preimage")}`
+            },
+        })
+            .then(response => (response.json() as Promise<Invoice>))
+            .then(invoice => {
+                setState({
+                    ...state,
+                    customImage: {
+                        ...state.customImage,
+                        invoice: {
+                            id: invoice.id,
+                            paymentRequest: invoice.paymentRequest,
+                            settled: !!invoice.settled
+                        },
+                        inflight: false,
+                        id: invoice.memo
+                    }
+                })
+                return invoice
+            })
+            .catch(err => {
+                console.log(err)
+                return Promise.reject()
+            });
+    }
+
+    const getImage = (id: string) => {
+        fetch(`${baseUrl}/products/${id}/data`, {
+            method: 'GET',
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Accept': 'application/json',
+                'Authorization': `LSAT ${localStorage.getItem('macaroon')}:${localStorage.getItem("preimage")}`
+            },
+        })
+            .then(res => res.blob())
+            .then(blob => {
+                setState({
+                    ...state, customImage: {
+                        ...state.customImage,
+                        id: id,
+                        inflight: false,
+                        image: {
+                            ...state.customImage?.image, payload: blob, objUrl: URL.createObjectURL(blob)
+                        },
+                        invoice: undefined
+                    }
+                })
+            })
+            .catch(err => console.log(err))
     }
 
     return <div className="page">
         <p>
-            These pieces are created by Kunstig, an AI that has taught itself to paint on its own. Kunstig is heavily
-            inspired by Edward Munch but you can also see that he takes from the abstract world of art as well. Kunstig
+            These pieces are created by Kunstig, an AI that has taught itself to paint on its own. Kunstig is
+            heavily
+            inspired by Edward Munch but you can also see that he takes from the abstract world of art as well.
+            Kunstig
             can produce an infinite amount of unique artworks, meaning there will never exist two identical pieces.
         </p>
         <h2>Heres a few samples:</h2>
@@ -165,9 +233,10 @@ export const Kunstig = (props: PageProps) => {
             <div>
                 <p>Kunstig can also draw paintings just for you!</p>
                 <button onClick={buyImage}>Buy a custom box fresh image</button>
-                {state.customImage?.pending && <InvoiceView paymentReq={state.customImage?.paymentRequest!!}/>}
-                {state.customImage?.id &&
-                <img src={`${baseUrl}/products/${state.customImage.id}/data`} alt={'my special image'}/>}
+                {state.customImage?.invoice &&
+                <InvoiceView paymentReq={state.customImage?.invoice?.paymentRequest!!}/>}
+                {state.customImage?.id && state.customImage?.image &&
+                <img src={state.customImage?.image.objUrl} alt={'my special image'}/>}
             </div>
 
         </div>

@@ -21,10 +21,10 @@ class LndClientMock : LndApiWrapper {
         paymentRequest = "lnbc5u1pwjefggpp5lcu6le2lt6ttmjvucj4um720pjdh9xe29993383g9r9dwjxadlgsdq523jhxapqf9h8vmmfvdjscqzpgj5cqeemavasg8uqu7ec85k3792q02czxzregkdae5ylqvytgvrcsq4t2spjzrnv3sh8pkckv4y04urwzmzsu9h8kthcvwk3evr4z8ksqkdj8c0"
     )
 
-    fun markInvoiceAsPaid() {
+    fun markSettled(settled: Boolean = true) {
         _invoice = _invoice.copy(
-            settled = true,
-            preimage = preimage
+            settled = settled,
+            preimage = if(settled) preimage else null
         )
     }
 

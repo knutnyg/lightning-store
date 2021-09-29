@@ -38,8 +38,6 @@ abstract class AbstractE2ETest {
 
     protected val mapper = jacksonObjectMapper()
 
-    val imgData = requireNotNull(FileInputStream("src/test/resources/working.jpg").readAllBytes())
-
     @BeforeAll
     fun setup() {
         Flyway.configure().dataSource(embeddedPostgres.postgresDatabase).load().migrate()
@@ -70,7 +68,11 @@ abstract class AbstractE2ETest {
         resourceFetcher = FakeFetcher(imgData)
     )
 
-    class FakeFetcher(private val data: ByteArray): Fetcher {
-        override fun requestNewImage() = data
-    }
+
+}
+
+val imgData = requireNotNull(FileInputStream("src/test/resources/working.jpg").readAllBytes())
+
+class FakeFetcher(private val data: ByteArray): Fetcher {
+    override fun requestNewImage() = data
 }

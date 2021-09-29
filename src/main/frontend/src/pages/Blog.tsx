@@ -37,7 +37,7 @@ export const PaywallView = (props: PageProps) => {
     useInterval(() => {
         if (state.access === AccessState.PAYMENT_PENDING) {
             if (state.invoice && !state.invoice?.settled) {
-                updateInvoice(state.invoice)
+                updateInvoice(state.invoice.id)
                     .then(invoice => {
                             setState({...state, invoice: invoice})
                         }
