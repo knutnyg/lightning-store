@@ -82,7 +82,7 @@ export const Kunstig = (props: PageProps) => {
             }
         }
         ,
-        1000
+        8000
     )
     useEffect(() => {
         if (!props.user) {
