@@ -54,6 +54,7 @@ fun main() {
             macaroonGeneratorSecret = System.getenv("LS_MACAROON_SECRET"),
             location = System.getenv("LS_LOCATION"),
             staticResourcesPath = getEnvOrDefault("LS_STATIC_RESOURCES", "src/main/frontend/build"),
+            kunstigUrl = getEnvOrDefault("LS_KUNSTIG_URL", "localhost:8080")
         )
 
         val database = Database(
@@ -74,6 +75,7 @@ fun main() {
             macaroonService = macaroonService,
             lndClient = lndClient,
             staticResourcesPath = environment.staticResourcesPath,
+            resourceFetcher = ResourceFetcher(environment.kunstigUrl)
         )
     }.start(wait = true)
 }
@@ -83,9 +85,9 @@ internal fun Application.buildApplication(
     staticResourcesPath: String,
     macaroonService: MacaroonService,
     lndClient: LndApiWrapper,
+    resourceFetcher: Fetcher,
     productService: ProductService = ProductService(dataSource),
     cookieBakery: CookieBakery = CookieJar(),
-    resourceFetcher: Fetcher = ResourceFetcher(URI.create(""))
 ) {
     val invoiceService = InvoiceService(dataSource, lndClient)
     val tokenService = TokenService(dataSource)
@@ -164,7 +166,8 @@ data class Config(
     val cert: String,
     val macaroonGeneratorSecret: String,
     val location: String,
-    val staticResourcesPath: String
+    val staticResourcesPath: String,
+    val kunstigUrl: String
 )
 
 class EnvironmentMacaroonContext(var currentMacaroonData: String) : MacaroonContext {

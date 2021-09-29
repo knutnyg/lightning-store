@@ -9,10 +9,10 @@ interface Fetcher {
     fun requestNewImage(): ByteArray
 }
 
-class ResourceFetcher(private val kunstigUri: URI): Fetcher {
+class ResourceFetcher(private val kunstigUri: String): Fetcher {
     val client: HttpClient = HttpClient.newBuilder().build()
 
-    override fun requestNewImage() = loadRemote(kunstigUri)
+    override fun requestNewImage() = loadRemote(URI.create(kunstigUri))
 
     private fun loadRemote(uri: URI): ByteArray {
         val resp = client.send(HttpRequest.newBuilder().GET().uri(uri).build(), BodyHandlers.ofByteArray())

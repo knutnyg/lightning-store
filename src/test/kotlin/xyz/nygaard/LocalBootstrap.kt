@@ -42,7 +42,8 @@ fun main() {
             databasePassword = "",
             macaroonGeneratorSecret = props.getProperty("ls_macaroon_secret", "secret"),
             location = "localhost",
-            staticResourcesPath = "src/main/frontend/build"
+            staticResourcesPath = "src/main/frontend/build",
+            kunstigUrl = "localhost"
         )
 
         val useRealPostgres = true
