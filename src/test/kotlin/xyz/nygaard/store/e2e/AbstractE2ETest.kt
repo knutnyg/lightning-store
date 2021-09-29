@@ -71,9 +71,6 @@ abstract class AbstractE2ETest {
     )
 
     class FakeFetcher(private val data: ByteArray): Fetcher {
-        override fun requestNewImage(): ByteArray {
-            return data
-        }
-
+        override fun requestNewImage() = data
     }
 }
