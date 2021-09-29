@@ -13,9 +13,6 @@ import xyz.nygaard.store.auth.AuthorizationKey
 import xyz.nygaard.store.invoice.InvoiceService
 import java.util.*
 
-val inProgress = mutableListOf<UUID>()
-val inProgressSynchronized = Collections.synchronizedList(inProgress)
-
 fun Route.registerProducts(
     productService: ProductService,
     invoiceService: InvoiceService,
@@ -41,33 +38,21 @@ fun Route.registerProducts(
             call.parameters["id"].let { UUID.fromString(it) } ?: return@get call.respond(HttpStatusCode.BadRequest)
         if (productService.hasPurchased(authorization.macaroon.extractUserId(), productId)) {
             val product = productService.getProduct(productId)
-            if (product == null) {
-                call.respond(HttpStatusCode.NotFound)
-            } else if (product.payload_v2 == null || product.payload_v2.isEmpty()) {
-                call.respond(HttpStatusCode.NoContent)
+            if (product.payload_v2 == null || product.payload_v2.isEmpty()) {
+                log.info("Fetching new image")
+                val image = resourceFetcher.requestNewImage()
+                log.info("Fetched new image")
+                productService.updateProduct(UpdateProduct(productId, "image/png", image))
+                log.info("Saved new image")
+                call.respondBytes(
+                    image,
+                    contentType = ContentType.Image.PNG
+                )
             } else {
-                if (product.payload_v2 != null) {
-                    call.respondBytes(
-                        product.payload_v2,
-                        contentType = ContentType.parse(product.mediaType ?: "application/octet-stream")
-                    )
-                } else {
-                    call.respond(HttpStatusCode.NoContent)
-                    synchronized(inProgress) {
-                        if (productId in inProgressSynchronized) {
-                            return@get
-                        }
-                    }
-                    withContext(Dispatchers.IO) {
-                        inProgressSynchronized.add(productId)
-                        log.info("Fetching new image")
-                        val image = resourceFetcher.requestNewImage()
-                        log.info("Fetched new image")
-                        productService.updateProduct(UpdateProduct(productId, product.mediaType!!, image))
-                        log.info("Saved new image")
-                        inProgressSynchronized.remove(productId)
-                    }
-                }
+                call.respondBytes(
+                    product.payload_v2,
+                    contentType = ContentType.parse(product.mediaType ?: "application/octet-stream")
+                )
             }
         } else {
             call.respond(HttpStatusCode.PaymentRequired)

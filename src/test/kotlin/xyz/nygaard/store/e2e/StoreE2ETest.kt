@@ -201,23 +201,9 @@ class StoreE2ETest : AbstractE2ETest() {
                 assertEquals(HttpStatusCode.OK, response.status())
             }
 
-            // Resource unavailable before backend has image
-            with(authenticated(HttpMethod.Get, "/api/products/${memo}/data")) {
-                assertEquals(HttpStatusCode.NoContent, response.status())
-            }
-
-            //populate image
-            productService.updateProduct(
-                UpdateProduct(
-                    id = UUID.fromString(memo),
-                    mediaType = "text/plain",
-                    payload_v2 = "hello".toByteArray()
-                )
-            )
-
             with(authenticated(HttpMethod.Get, "/api/products/${memo}/data")) {
                 assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals("hello", String(response.byteContent!!))
+                assertNotNull(response.byteContent)
             }
         }
     }
