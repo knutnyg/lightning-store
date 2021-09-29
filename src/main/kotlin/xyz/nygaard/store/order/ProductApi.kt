@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import xyz.nygaard.extractUserId
 import xyz.nygaard.log
-import xyz.nygaard.store.ResourceFetcher
+import xyz.nygaard.store.Fetcher
 import xyz.nygaard.store.auth.AuthorizationKey
 import xyz.nygaard.store.invoice.InvoiceService
 import java.util.*
@@ -20,7 +20,7 @@ fun Route.registerProducts(
     productService: ProductService,
     invoiceService: InvoiceService,
     orderService: OrderService,
-    resourceFetcher: ResourceFetcher
+    resourceFetcher: Fetcher
 ) {
     get("/products/{id}") {
         val authorization = call.attributes[AuthorizationKey]

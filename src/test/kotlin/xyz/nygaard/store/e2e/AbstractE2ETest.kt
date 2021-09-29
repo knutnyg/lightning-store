@@ -11,11 +11,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import xyz.nygaard.MacaroonService
 import xyz.nygaard.buildApplication
+import xyz.nygaard.store.Fetcher
 import xyz.nygaard.store.invoice.LndClientMock
 import xyz.nygaard.store.order.OrderService
 import xyz.nygaard.store.order.ProductService
 import xyz.nygaard.store.user.TokenService
 import xyz.nygaard.util.sha256
+import java.io.FileInputStream
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class AbstractE2ETest {
@@ -35,6 +37,8 @@ abstract class AbstractE2ETest {
     protected val macaroon = macaroonService.createMacaroon(rhash)
 
     protected val mapper = jacksonObjectMapper()
+
+    val imgData = requireNotNull(FileInputStream("src/test/resources/working.jpg").readAllBytes())
 
     @BeforeAll
     fun setup() {
@@ -62,6 +66,14 @@ abstract class AbstractE2ETest {
         macaroonService = macaroonService,
         productService = productService,
         lndClient = lndMock,
-        staticResourcesPath = "static"
+        staticResourcesPath = "static",
+        resourceFetcher = FakeFetcher(imgData)
     )
+
+    class FakeFetcher(private val data: ByteArray): Fetcher {
+        override fun requestNewImage(): ByteArray {
+            return data
+        }
+
+    }
 }

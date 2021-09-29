@@ -18,6 +18,7 @@ import org.slf4j.event.Level
 import xyz.nygaard.db.Database
 import xyz.nygaard.lnd.LndApiWrapper
 import xyz.nygaard.lnd.LndClient
+import xyz.nygaard.store.Fetcher
 import xyz.nygaard.store.ResourceFetcher
 import xyz.nygaard.store.auth.CookieBakery
 import xyz.nygaard.store.auth.CookieJar
@@ -83,7 +84,8 @@ internal fun Application.buildApplication(
     macaroonService: MacaroonService,
     lndClient: LndApiWrapper,
     productService: ProductService = ProductService(dataSource),
-    cookieBakery: CookieBakery = CookieJar()
+    cookieBakery: CookieBakery = CookieJar(),
+    resourceFetcher: Fetcher = ResourceFetcher(URI.create(""))
 ) {
     val invoiceService = InvoiceService(dataSource, lndClient)
     val tokenService = TokenService(dataSource)
@@ -100,7 +102,7 @@ internal fun Application.buildApplication(
             registerOrders(orderService, tokenService, productService, invoiceService)
             registerSelftestApi(lndClient)
             registerRegisterApi(invoiceService, tokenService, cookieBakery)
-            registerProducts(productService, invoiceService, orderService, ResourceFetcher(URI.create("")))
+            registerProducts(productService, invoiceService, orderService, resourceFetcher)
             registerAdmin(productService)
         }
 

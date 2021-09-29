@@ -5,10 +5,14 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse.BodyHandlers
 
-class ResourceFetcher(private val kunstigUri: URI) {
+interface Fetcher {
+    fun requestNewImage(): ByteArray
+}
+
+class ResourceFetcher(private val kunstigUri: URI): Fetcher {
     val client: HttpClient = HttpClient.newBuilder().build()
 
-    fun requestNewImage() = loadRemote(kunstigUri)
+    override fun requestNewImage() = loadRemote(kunstigUri)
 
     private fun loadRemote(uri: URI): ByteArray {
         val resp = client.send(HttpRequest.newBuilder().GET().uri(uri).build(), BodyHandlers.ofByteArray())

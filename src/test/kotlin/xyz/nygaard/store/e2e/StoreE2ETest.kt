@@ -11,10 +11,7 @@ import xyz.nygaard.store.invoice.InvoiceDto
 import xyz.nygaard.store.order.ProductDto
 import xyz.nygaard.store.order.UpdateProduct
 import xyz.nygaard.store.user.TokenResponse
-import java.io.FileInputStream
 import java.util.*
-
-val imgData = requireNotNull(FileInputStream("src/test/resources/working.jpg").readAllBytes())
 
 class StoreE2ETest : AbstractE2ETest() {
 
