@@ -80,9 +80,11 @@ export const Kunstig = (props: PageProps) => {
                         }
                     )
                     .then(res => {
-                        setState({...state, customImage: {...state.customImage, inflight: true, invoice: undefined}})
-                        console.log("Fetching image directly", res.memo)
-                        getImage(res.memo)
+                        if (res.settled) {
+                            setState({...state, customImage: {...state.customImage, inflight: true, invoice: undefined}})
+                            console.log("Fetching image directly", res.memo)
+                            getImage(res.memo)
+                        }
                     })
             } else if (!!state.customImage?.invoice?.settled && !state.customImage?.inflight) {
                 console.log("Fetching image in loop", state.customImage.id)
