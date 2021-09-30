@@ -22,7 +22,7 @@ import java.io.FileInputStream
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class AbstractE2ETest {
 
-    private val embeddedPostgres: EmbeddedPostgres = EmbeddedPostgres.builder()
+    protected val embeddedPostgres: EmbeddedPostgres = EmbeddedPostgres.builder()
         .setPort(5534).start()
 
     protected val lndMock = LndClientMock()
@@ -30,7 +30,7 @@ abstract class AbstractE2ETest {
     private val macaroonService = MacaroonService("localhost", "secret")
     protected val tokenService = TokenService(embeddedPostgres.postgresDatabase)
     protected val orderService = OrderService(embeddedPostgres.postgresDatabase)
-    protected val productService = ProductService(embeddedPostgres.postgresDatabase)
+    private val productService = ProductService(embeddedPostgres.postgresDatabase)
 
     protected val preimage = "1234"
     private val rhash = preimage.sha256()
@@ -71,9 +71,9 @@ abstract class AbstractE2ETest {
 
 val imgData = requireNotNull(FileInputStream("src/test/resources/working.jpg").readAllBytes())
 
-class FakeFetcher(private val data: ByteArray) : Fetcher {
+class FakeFetcher(private val data: ByteArray, val delay: Long = 0L) : Fetcher {
     override fun requestNewImage(): ByteArray {
-        Thread.sleep(5000)
+        Thread.sleep(delay)
         return data
     }
 }

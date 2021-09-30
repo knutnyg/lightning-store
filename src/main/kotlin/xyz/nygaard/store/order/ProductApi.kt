@@ -39,11 +39,11 @@ fun Route.registerProducts(
         if (productService.hasPurchased(authorization.macaroon.extractUserId(), productId)) {
             val product = productService.getProduct(productId)
             if (product.payload_v2 == null || product.payload_v2.isEmpty()) {
-                log.info("Fetching new image")
+
                 val image = resourceFetcher.requestNewImage()
-                log.info("Fetched new image")
                 productService.updateProduct(UpdateProduct(productId, "image/png", image))
-                log.info("Saved new image")
+                productService.addToGalleryBundle(productId)
+
                 call.respondBytes(
                     image,
                     contentType = ContentType.Image.PNG

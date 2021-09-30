@@ -5,6 +5,7 @@ import io.ktor.server.testing.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import xyz.nygaard.db.toList
 import xyz.nygaard.extractUserId
 import xyz.nygaard.store.auth.AuthChallengeHeader
 import xyz.nygaard.store.invoice.InvoiceDto
@@ -204,6 +205,20 @@ class StoreE2ETest : AbstractE2ETest() {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertNotNull(response.byteContent)
             }
+
+            assertImageAddedToBundle(memo)
         }
+    }
+
+    private fun assertImageAddedToBundle(memo: String) {
+        assertTrue(embeddedPostgres.postgresDatabase.connection.use { connection ->
+            connection.prepareStatement("SELECT * FROM bundle_product WHERE product_id = ?")
+                .use {
+                    it.setString(1, memo)
+                    it.executeQuery()
+                        .toList { getInt("bundle_id") }.size == 1
+                }
+        })
+
     }
 }

@@ -1,5 +1,6 @@
 package xyz.nygaard.store
 
+import xyz.nygaard.log
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -15,6 +16,7 @@ class ResourceFetcher(private val kunstigUri: String): Fetcher {
     override fun requestNewImage() = loadRemote(URI.create(kunstigUri))
 
     private fun loadRemote(uri: URI): ByteArray {
+        log.info("Fetching new image")
         val resp = client.send(HttpRequest.newBuilder().GET().uri(uri).build(), BodyHandlers.ofByteArray())
         if (resp.statusCode() == 200) {
             return resp.body()!!

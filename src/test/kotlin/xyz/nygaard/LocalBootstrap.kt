@@ -78,7 +78,7 @@ fun main() {
             lndClient = lndClient,
             cookieBakery = LocalhostCookieJar(),
             staticResourcesPath = environment.staticResourcesPath,
-            resourceFetcher = FakeFetcher(imgData)
+            resourceFetcher = FakeFetcher(imgData, 5000)
         ).apply {
             install(CORS) {
                 method(HttpMethod.Options)

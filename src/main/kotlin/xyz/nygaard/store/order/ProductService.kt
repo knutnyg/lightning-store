@@ -2,6 +2,7 @@ package xyz.nygaard.store.order
 
 import xyz.nygaard.db.connectionAutoCommit
 import xyz.nygaard.db.toList
+import xyz.nygaard.log
 import java.util.*
 import javax.sql.DataSource
 
@@ -26,6 +27,17 @@ class ProductService(val dataSource: DataSource) {
         }
     }
 
+    fun addToGalleryBundle(productId: UUID) {
+        log.info("Adding product: $productId to bundle: 2")
+        return dataSource.connectionAutoCommit().use { connection ->
+            connection.prepareStatement("INSERT INTO bundle_product(bundle_id, product_id) VALUES (2, ?)")
+                .use { preparedStatement ->
+                    preparedStatement.setString(1, productId.toString())
+                    preparedStatement.executeUpdate()
+                }
+        }
+    }
+
     fun hasPurchased(tokenId: UUID, productId: UUID): Boolean {
         return dataSource.connectionAutoCommit().use {
             it.prepareStatement("SELECT * FROM products p INNER JOIN orders o on p.id = o.product_id LEFT JOIN bundle b on b.id = p.bundle_id LEFT JOIN bundle_product bp on bp.bundle_id = b.id WHERE o.token_id = ? AND (p.id = ? OR bp.product_id = ?) AND settled IS NOT null")
@@ -43,25 +55,28 @@ class ProductService(val dataSource: DataSource) {
 
     fun insertProduct(p: InsertProduct): Int {
         return dataSource.connectionAutoCommit().use {
-            it.prepareStatement("INSERT INTO products (id, name, price, mediatype, payload_v2) VALUES (?, ?, ?, ?, ?) ").use { preparedStatement ->
-                preparedStatement.setString(1, p.id.toString())
-                preparedStatement.setString(2, p.name)
-                preparedStatement.setLong(3, p.price)
-                preparedStatement.setString(4, p.mediaType)
-                preparedStatement.setBytes(5, p.payload_v2)
-                preparedStatement.executeUpdate()
-            }
+            it.prepareStatement("INSERT INTO products (id, name, price, mediatype, payload_v2) VALUES (?, ?, ?, ?, ?) ")
+                .use { preparedStatement ->
+                    preparedStatement.setString(1, p.id.toString())
+                    preparedStatement.setString(2, p.name)
+                    preparedStatement.setLong(3, p.price)
+                    preparedStatement.setString(4, p.mediaType)
+                    preparedStatement.setBytes(5, p.payload_v2)
+                    preparedStatement.executeUpdate()
+                }
         }
     }
 
     fun updateProduct(update: UpdateProduct): Int {
+        log.info("Saving new image")
         return dataSource.connectionAutoCommit().use {
-            it.prepareStatement("UPDATE products SET mediatype = ?, payload_v2 = ? WHERE id = ? ").use { preparedStatement ->
-                preparedStatement.setString(1, update.mediaType)
-                preparedStatement.setBytes(2, update.payload_v2)
-                preparedStatement.setString(3, update.id.toString())
-                preparedStatement.executeUpdate()
-            }
+            it.prepareStatement("UPDATE products SET mediatype = ?, payload_v2 = ? WHERE id = ? ")
+                .use { preparedStatement ->
+                    preparedStatement.setString(1, update.mediaType)
+                    preparedStatement.setBytes(2, update.payload_v2)
+                    preparedStatement.setString(3, update.id.toString())
+                    preparedStatement.executeUpdate()
+                }
         }
     }
 }
@@ -82,6 +97,7 @@ data class Product(
 ) {
     fun toDto() = ProductDto(id, name, price, payload)
 }
+
 data class InsertProduct(
     val id: UUID,
     val name: String,
