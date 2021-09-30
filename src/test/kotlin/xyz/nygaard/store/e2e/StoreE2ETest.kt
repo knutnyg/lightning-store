@@ -1,5 +1,6 @@
 package xyz.nygaard.store.e2e
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.assertj.core.api.Assertions.assertThat
@@ -207,6 +208,20 @@ class StoreE2ETest : AbstractE2ETest() {
             }
 
             assertImageAddedToBundle(memo)
+        }
+    }
+
+    @Test
+    fun `fetch all imagesIds in bundle`(){
+        tokenService.createToken(macaroon, 0)
+        withTestApplication({
+            setup()
+        }) {
+            with(authenticated(HttpMethod.Get, "/api/bundle/2")) {
+                assertEquals(HttpStatusCode.OK, response.status())
+                val imageIds: List<UUID> = mapper.readValue(response.content!!)
+                assertEquals(1, imageIds.size)
+            }
         }
     }
 

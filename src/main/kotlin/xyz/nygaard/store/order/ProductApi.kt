@@ -73,4 +73,10 @@ fun Route.registerProducts(
         orderService.createWithInvoice(invoice, imageId, authorization.macaroon)
         call.respond(HttpStatusCode.OK, invoice)
     }
+
+    get("/bundle/{id}") {
+        val bundleId = call.parameters["id"]?.toInt()
+            ?: return@get call.respond(HttpStatusCode.BadRequest, "parameter 'id' is missing")
+        call.respond(productService.getProductIds(bundleId))
+    }
 }

@@ -79,6 +79,18 @@ class ProductService(val dataSource: DataSource) {
                 }
         }
     }
+
+    fun getProductIds(bundleId: Int): List<UUID> {
+        log.info("Fetching products in bundle: $bundleId")
+        return dataSource.connectionAutoCommit().use {
+            it.prepareStatement("SELECT * FROM bundle_product WHERE bundle_id = ?")
+                .use { preparedStatement ->
+                    preparedStatement.setInt(1, bundleId)
+                    preparedStatement.executeQuery()
+                        .toList { UUID.fromString(this.getString("product_id")) }
+                }
+        }
+    }
 }
 
 data class UpdateProduct(
