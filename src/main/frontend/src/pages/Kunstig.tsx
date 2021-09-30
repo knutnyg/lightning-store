@@ -62,27 +62,35 @@ export const Kunstig = (props: PageProps) => {
                             props.updateUser()
                         }
                     })
-            }
-            if (state.customImage?.invoice) {
+            } else if (state.customImage?.invoice) {
                 updateInvoice(state.customImage?.invoice?.id!!)
                     .then(res => {
                             if (!!res.settled) {
                                 setState({
                                     ...state, customImage: {
-                                        ...state.customImage, inflight: false, invoice: {...state.customImage?.invoice!!, settled: true}
+                                        ...state.customImage,
+                                        inflight: false,
+                                        invoice: {...state.customImage?.invoice!!, settled: true}
                                     }
                                 })
+                                setState({...state, customImage: {...state.customImage, inflight: true, invoice: undefined}})
+
                             }
+                            return res
                         }
                     )
-            }
-            if (state.customImage?.invoice?.settled && !state.customImage?.inflight) {
-                setState({...state, customImage: {...state.customImage, inflight: true, invoice: undefined}})
+                    .then(res => {
+                        setState({...state, customImage: {...state.customImage, inflight: true, invoice: undefined}})
+                        console.log("Fetching image directly", res.memo)
+                        getImage(res.memo)
+                    })
+            } else if (!!state.customImage?.invoice?.settled && !state.customImage?.inflight) {
+                console.log("Fetching image in loop", state.customImage.id)
                 getImage(state.customImage.id!!)
             }
         }
         ,
-        8000
+        1000
     )
     useEffect(() => {
         if (!props.user) {
@@ -110,6 +118,7 @@ export const Kunstig = (props: PageProps) => {
     }
 
     const buyImage = () => {
+        console.log("User requested to buy a new image")
         return fetch(`${baseUrl}/products/image`, {
             method: 'POST',
             headers: {
@@ -120,6 +129,7 @@ export const Kunstig = (props: PageProps) => {
         })
             .then(response => (response.json() as Promise<Invoice>))
             .then(invoice => {
+                console.log("User got invoice:", invoice.id)
                 setState({
                     ...state,
                     customImage: {
@@ -142,6 +152,7 @@ export const Kunstig = (props: PageProps) => {
     }
 
     const getImage = (id: string) => {
+        console.log('Fetching image:', id)
         fetch(`${baseUrl}/products/${id}/data`, {
             method: 'GET',
             headers: {

@@ -67,12 +67,13 @@ abstract class AbstractE2ETest {
         staticResourcesPath = "static",
         resourceFetcher = FakeFetcher(imgData)
     )
-
-
 }
 
 val imgData = requireNotNull(FileInputStream("src/test/resources/working.jpg").readAllBytes())
 
-class FakeFetcher(private val data: ByteArray): Fetcher {
-    override fun requestNewImage() = data
+class FakeFetcher(private val data: ByteArray) : Fetcher {
+    override fun requestNewImage(): ByteArray {
+        Thread.sleep(5000)
+        return data
+    }
 }
