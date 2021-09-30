@@ -12,7 +12,8 @@ import {handleRegister, Register, updateTokenInvoice} from "./Register";
 import {User} from "../hooks/useUser";
 import Carousel from "react-multi-carousel";
 import {Image} from "./Admin";
-import {Invoice, updateInvoice} from "../invoice/invoices";
+import {updateInvoice} from "../invoice/invoices";
+import {requestFreshlyPaintedPicture} from "../io/images";
 
 export interface PageProps {
     onChange: (title: string) => void;
@@ -22,16 +23,16 @@ export interface PageProps {
 
 interface CustomImage {
     id?: string
-    image?: Image,
-    inflight: boolean,
-    invoice?: InvoiceKunstig
+    image?: Image
 }
 
 interface PageState {
     state: AccessState
-    invoice?: InvoiceKunstig,
+    tokenInvoice?: InvoiceKunstig,
+    imageInvoice?: InvoiceKunstig
     register?: Register,
-    customImage?: CustomImage
+    customImage?: CustomImage,
+    imageFetchInFlight: boolean,
 }
 
 interface InvoiceKunstig {
@@ -42,15 +43,17 @@ interface InvoiceKunstig {
 
 export const Kunstig = (props: PageProps) => {
     const [state, setState] = useState<PageState>({
-        state: AccessState.INITIAL
+        state: AccessState.INITIAL,
+        imageFetchInFlight: false,
     })
 
     useInterval(() => {
+        console.log(state)
             if (state.state === AccessState.PENDING_REGISTER) {
                 updateTokenInvoice()
                     .then(invoice => {
                         setState({
-                            ...state, invoice: {
+                            ...state, tokenInvoice: {
                                 paymentRequest: invoice.paymentRequest,
                                 settled: invoice.settled,
                                 id: invoice.id!!
@@ -62,37 +65,33 @@ export const Kunstig = (props: PageProps) => {
                             props.updateUser()
                         }
                     })
-            } else if (state.customImage?.invoice) {
-                updateInvoice(state.customImage?.invoice?.id!!)
-                    .then(res => {
-                            if (!!res.settled) {
+            } else if (state.imageInvoice) {
+                updateInvoice(state.imageInvoice?.id!!)
+                    .then(invoice => {
+                            if (!!invoice.settled) {
                                 setState({
-                                    ...state, customImage: {
-                                        ...state.customImage,
-                                        inflight: false,
-                                        invoice: {...state.customImage?.invoice!!, settled: true}
-                                    }
+                                    ...state,
+                                    imageInvoice: {
+                                        ...state.imageInvoice!!,
+                                        settled: true,
+                                    },
                                 })
-                                setState({...state, customImage: {...state.customImage, inflight: true, invoice: undefined}})
-
                             }
-                            return res
+                            return invoice
                         }
                     )
                     .then(res => {
                         if (res.settled) {
-                            setState({...state, customImage: {...state.customImage, inflight: true, invoice: undefined}})
-                            console.log("Fetching image directly", res.memo)
+                            setState({
+                                ...state,
+                                imageFetchInFlight: true,
+                                imageInvoice: undefined
+                            })
                             getImage(res.memo)
                         }
                     })
-            } else if (!!state.customImage?.invoice?.settled && !state.customImage?.inflight) {
-                console.log("Fetching image in loop", state.customImage.id)
-                getImage(state.customImage.id!!)
             }
-        }
-        ,
-        1000
+        }, 4000
     )
     useEffect(() => {
         if (!props.user) {
@@ -120,30 +119,20 @@ export const Kunstig = (props: PageProps) => {
     }
 
     const buyImage = () => {
-        console.log("User requested to buy a new image")
-        return fetch(`${baseUrl}/products/image`, {
-            method: 'POST',
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Accept': 'application/json',
-                'Authorization': `LSAT ${localStorage.getItem('macaroon')}:${localStorage.getItem("preimage")}`
-            },
-        })
-            .then(response => (response.json() as Promise<Invoice>))
+        requestFreshlyPaintedPicture()
             .then(invoice => {
                 console.log("User got invoice:", invoice.id)
                 setState({
                     ...state,
+                    imageInvoice: {
+                        id: invoice.id,
+                        paymentRequest: invoice.paymentRequest,
+                        settled: !!invoice.settled
+                    },
                     customImage: {
-                        ...state.customImage,
-                        invoice: {
-                            id: invoice.id,
-                            paymentRequest: invoice.paymentRequest,
-                            settled: !!invoice.settled
-                        },
-                        inflight: false,
                         id: invoice.memo
-                    }
+                    },
+                    imageFetchInFlight: false
                 })
                 return invoice
             })
@@ -166,15 +155,16 @@ export const Kunstig = (props: PageProps) => {
             .then(res => res.blob())
             .then(blob => {
                 setState({
-                    ...state, customImage: {
-                        ...state.customImage,
+                    ...state,
+                    customImage: {
                         id: id,
-                        inflight: false,
                         image: {
-                            ...state.customImage?.image, payload: blob, objUrl: URL.createObjectURL(blob)
+                            payload: blob,
+                            objUrl: URL.createObjectURL(blob)
                         },
-                        invoice: undefined
-                    }
+                    },
+                    imageInvoice: undefined,
+                    imageFetchInFlight: false
                 })
             })
             .catch(err => console.log(err))
@@ -246,8 +236,8 @@ export const Kunstig = (props: PageProps) => {
             <div>
                 <p>Kunstig can also draw paintings just for you!</p>
                 <button onClick={buyImage}>Buy a custom box fresh image</button>
-                {state.customImage?.invoice &&
-                <InvoiceView paymentReq={state.customImage?.invoice?.paymentRequest!!}/>}
+                {state.imageInvoice &&
+                <InvoiceView paymentReq={state.imageInvoice.paymentRequest!!}/>}
                 {state.customImage?.id && state.customImage?.image &&
                 <img src={state.customImage?.image.objUrl} alt={'my special image'}/>}
             </div>

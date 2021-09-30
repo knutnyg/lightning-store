@@ -1,12 +1,17 @@
 import {useEffect, useState} from "react";
-import {Invoice, InvoiceRaw, updateInvoice} from "../invoice/invoices";
-import {baseUrl} from "../App";
+import {Invoice, updateInvoice} from "../invoice/invoices";
 import {InvoiceView} from "../invoice/Invoice";
 import useInterval from "../hooks/useInterval";
 import {Link} from "react-router-dom";
 import {createOrderInvoice, fetchProduct, Product} from "../product/products";
 
-export enum AccessState { INITIAL, PAYMENT_REQUIRED, PAYMENT_PENDING, ACCESS, PENDING_REGISTER}
+export enum AccessState {
+    INITIAL,
+    PAYMENT_REQUIRED,
+    PAYMENT_PENDING,
+    ACCESS,
+    PENDING_REGISTER
+}
 
 export interface State {
     access: AccessState
