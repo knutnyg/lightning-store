@@ -36,26 +36,25 @@ fun Route.registerProducts(
 
         val productId =
             call.parameters["id"].let { UUID.fromString(it) } ?: return@get call.respond(HttpStatusCode.BadRequest)
-        if (productService.hasPurchased(authorization.macaroon.extractUserId(), productId)) {
-            val product = productService.getProduct(productId)
-            if (product.payload_v2 == null || product.payload_v2.isEmpty()) {
 
-                val image = resourceFetcher.requestNewImage()
-                productService.updateProduct(UpdateProduct(productId, "image/png", image))
-                productService.addToGalleryBundle(productId)
+        //TODO: As long as the user has a token we are good
+        //if (productService.hasPurchased(authorization.macaroon.extractUserId(), productId)) {
+        val product = productService.getProduct(productId)
+        if (product.payload_v2 == null || product.payload_v2.isEmpty()) {
 
-                call.respondBytes(
-                    image,
-                    contentType = ContentType.Image.PNG
-                )
-            } else {
-                call.respondBytes(
-                    product.payload_v2,
-                    contentType = ContentType.parse(product.mediaType ?: "application/octet-stream")
-                )
-            }
+            val image = resourceFetcher.requestNewImage()
+            productService.updateProduct(UpdateProduct(productId, "image/png", image))
+            productService.addToGalleryBundle(productId)
+
+            call.respondBytes(
+                image,
+                contentType = ContentType.Image.PNG
+            )
         } else {
-            call.respond(HttpStatusCode.PaymentRequired)
+            call.respondBytes(
+                product.payload_v2,
+                contentType = ContentType.parse(product.mediaType ?: "application/octet-stream")
+            )
         }
     }
 

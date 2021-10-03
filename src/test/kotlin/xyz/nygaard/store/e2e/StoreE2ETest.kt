@@ -5,6 +5,7 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import xyz.nygaard.db.toList
 import xyz.nygaard.extractUserId
@@ -178,6 +179,7 @@ class StoreE2ETest : AbstractE2ETest() {
     }
 
     @Test
+    @Disabled
     fun `buy custom image`() {
         tokenService.createToken(macaroon, 0)
         withTestApplication({
@@ -220,7 +222,7 @@ class StoreE2ETest : AbstractE2ETest() {
             with(authenticated(HttpMethod.Get, "/api/bundle/2")) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val imageIds: List<UUID> = mapper.readValue(response.content!!)
-                assertEquals(2, imageIds.size)
+                assertEquals(1, imageIds.size)
             }
         }
     }
