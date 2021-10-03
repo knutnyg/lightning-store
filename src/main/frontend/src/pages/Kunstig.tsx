@@ -13,7 +13,7 @@ import {User} from "../hooks/useUser";
 import Carousel from "react-multi-carousel";
 import {Image} from "./Admin";
 import {updateInvoice} from "../invoice/invoices";
-import {requestFreshlyPaintedPicture} from "../io/images";
+import {GalleryImages, requestFreshlyPaintedPicture, requestGalleryImages} from "../io/images";
 
 export interface PageProps {
     onChange: (title: string) => void;
@@ -33,6 +33,7 @@ interface PageState {
     register?: Register,
     customImage?: CustomImage,
     imageFetchInFlight: boolean,
+    images?: GalleryImages []
 }
 
 interface InvoiceKunstig {
@@ -45,6 +46,7 @@ export const Kunstig = (props: PageProps) => {
     const [state, setState] = useState<PageState>({
         state: AccessState.INITIAL,
         imageFetchInFlight: false,
+        images: undefined
     })
 
     useInterval(() => {
@@ -101,6 +103,16 @@ export const Kunstig = (props: PageProps) => {
             setState({...state, state: AccessState.ACCESS})
         }
         props.onChange("Can a machine make art? 🎨")
+        if (state.images === undefined) {
+            requestGalleryImages()
+                .then(images => setState({...state, images: images}))
+                .then(_ => {
+                    console.log("updated images with:", state.images)
+                })
+                .catch(_ => {
+                    setState({...state, images: []})
+                })
+        }
     })
 
     const buyAccess = () => {
@@ -170,6 +182,11 @@ export const Kunstig = (props: PageProps) => {
             .catch(err => console.log(err))
     }
 
+    const images = state.images?.map((id, index) => {
+        return <img key={index} className={"carousel-image"} alt={'t'}
+                    src={`${baseUrl}/products/${id}/data`}/>
+    }) ?? null
+
     return <div className="page">
         <p>
             These pieces are created by Kunstig, an AI that has taught itself to paint on its own. Kunstig is
@@ -194,7 +211,7 @@ export const Kunstig = (props: PageProps) => {
             {state.state === AccessState.PENDING_REGISTER && state.register &&
             <InvoiceView paymentReq={state.register.paymentRequest}/>}
         </div>}
-        {state.state === AccessState.ACCESS && props.user && <div>
+        {state.state === AccessState.ACCESS && props.user && state.images && state.images.length > 0 && <div>
             <Carousel
                 swipeable={false}
                 draggable={false}
@@ -230,8 +247,7 @@ export const Kunstig = (props: PageProps) => {
                 dotListClass="custom-dot-list-style"
                 itemClass="carousel-item-padding-40-px"
             >
-                <img className={"carousel-image"}
-                     src={`${baseUrl}/products/a1afc48b-23bc-4297-872a-5e7884d6975a/data`}/>
+                {images}
             </Carousel>
             <div>
                 <p>Kunstig can also draw paintings just for you!</p>

@@ -13,3 +13,20 @@ export const requestFreshlyPaintedPicture = () => {
     })
         .then(response => (response.json() as Promise<Invoice>))
 }
+
+export interface GalleryImages {
+    id: string
+}
+
+export const requestGalleryImages = () => {
+    console.log("User requested gallery image ids")
+    return fetch(`${baseUrl}/bundle/2`, {
+        method: 'GET',
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Accept': 'application/json',
+            'Authorization': `LSAT ${localStorage.getItem('macaroon')}:${localStorage.getItem("preimage")}`
+        },
+    })
+        .then(response => (response.json() as Promise<GalleryImages[]>))
+}

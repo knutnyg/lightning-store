@@ -220,7 +220,7 @@ class StoreE2ETest : AbstractE2ETest() {
             with(authenticated(HttpMethod.Get, "/api/bundle/2")) {
                 assertEquals(HttpStatusCode.OK, response.status())
                 val imageIds: List<UUID> = mapper.readValue(response.content!!)
-                assertEquals(1, imageIds.size)
+                assertEquals(2, imageIds.size)
             }
         }
     }
