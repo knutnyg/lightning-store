@@ -4,7 +4,7 @@ import {updateUser, useTitle, useUser} from "./hooks/useUser";
 import {
     BrowserRouter as Router,
     Switch,
-    Route,
+    Route, Link,
 } from "react-router-dom";
 import {PaywallView} from "./pages/Blog";
 import {Bitcoin} from "./pages/Bitcoin";
@@ -63,6 +63,7 @@ function App() {
                         <Route path="/blog-paywall"><PaywallView onChange={newtitle}/></Route>
                         <Route path="/bitcoin-network"><Bitcoin onChange={newtitle}/></Route>
                         <Route path="/lightning-network"><Lightning onChange={newtitle}/></Route>
+                        <Route path="/kunstig/about"><p>About</p><Link to="/kunstig">Back</Link></Route>
                         <Route path="/kunstig"><Kunstig onChange={newtitle} updateUser={callbackUpdateUser}
                                                         user={user}/></Route>
                         <Route path="/admin"><Admin onChange={newtitle}/></Route>

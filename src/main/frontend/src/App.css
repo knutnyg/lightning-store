@@ -48,8 +48,13 @@ header .user {
     flex-grow: 1; /* ensures that the container will take up the full height of the parent container */
     overflow-y: auto; /* adds scroll to this container */
     max-width: 1000px;
-    padding-bottom: 4rem;
+    padding-bottom: 2rem;
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
 }
+
 
 
 footer {
@@ -86,6 +91,7 @@ h2 {
 .page {
     display: flex;
     flex-direction: column;
+    height: 100%;
 }
 
 .invoice-view {
@@ -182,11 +188,24 @@ textarea {
 .ai-image {
     width: 200px;
     height: 200px;
-    margin-right: 30px;
-    margin-bottom: 30px;
 }
 
 .carousel-image {
     width: 300px;
     height: 300px;
+}
+
+.ticketbooth {
+    display: flex;
+    flex-direction: column;
+}
+
+.grow {
+    flex-grow: 1;
+}
+
+@media screen and (min-width: 300px) {
+    .carousel-container {
+        width: 300px;
+    }
 }

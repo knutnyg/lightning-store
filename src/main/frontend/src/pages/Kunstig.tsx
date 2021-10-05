@@ -1,8 +1,4 @@
 import {useEffect, useState} from "react";
-import pic1 from "./resources/AI-picture-1.png"
-import pic2 from "./resources/AI-picture-2.png"
-import pic3 from "./resources/AI-picture-3.png"
-import pic4 from "./resources/AI-picture-4.png"
 import {AccessState} from "./Blog";
 import {InvoiceView} from "../invoice/Invoice";
 import 'react-multi-carousel/lib/styles.css';
@@ -14,6 +10,8 @@ import Carousel from "react-multi-carousel";
 import {Image} from "./Admin";
 import {updateInvoice} from "../invoice/invoices";
 import {GalleryImages, requestFreshlyPaintedPicture, requestGalleryImages} from "../io/images";
+import {Link} from "react-router-dom";
+import pic1 from "./resources/AI-picture-1.png"
 
 export interface PageProps {
     onChange: (title: string) => void;
@@ -51,58 +49,59 @@ export const Kunstig = (props: PageProps) => {
 
     useInterval(() => {
         console.log(state)
-            if (state.state === AccessState.PENDING_REGISTER) {
-                updateTokenInvoice()
-                    .then(invoice => {
-                        setState({
-                            ...state, tokenInvoice: {
-                                paymentRequest: invoice.paymentRequest,
-                                settled: invoice.settled,
-                                id: invoice.id!!
-                            },
-                            state: invoice.settled ? AccessState.ACCESS : AccessState.PENDING_REGISTER
-                        })
-                        if (invoice.settled) {
-                            localStorage.setItem("preimage", invoice.preimage!!)
-                            props.updateUser()
-                        }
+        if (state.state === AccessState.PENDING_REGISTER) {
+            updateTokenInvoice()
+                .then(invoice => {
+                    setState({
+                        ...state, tokenInvoice: {
+                            paymentRequest: invoice.paymentRequest,
+                            settled: invoice.settled,
+                            id: invoice.id!!
+                        },
+                        state: invoice.settled ? AccessState.ACCESS : AccessState.PENDING_REGISTER
                     })
-            } else if (state.imageInvoice) {
-                updateInvoice(state.imageInvoice?.id!!)
-                    .then(invoice => {
-                            if (!!invoice.settled) {
-                                setState({
-                                    ...state,
-                                    imageInvoice: {
-                                        ...state.imageInvoice!!,
-                                        settled: true,
-                                    },
-                                })
-                            }
-                            return invoice
-                        }
-                    )
-                    .then(res => {
-                        if (res.settled) {
+                    if (invoice.settled) {
+                        localStorage.setItem("preimage", invoice.preimage!!)
+                        props.updateUser()
+                    }
+                })
+        } else if (state.imageInvoice) {
+            updateInvoice(state.imageInvoice?.id!!)
+                .then(invoice => {
+                        if (!!invoice.settled) {
                             setState({
                                 ...state,
-                                imageFetchInFlight: true,
-                                imageInvoice: undefined
+                                imageInvoice: {
+                                    ...state.imageInvoice!!,
+                                    settled: true,
+                                },
                             })
-                            getImage(res.memo)
                         }
-                    })
-            }
-        }, 4000
-    )
+                        return invoice
+                    }
+                )
+                .then(res => {
+                    if (res.settled) {
+                        setState({
+                            ...state,
+                            imageFetchInFlight: true,
+                            imageInvoice: undefined
+                        })
+                        getImage(res.memo)
+                    }
+                })
+        }
+    }, 4000)
     useEffect(() => {
+        props.onChange("Can a machine make art? 🎨")
         if (!props.user) {
             props.updateUser()
+            return;
         }
         if (props.user && state.state === AccessState.INITIAL) {
             setState({...state, state: AccessState.ACCESS})
         }
-        props.onChange("Can a machine make art? 🎨")
+
         if (state.images === undefined) {
             requestGalleryImages()
                 .then(images => setState({...state, images: images}))
@@ -129,7 +128,6 @@ export const Kunstig = (props: PageProps) => {
                 console.log(error)
             })
     }
-
     const buyImage = () => {
         requestFreshlyPaintedPicture()
             .then(invoice => {
@@ -153,7 +151,6 @@ export const Kunstig = (props: PageProps) => {
                 return Promise.reject()
             });
     }
-
     const getImage = (id: string) => {
         console.log('Fetching image:', id)
         fetch(`${baseUrl}/products/${id}/data`, {
@@ -188,30 +185,18 @@ export const Kunstig = (props: PageProps) => {
     }) ?? null
 
     return <div className="page">
-        <p>
-            These pieces are created by Kunstig, an AI that has taught itself to paint on its own. Kunstig is
-            heavily
-            inspired by Edward Munch but you can also see that he takes from the abstract world of art as well.
-            Kunstig
-            can produce an infinite amount of unique artworks, meaning there will never exist two identical pieces.
-        </p>
-        <h2>Heres a few samples:</h2>
-        <div className={"gallery-sample"}>
-            <img className={"ai-image"} src={pic1}/>
-            <img className={"ai-image"} src={pic2}/>
-            <img className={"ai-image"} src={pic3}/>
-            <img className={"ai-image"} src={pic4}/>
-        </div>
         {state.state !== AccessState.ACCESS &&
-        <div>
-            {state.state === AccessState.INITIAL && <div>
+        <div className={"grow"}>
+            {state.state === AccessState.INITIAL && <div className={"ticketbooth"}>
                 <p>To enter the gallery you must purchase a ticket</p>
                 <button onClick={buyAccess}>Purchase a ticket</button>
             </div>}
             {state.state === AccessState.PENDING_REGISTER && state.register &&
             <InvoiceView paymentReq={state.register.paymentRequest}/>}
         </div>}
-        {state.state === AccessState.ACCESS && props.user && state.images && state.images.length > 0 && <div>
+        {state.state === AccessState.ACCESS && props.user && state.images && state.images.length > 0
+        && <div className={"adw"}>
+            <p>Voila! [Elevator pitch]</p>
             <Carousel
                 swipeable={false}
                 draggable={false}
@@ -257,8 +242,8 @@ export const Kunstig = (props: PageProps) => {
                 {state.customImage?.id && state.customImage?.image &&
                 <img src={state.customImage?.image.objUrl} alt={'my special image'}/>}
             </div>
-
         </div>
         }
+        <Link to="/kunstig/about">About</Link>
     </div>
 }

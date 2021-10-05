@@ -16,8 +16,7 @@ export interface InvoiceViewProps {
 export const InvoiceView = (props: InvoiceViewProps) => {
     const [success, setSuccess] = useState<boolean>(false)
     return <div className={"invoice-view"}>
-        <div className={"centered"}>
-            <QRCode value={props.paymentReq} onClick={() => {
+            <QRCode className={"centered qr-code"} value={props.paymentReq} onClick={() => {
                 navigator.clipboard.writeText(props.paymentReq)
                     .then(r => {
                         setSuccess(true)
@@ -26,7 +25,6 @@ export const InvoiceView = (props: InvoiceViewProps) => {
                         }, 2000)
                     })
             }}/>
-        </div>
         {success && <span>Copied!</span>}
         {/*<div><FontAwesomeIcon icon={faCopy}/></div>*/}
         <p>Please scan QR code with your lightning wallet or click to copy to clipboard</p>
