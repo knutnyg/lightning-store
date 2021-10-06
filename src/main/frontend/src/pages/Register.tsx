@@ -6,6 +6,12 @@ import {Link} from "react-router-dom";
 import {InvoiceView} from "../invoice/Invoice";
 import useInterval from "../hooks/useInterval";
 
+export enum RegisterState {
+    INITIAL,
+    REGISTER_PENDING,
+    LOGGED_IN,
+}
+
 interface Invoice {
     id?: string,
     paymentRequest: string,

@@ -12,8 +12,8 @@ import {Lightning} from "./pages/Lightning";
 import {Header} from "./Header";
 import {Home} from './pages/Home';
 import {useEffect} from "react";
-import {Kunstig} from "./pages/Kunstig";
 import {Admin} from "./pages/Admin";
+import {KunstigV2} from "./pages/KunstigV2";
 
 const resolveBaseUrl = (host: string): string => {
     switch (host) {
@@ -64,8 +64,10 @@ function App() {
                         <Route path="/bitcoin-network"><Bitcoin onChange={newtitle}/></Route>
                         <Route path="/lightning-network"><Lightning onChange={newtitle}/></Route>
                         <Route path="/kunstig/about"><p>About</p><Link to="/kunstig">Back</Link></Route>
-                        <Route path="/kunstig"><Kunstig onChange={newtitle} updateUser={callbackUpdateUser}
-                                                        user={user}/></Route>
+                        <Route path="/kunstig/v2"><KunstigV2 onChange={newtitle} updateUser={callbackUpdateUser}
+                                                             user={user}/></Route>
+                        {/*<Route path="/kunstig"><Kunstig onChange={newtitle} updateUser={callbackUpdateUser}*/}
+                        {/*                                user={user}/></Route>*/}
                         <Route path="/admin"><Admin onChange={newtitle}/></Route>
                         <Route path="/"><Home onChange={newtitle}/></Route>
                     </Switch>

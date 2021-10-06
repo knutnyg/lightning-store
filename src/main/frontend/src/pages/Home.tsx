@@ -5,7 +5,7 @@ import {PageProps} from "./Blog";
 
 export const Home = (props: PageProps) => {
     useEffect(() => {
-        props.onChange("Lightning blog ⚡️")
+        props.onChange("⚡️ Galleriet ð")
     })
 
     return <div className={"page"}>

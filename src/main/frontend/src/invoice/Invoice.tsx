@@ -25,9 +25,9 @@ export const InvoiceView = (props: InvoiceViewProps) => {
                         }, 2000)
                     })
             }}/>
-        {success && <span>Copied!</span>}
+        {success && <span>Kopiert!</span>}
         {/*<div><FontAwesomeIcon icon={faCopy}/></div>*/}
-        <p>Please scan QR code with your lightning wallet or click to copy to clipboard</p>
+        <p>Skann QR-koden med mobilen din eller klikk for å kopiere.</p>
     </div>
 }
 

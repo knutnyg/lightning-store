@@ -173,6 +173,10 @@ textarea {
     margin-bottom: 1rem;
 }
 
+.block-xl {
+    margin-bottom: 2rem;
+}
+
 .page button {
     font-size: 1.4rem;
     align-self: center;
