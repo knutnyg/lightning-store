@@ -48,26 +48,28 @@ const galleryState = {
     state: State.GALLERY
 }
 
+const workshopState = {
+    state: State.WORKSHOP
+}
+
 export const KunstigV2 = (props: PageProps) => {
-    const [state, setState] = useState<PageState>({
-        state: props.user ? State.GALLERY : State.INITIAL,
-    })
+    const [state, setState] = useState<PageState>(workshopState)
 
     useInterval(() => {
 
     }, 4000)
     useEffect(() => {
         if (props.user) {
-            setState({state: State.GALLERY})
+            setState({state: State.WORKSHOP})
         }
     })
 
 
-    return <div className="page">
+    return <div className="page grow">
         <div className="grow">
             {state.state === State.TICKET_REQUIRED && <TicketBooth onChange={props.onChange} updateUser={props.updateUser}/>}
-            {state.state !== State.TICKET_REQUIRED && <Gallery/>}
-            {state.state !== State.TICKET_REQUIRED && <Workshop/>}
+            {state.state === State.GALLERY && <Gallery/>}
+            {state.state === State.WORKSHOP && <Workshop onChange={props.onChange}/>}
         </div>
         <Link to="/kunstig/about">Om galleriet</Link>
     </div>

@@ -64,7 +64,7 @@ export const TicketBooth = (props: PageProps) => {
     }
 
     return <div>
-        <div className={"ticketbooth"}>
+        <div className={"flex-container"}>
             <p>Velkommen til galleriet! For å komme inn må du kjøpe en billett. Det kan du gjøre under.</p>
             {state.state === RegisterState.INITIAL && <button className="block-xl" onClick={buyAccess}>Kjøp billett</button>}
             {state.state === RegisterState.REGISTER_PENDING && state.register &&

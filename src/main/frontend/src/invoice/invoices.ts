@@ -3,7 +3,7 @@ import {baseUrl} from "../App";
 export interface InvoiceRaw {
     id: string
     paymentRequest: string,
-    settled: string,
+    settled?: string,
     memo: string
 }
 
@@ -28,10 +28,6 @@ export const updateInvoice = (invoiceId: string): Promise<Invoice> => {
                 inProgress: !raw.settled
             }
         })
-        .catch(err => {
-            console.log(err)
-            return Promise.reject()
-        });
 }
 
 export const createInvoice = (amount: number, memo: string): Promise<Invoice> => {

@@ -199,13 +199,13 @@ textarea {
     height: 300px;
 }
 
-.ticketbooth {
-    display: flex;
-    flex-direction: column;
-}
-
 .grow {
     flex-grow: 1;
+}
+
+.flex-container {
+    display: flex;
+    flex-direction: column;
 }
 
 @media screen and (min-width: 300px) {
