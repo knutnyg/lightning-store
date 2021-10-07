@@ -155,7 +155,7 @@ export const Workshop = (props: Props) => {
 
     console.log("state:", state)
 
-    return (<div>
+    return (<div className="page">
         <div className={"flex-container grow"}>
             {state.state !== State.FETCHING_IMAGE &&
             <p>Her kan du generere og donere nye kunstverk til Galleriet. De males av Kunstig på direkten mot en liten
