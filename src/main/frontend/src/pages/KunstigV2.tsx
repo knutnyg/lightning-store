@@ -19,7 +19,7 @@ export interface PageProps {
     onChange: (title: string) => void;
 }
 
-export interface PageWithUserProps extends PageProps{
+export interface PageWithUserProps extends PageProps {
     updateUser: () => void;
     user?: User
 }
@@ -70,10 +70,8 @@ export const KunstigV2 = (props: PageWithUserProps) => {
 
 
     return <div className="page grow">
-        <div className="grow">
-            {state.state === State.TICKET_REQUIRED &&
-            <TicketBooth onChange={props.onChange} updateUser={props.updateUser}/>}
-            {state.state === State.GALLERY && <Gallery onChange={props.onChange} />}
-        </div>
+        {state.state === State.TICKET_REQUIRED &&
+        <TicketBooth onChange={props.onChange} updateUser={props.updateUser}/>}
+        {state.state === State.GALLERY && <Gallery onChange={props.onChange}/>}
     </div>
 }

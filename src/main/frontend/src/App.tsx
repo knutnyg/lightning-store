@@ -68,8 +68,6 @@ function App() {
                         <Route path="/kunstig"><KunstigV2 onChange={newtitle} updateUser={callbackUpdateUser}
                                                              user={user}/></Route>
                         <Route path="/workshop"><Workshop onChange={newtitle}/></Route>
-                        {/*<Route path="/kunstig"><Kunstig onChange={newtitle} updateUser={callbackUpdateUser}*/}
-                        {/*                                user={user}/></Route>*/}
                         <Route path="/admin"><Admin onChange={newtitle}/></Route>
                         <Route path="/"><Home onChange={newtitle}/></Route>
                     </Switch>
