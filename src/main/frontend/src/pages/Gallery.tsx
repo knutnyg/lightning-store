@@ -1,63 +1,77 @@
-export const Gallery = () => <div></div>
+import Carousel from "react-multi-carousel";
+import {useEffect, useState} from "react";
+import {GalleryImages, requestGalleryImages} from "../io/images";
+import {baseUrl} from "../App";
+import {PageProps} from "./KunstigV2";
+import {Link} from "react-router-dom";
 
-// import {requestFreshlyPaintedPicture} from "../io/images";
-// import {baseUrl} from "../App";
-// import {AccessState} from "./Blog";
-// import {useState} from "react";
-//
-// const Workshop = () => {
-//     const [state, setState] = useState<AccessState>(AccessState.INITIAL)
-//
-//     const buyImage = () => {
-//         requestFreshlyPaintedPicture()
-//             .then(invoice => {
-//                 console.log("User got invoice:", invoice.id)
-//                 setState({
-//                     ...state,
-//                     imageInvoice: {
-//                         id: invoice.id,
-//                         paymentRequest: invoice.paymentRequest,
-//                         settled: !!invoice.settled
-//                     },
-//                     customImage: {
-//                         id: invoice.memo
-//                     },
-//                     imageFetchInFlight: false
-//                 })
-//                 return invoice
-//             })
-//             .catch(err => {
-//                 console.log(err)
-//                 return Promise.reject()
-//             });
-//     }
-//     const getImage = (id: string) => {
-//         console.log('Fetching image:', id)
-//         fetch(`${baseUrl}/products/${id}/data`, {
-//             method: 'GET',
-//             headers: {
-//                 'Access-Control-Allow-Origin': '*',
-//                 'Accept': 'application/json',
-//                 'Authorization': `LSAT ${localStorage.getItem('macaroon')}:${localStorage.getItem("preimage")}`
-//             },
-//         })
-//             .then(res => res.blob())
-//             .then(blob => {
-//                 setState({
-//                     ...state,
-//                     customImage: {
-//                         id: id,
-//                         image: {
-//                             payload: blob,
-//                             objUrl: URL.createObjectURL(blob)
-//                         },
-//                     },
-//                     imageInvoice: undefined,
-//                     imageFetchInFlight: false
-//                 })
-//             })
-//             .catch(err => console.log(err))
-//     }
-// }
-//
-//
+export const Gallery = (pageProps: PageProps) => {
+    const [loaded, setLoaded] = useState<Boolean>(false)
+    const [images, setImages] = useState<GalleryImages[]>([])
+
+    const DOMImages = images?.map((id, index) => {
+        return <img key={index} className={"carousel-image"} alt={'t'}
+                    src={`${baseUrl}/products/${id}/data`}/>
+    })
+
+    pageProps.onChange("Galleriet")
+
+    useEffect(() => {
+        if (!loaded) {
+            requestGalleryImages()
+                .then(images => {
+                    setImages(images)
+                    setLoaded(true)
+                })
+                .then(_ => {
+                    console.log("updated images with:", images)
+                })
+                .catch(err => {
+                    console.log("error", err)
+                    setImages([])
+                })
+        }
+    })
+
+    return (<div className="page">
+        <p>Voila! [Elevator pitch]</p>
+        <Carousel
+            swipeable={false}
+            draggable={false}
+            showDots={true}
+            responsive={{
+                superLargeDesktop: {
+                    // the naming can be any, depends on you.
+                    breakpoint: {max: 4000, min: 3000},
+                    items: 1
+                },
+                desktop: {
+                    breakpoint: {max: 3000, min: 1024},
+                    items: 1
+                },
+                tablet: {
+                    breakpoint: {max: 1024, min: 464},
+                    items: 1
+                },
+                mobile: {
+                    breakpoint: {max: 464, min: 0},
+                    items: 1
+                }
+            }}
+            ssr={true} // means to render carousel on server-side.
+            infinite={true}
+            autoPlay={true}
+            autoPlaySpeed={7000}
+            keyBoardControl={true}
+            customTransition="all .5"
+            transitionDuration={500}
+            containerClass="carousel-container"
+            removeArrowOnDeviceType={["tablet", "mobile"]}
+            dotListClass="custom-dot-list-style"
+            itemClass="carousel-item-padding-40-px"
+        >
+            {DOMImages}
+        </Carousel>
+        <Link to="/kunstig/workshop">Til verkstedet</Link>
+    </div>)
+}

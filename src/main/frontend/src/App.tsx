@@ -14,6 +14,7 @@ import {Home} from './pages/Home';
 import {useEffect} from "react";
 import {Admin} from "./pages/Admin";
 import {KunstigV2} from "./pages/KunstigV2";
+import {Workshop} from "./pages/Workshop";
 
 const resolveBaseUrl = (host: string): string => {
     switch (host) {
@@ -66,6 +67,7 @@ function App() {
                         <Route path="/kunstig/about"><p>About</p><Link to="/kunstig">Back</Link></Route>
                         <Route path="/kunstig/v2"><KunstigV2 onChange={newtitle} updateUser={callbackUpdateUser}
                                                              user={user}/></Route>
+                        <Route path="/kunstig/workshop"><Workshop onChange={newtitle}/></Route>
                         {/*<Route path="/kunstig"><Kunstig onChange={newtitle} updateUser={callbackUpdateUser}*/}
                         {/*                                user={user}/></Route>*/}
                         <Route path="/admin"><Admin onChange={newtitle}/></Route>

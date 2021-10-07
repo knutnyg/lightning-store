@@ -17,6 +17,9 @@ import {Gallery} from "./Gallery";
 
 export interface PageProps {
     onChange: (title: string) => void;
+}
+
+export interface PageWithUserProps extends PageProps{
     updateUser: () => void;
     user?: User
 }
@@ -27,7 +30,7 @@ interface CustomImage {
 }
 
 enum State {
-    INITIAL, TICKET_REQUIRED, GALLERY, WORKSHOP
+    INITIAL, TICKET_REQUIRED, GALLERY
 }
 
 interface PageState {
@@ -41,36 +44,36 @@ interface InvoiceKunstig {
 }
 
 const initialState = {
-    state: State.TICKET_REQUIRED
+    state: State.INITIAL
 }
 
 const galleryState = {
     state: State.GALLERY
 }
 
-const workshopState = {
-    state: State.WORKSHOP
-}
+export const KunstigV2 = (props: PageWithUserProps) => {
+    const [state, setState] = useState<PageState>(initialState)
 
-export const KunstigV2 = (props: PageProps) => {
-    const [state, setState] = useState<PageState>(workshopState)
-
-    useInterval(() => {
-
-    }, 4000)
     useEffect(() => {
-        if (props.user) {
-            setState({state: State.WORKSHOP})
+        if (props.user && state.state !== State.GALLERY) {
+            setState({state: State.GALLERY})
+        } else {
+            if (state.state === State.INITIAL) {
+                setState({state: State.TICKET_REQUIRED})
+            }
         }
     })
+
+    useInterval(() => {
+        props.updateUser()
+    }, 10000)
 
 
     return <div className="page grow">
         <div className="grow">
-            {state.state === State.TICKET_REQUIRED && <TicketBooth onChange={props.onChange} updateUser={props.updateUser}/>}
-            {state.state === State.GALLERY && <Gallery/>}
-            {state.state === State.WORKSHOP && <Workshop onChange={props.onChange}/>}
+            {state.state === State.TICKET_REQUIRED &&
+            <TicketBooth onChange={props.onChange} updateUser={props.updateUser}/>}
+            {state.state === State.GALLERY && <Gallery onChange={props.onChange} />}
         </div>
-        <Link to="/kunstig/about">Om galleriet</Link>
     </div>
 }

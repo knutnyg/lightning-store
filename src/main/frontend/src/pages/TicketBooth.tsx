@@ -2,7 +2,8 @@ import {handleRegister, Register, RegisterState, updateTokenInvoice} from "./Reg
 import {useEffect, useState} from "react";
 import {InvoiceView} from "../invoice/Invoice";
 import useInterval from "../hooks/useInterval";
-import {PageProps} from "./KunstigV2";
+import {PageProps, PageWithUserProps} from "./KunstigV2";
+import {Link} from "react-router-dom";
 
 interface State {
     register?: Register,
@@ -24,7 +25,7 @@ const registered = {
     register: undefined
 }
 
-export const TicketBooth = (props: PageProps) => {
+export const TicketBooth = (props: PageWithUserProps) => {
     const [state, setState] = useState<State>(initialState)
 
     useEffect(() => {
@@ -44,7 +45,9 @@ export const TicketBooth = (props: PageProps) => {
                         })
                     }
                 })
-                .catch(err => {console.log(err)})
+                .catch(err => {
+                    console.log(err)
+                })
         }
     }, 2000)
 
@@ -65,11 +68,15 @@ export const TicketBooth = (props: PageProps) => {
 
     return <div>
         <div className={"flex-container"}>
-            <p>Velkommen til galleriet! For å komme inn må du kjøpe en billett. Det kan du gjøre under.</p>
-            {state.state === RegisterState.INITIAL && <button className="block-xl" onClick={buyAccess}>Kjøp billett</button>}
-            {state.state === RegisterState.REGISTER_PENDING && state.register &&
-            <InvoiceView paymentReq={state.register.paymentRequest}/>}
-            {state.state === RegisterState.LOGGED_IN && <p>Takk! Velkommen inn ➡️</p>}
+            <div className="grow">
+                <p>Velkommen til galleriet! For å komme inn må du kjøpe en billett. Det kan du gjøre under.</p>
+                {state.state === RegisterState.INITIAL &&
+                <button className="block-xl" onClick={buyAccess}>Kjøp billett</button>}
+                {state.state === RegisterState.REGISTER_PENDING && state.register &&
+                <InvoiceView paymentReq={state.register.paymentRequest}/>}
+                {state.state === RegisterState.LOGGED_IN && <p>Takk! Velkommen inn ➡️</p>}
+            </div>
+            <Link to="/kunstig/about">Om galleriet</Link>
         </div>
     </div>
 }

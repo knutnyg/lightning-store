@@ -82,7 +82,7 @@ fun main() {
         ).apply {
             install(CORS) {
                 method(HttpMethod.Options)
-                method(HttpMethod.Post)
+                    method(HttpMethod.Post)
                 method(HttpMethod.Get)
                 method(HttpMethod.Put)
                 header(HttpHeaders.Authorization)

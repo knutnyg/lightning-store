@@ -7,6 +7,7 @@ import {User} from "../hooks/useUser";
 import {Invoice, updateInvoice} from "../invoice/invoices";
 import {InvoiceView} from "../invoice/Invoice";
 import Loader from "react-loader-spinner";
+import {Link} from "react-router-dom";
 
 enum State {
     INITIAL, IN_PAYMENT, PAYMENT_COMPLETE, FETCHING_IMAGE, IMAGE_READY
@@ -172,6 +173,7 @@ export const Workshop = (props: Props) => {
             <p>Her er bildet ditt:</p>
             <img src={state.customImage?.image?.objUrl} alt={'your special image'}/>
         </div>}
+        <Link to="/kunstig/v2">Tilbake</Link>
     </div>)
 }
 
