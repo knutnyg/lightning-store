@@ -72,6 +72,6 @@ export const Gallery = (pageProps: PageProps) => {
         >
             {DOMImages}
         </Carousel>
-        <Link to="/kunstig/workshop">Til verkstedet</Link>
+        <Link to="/workshop">Til verkstedet</Link>
     </div>)
 }
