@@ -173,7 +173,7 @@ export const Workshop = (props: Props) => {
             <p>Her er bildet ditt:</p>
             <img src={state.customImage?.image?.objUrl} alt={'your special image'}/>
         </div>}
-        <Link to="/kunstig/v2">Tilbake</Link>
+        <Link to="/kunstig">Tilbake</Link>
     </div>)
 }
 

@@ -76,7 +76,7 @@ export const TicketBooth = (props: PageWithUserProps) => {
                 <InvoiceView paymentReq={state.register.paymentRequest}/>}
                 {state.state === RegisterState.LOGGED_IN && <p>Takk! Velkommen inn ➡️</p>}
             </div>
-            <Link to="/kunstig/about">Om galleriet</Link>
+            <Link to="/about">Om galleriet</Link>
         </div>
     </div>
 }
