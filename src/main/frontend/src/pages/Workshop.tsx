@@ -128,7 +128,7 @@ export const Workshop = (props: Props) => {
                 )
                 .then(invoice => {
                     console.log("after invoice paid", state)
-                    if (state.state === State.PAYMENT_COMPLETE) {
+                    if (invoice.settled) {
                         setState({
                             state: State.FETCHING_IMAGE,
                             imageInvoice: undefined
@@ -152,6 +152,8 @@ export const Workshop = (props: Props) => {
                 .catch(err => console.log(err))
         }
     }, 2000)
+
+    console.log("state:", state)
 
     return (<div className={"flex-container"}>
         {state.state !== State.FETCHING_IMAGE &&
