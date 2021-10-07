@@ -85,6 +85,7 @@ export const Workshop = (props: Props) => {
                 console.log("User got invoice:", invoice.id)
                 setState({
                     ...state,
+                    state: State.IN_PAYMENT,
                     imageInvoice: invoice,
                     customImage: {
                         id: invoice.memo
