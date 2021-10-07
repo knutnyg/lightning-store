@@ -153,13 +153,10 @@ export const Workshop = (props: Props) => {
         }
     }, 2000)
 
-    console.log("state:", state)
-
     return (<div className="page">
         <div className={"flex-container grow"}>
             {state.state !== State.FETCHING_IMAGE &&
-            <p>Her kan du generere og donere nye kunstverk til Galleriet. De males av Kunstig på direkten mot en liten
-                gave. </p>}
+            <p>Doner et nytt bilde til galleriet! Kunstig maler deg et bilde under et øre 🖼</p>}
             {state.state === State.INITIAL && <button onClick={buyImage}>Kjøp et nytt bilde</button>}
             {state.state === State.IN_PAYMENT && <InvoiceView paymentReq={state.imageInvoice?.paymentRequest!!}/>}
             {state.state === State.FETCHING_IMAGE && <div className={"flex-container"}>
