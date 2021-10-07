@@ -4,32 +4,42 @@ import {GalleryImages, requestGalleryImages} from "../io/images";
 import {baseUrl} from "../App";
 import {PageProps} from "./Kunstig";
 import {Link} from "react-router-dom";
+import useInterval from "../hooks/useInterval";
 
 export const Gallery = (pageProps: PageProps) => {
     const [loaded, setLoaded] = useState<Boolean>(false)
     const [images, setImages] = useState<GalleryImages[]>([])
 
-    const DOMImages = images?.map((id, index) => {
+    const DOMImages = images
+        .map((id, index) => {
         return <img key={index} className={"carousel-image"} alt={'t'}
                     src={`${baseUrl}/products/${id}/data`}/>
     })
 
+    const refreshImages = () => {
+        requestGalleryImages()
+            .then(images => {
+                setImages(images)
+                setLoaded(true)
+            })
+            .then(_ => {
+                console.log("updated images with:", images)
+            })
+            .catch(err => {
+                console.log("error", err)
+                setImages([])
+            })
+    }
+
     pageProps.onChange("Galleriet")
+
+    useInterval(() => {
+        refreshImages()
+    }, 600000)
 
     useEffect(() => {
         if (!loaded) {
-            requestGalleryImages()
-                .then(images => {
-                    setImages(images)
-                    setLoaded(true)
-                })
-                .then(_ => {
-                    console.log("updated images with:", images)
-                })
-                .catch(err => {
-                    console.log("error", err)
-                    setImages([])
-                })
+            refreshImages()
         }
     })
 
