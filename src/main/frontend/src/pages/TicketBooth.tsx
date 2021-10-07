@@ -2,7 +2,7 @@ import {handleRegister, Register, RegisterState, updateTokenInvoice} from "./Reg
 import {useEffect, useState} from "react";
 import {InvoiceView} from "../invoice/Invoice";
 import useInterval from "../hooks/useInterval";
-import {PageProps, PageWithUserProps} from "./KunstigV2";
+import {PageWithUserProps} from "./Kunstig";
 import {Link} from "react-router-dom";
 
 interface State {
@@ -12,16 +12,6 @@ interface State {
 
 const initialState = {
     state: RegisterState.INITIAL,
-    register: undefined
-}
-
-const inRegister = {
-    state: RegisterState.REGISTER_PENDING,
-    register: {paymentRequest: "awd", macaroon: "22"}
-}
-
-const registered = {
-    state: RegisterState.LOGGED_IN,
     register: undefined
 }
 

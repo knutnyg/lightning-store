@@ -2,7 +2,7 @@ import Carousel from "react-multi-carousel";
 import {useEffect, useState} from "react";
 import {GalleryImages, requestGalleryImages} from "../io/images";
 import {baseUrl} from "../App";
-import {PageProps} from "./KunstigV2";
+import {PageProps} from "./Kunstig";
 import {Link} from "react-router-dom";
 
 export const Gallery = (pageProps: PageProps) => {

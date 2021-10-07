@@ -111,7 +111,7 @@ export const Workshop = (props: Props) => {
     }
 
     useEffect(() => {
-        props.onChange("Verkstedet")
+        props.onChange("Verkstedet 🎨")
     })
     useInterval(() => {
         if (state.state === State.IN_PAYMENT) {
@@ -173,9 +173,9 @@ export const Workshop = (props: Props) => {
             </div>
 
         </div>}
-        {state.state === State.IMAGE_READY && <div>
-            <p>Her er bildet ditt:</p>
-            <img src={state.customImage?.image?.objUrl} alt={'your special image'}/>
+        {state.state === State.IMAGE_READY && <div className="flex-container">
+            <img className={"centered"} src={state.customImage?.image?.objUrl} alt={'your special image'}/>
+            <p>Bildet legges til kolleksjonen 🎨 Takk for ditt bidrag!</p>
         </div>}
         <Link to="/kunstig">Tilbake</Link>
     </div>)
