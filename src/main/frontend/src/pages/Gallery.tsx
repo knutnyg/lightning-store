@@ -40,7 +40,7 @@ export const Gallery = (pageProps: PageProps) => {
                 <Carousel
                     swipeable={true}
                     draggable={false}
-                    showDots={false}
+                    showDots={true}
                     responsive={{
                         superLargeDesktop: {
                             // the naming can be any, depends on you.
@@ -68,7 +68,7 @@ export const Gallery = (pageProps: PageProps) => {
                     customTransition="all .5"
                     transitionDuration={700}
                     containerClass="carousel-container"
-                    removeArrowOnDeviceType={[]}
+                    removeArrowOnDeviceType={["tablet", "mobile"]}
                     dotListClass="custom-dot-list-style"
                     itemClass="carousel-item-padding-40-px"
                 >
