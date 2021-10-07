@@ -34,44 +34,46 @@ export const Gallery = (pageProps: PageProps) => {
     })
 
     return (<div className="page">
-        <p>Voila! [Elevator pitch]</p>
-        <Carousel
-            swipeable={false}
-            draggable={false}
-            showDots={true}
-            responsive={{
-                superLargeDesktop: {
-                    // the naming can be any, depends on you.
-                    breakpoint: {max: 4000, min: 3000},
-                    items: 1
-                },
-                desktop: {
-                    breakpoint: {max: 3000, min: 1024},
-                    items: 1
-                },
-                tablet: {
-                    breakpoint: {max: 1024, min: 464},
-                    items: 1
-                },
-                mobile: {
-                    breakpoint: {max: 464, min: 0},
-                    items: 1
-                }
-            }}
-            ssr={true} // means to render carousel on server-side.
-            infinite={true}
-            autoPlay={true}
-            autoPlaySpeed={7000}
-            keyBoardControl={true}
-            customTransition="all .5"
-            transitionDuration={500}
-            containerClass="carousel-container"
-            removeArrowOnDeviceType={["tablet", "mobile"]}
-            dotListClass="custom-dot-list-style"
-            itemClass="carousel-item-padding-40-px"
-        >
-            {DOMImages}
-        </Carousel>
+        <div className={"flex-container grow"}>
+            <p>Voila! Velkommen til galleriet. Her henger all kunsten Kunstig har malt til nå.</p>
+            <Carousel
+                swipeable={true}
+                draggable={false}
+                showDots={false}
+                responsive={{
+                    superLargeDesktop: {
+                        // the naming can be any, depends on you.
+                        breakpoint: {max: 4000, min: 3000},
+                        items: 1
+                    },
+                    desktop: {
+                        breakpoint: {max: 3000, min: 1024},
+                        items: 1
+                    },
+                    tablet: {
+                        breakpoint: {max: 1024, min: 464},
+                        items: 1
+                    },
+                    mobile: {
+                        breakpoint: {max: 464, min: 0},
+                        items: 1
+                    }
+                }}
+                ssr={true} // means to render carousel on server-side.
+                infinite={true}
+                autoPlay={true}
+                autoPlaySpeed={15000}
+                keyBoardControl={true}
+                customTransition="all .5"
+                transitionDuration={500}
+                containerClass="carousel-container"
+                removeArrowOnDeviceType={["tablet", "mobile"]}
+                dotListClass="custom-dot-list-style"
+                itemClass="carousel-item-padding-40-px"
+            >
+                {DOMImages}
+            </Carousel>
+        </div>
         <Link to="/workshop">Til verkstedet</Link>
     </div>)
 }
