@@ -63,10 +63,10 @@ export const Gallery = (pageProps: PageProps) => {
                     ssr={true} // means to render carousel on server-side.
                     infinite={true}
                     autoPlay={true}
-                    autoPlaySpeed={15000}
+                    autoPlaySpeed={30000}
                     keyBoardControl={true}
                     customTransition="all .5"
-                    transitionDuration={700}
+                    transitionDuration={1000}
                     containerClass="carousel-container"
                     removeArrowOnDeviceType={["tablet", "mobile"]}
                     dotListClass="custom-dot-list-style"
