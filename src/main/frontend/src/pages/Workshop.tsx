@@ -155,28 +155,30 @@ export const Workshop = (props: Props) => {
 
     console.log("state:", state)
 
-    return (<div className={"flex-container"}>
-        {state.state !== State.FETCHING_IMAGE &&
-        <p>Her kan du generere og donere nye kunstverk til Galleriet. De males av Kunstig på direkten mot en liten
-            gave. </p>}
-        {state.state === State.INITIAL && <button onClick={buyImage}>Kjøp et nytt bilde</button>}
-        {state.state === State.IN_PAYMENT && <InvoiceView paymentReq={state.imageInvoice?.paymentRequest!!}/>}
-        {state.state === State.FETCHING_IMAGE && <div className={"flex-container"}>
-            <p>Vennligst vent et øyeblikk mens Kunstig maler et bilde til deg.</p>
-            <div className="centered">
-                <Loader
-                    type="BallTriangle"
-                    color="#00BFFF"
-                    height={100}
-                    width={100}
-                />
-            </div>
+    return (<div>
+        <div className={"flex-container grow"}>
+            {state.state !== State.FETCHING_IMAGE &&
+            <p>Her kan du generere og donere nye kunstverk til Galleriet. De males av Kunstig på direkten mot en liten
+                gave. </p>}
+            {state.state === State.INITIAL && <button onClick={buyImage}>Kjøp et nytt bilde</button>}
+            {state.state === State.IN_PAYMENT && <InvoiceView paymentReq={state.imageInvoice?.paymentRequest!!}/>}
+            {state.state === State.FETCHING_IMAGE && <div className={"flex-container"}>
+                <p>Vennligst vent et øyeblikk mens Kunstig maler et bilde til deg.</p>
+                <div className="centered">
+                    <Loader
+                        type="BallTriangle"
+                        color="#00BFFF"
+                        height={100}
+                        width={100}
+                    />
+                </div>
 
-        </div>}
-        {state.state === State.IMAGE_READY && <div className="flex-container">
-            <img className={"centered"} src={state.customImage?.image?.objUrl} alt={'your special image'}/>
-            <p>Bildet legges til kolleksjonen 🎨 Takk for ditt bidrag!</p>
-        </div>}
+            </div>}
+            {state.state === State.IMAGE_READY && <div className="flex-container">
+                <img className={"centered"} src={state.customImage?.image?.objUrl} alt={'your special image'}/>
+                <p>Bildet legges til kolleksjonen 🎨 Takk for ditt bidrag!</p>
+            </div>}
+        </div>
         <Link to="/kunstig">Tilbake</Link>
     </div>)
 }
