@@ -78,7 +78,7 @@ interface Props {
 }
 
 export const Workshop = (props: Props) => {
-    const [state, setState] = useState<PageState>(buyingState)
+    const [state, setState] = useState<PageState>(initialState)
     const buyImage = () => {
         requestFreshlyPaintedPicture()
             .then(invoice => {
