@@ -127,6 +127,7 @@ export const Workshop = (props: Props) => {
                     }
                 )
                 .then(invoice => {
+                    console.log("after invoice paid", state)
                     if (state.state === State.PAYMENT_COMPLETE) {
                         setState({
                             state: State.FETCHING_IMAGE,
