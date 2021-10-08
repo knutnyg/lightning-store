@@ -57,6 +57,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation("io.mockk:mockk:1.12.0")
     testImplementation("org.assertj:assertj-core:3.21.0")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.9.2")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty") // conflicts with WireMock
         exclude(group = "junit")

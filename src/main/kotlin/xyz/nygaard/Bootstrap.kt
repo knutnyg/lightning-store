@@ -32,7 +32,6 @@ import xyz.nygaard.store.order.registerProducts
 import xyz.nygaard.store.register.registerRegisterApi
 import xyz.nygaard.store.user.TokenService
 import java.io.File
-import java.net.URI
 import java.util.*
 import javax.sql.DataSource
 import javax.xml.bind.DatatypeConverter
@@ -40,44 +39,49 @@ import javax.xml.bind.DatatypeConverter
 val log: Logger = LoggerFactory.getLogger("Lightning Store")
 
 fun main() {
-    embeddedServer(Netty, port = 8020, host = "localhost") {
+    val environment = Config(
+        hostUrl = System.getenv("LS_HOST_URL"),
+        hostPort = System.getenv("LS_HOST_PORT").toInt(),
+        readOnlyMacaroon = System.getenv("LS_READONLY_MACAROON"),
+        invoiceMacaroon = System.getenv("LS_INVOICES_MACAROON"),
+        cert = System.getenv("LS_TLS_CERT"),
+        databaseName = System.getenv("LS_DATABASE_NAME"),
+        databaseUsername = System.getenv("LS_DATABASE_USERNAME"),
+        databasePassword = System.getenv("LS_DATABASE_PASSWORD"),
+        macaroonGeneratorSecret = System.getenv("LS_MACAROON_SECRET"),
+        location = System.getenv("LS_LOCATION"),
+        staticResourcesPath = getEnvOrDefault("LS_STATIC_RESOURCES", "src/main/frontend/build"),
+        kunstigUrl = getEnvOrDefault("LS_KUNSTIG_URL", "localhost:8080")
+    )
 
-        val environment = Config(
-            hostUrl = System.getenv("LS_HOST_URL"),
-            hostPort = System.getenv("LS_HOST_PORT").toInt(),
-            readOnlyMacaroon = System.getenv("LS_READONLY_MACAROON"),
-            invoiceMacaroon = System.getenv("LS_INVOICES_MACAROON"),
-            cert = System.getenv("LS_TLS_CERT"),
-            databaseName = System.getenv("LS_DATABASE_NAME"),
-            databaseUsername = System.getenv("LS_DATABASE_USERNAME"),
-            databasePassword = System.getenv("LS_DATABASE_PASSWORD"),
-            macaroonGeneratorSecret = System.getenv("LS_MACAROON_SECRET"),
-            location = System.getenv("LS_LOCATION"),
-            staticResourcesPath = getEnvOrDefault("LS_STATIC_RESOURCES", "src/main/frontend/build"),
-            kunstigUrl = getEnvOrDefault("LS_KUNSTIG_URL", "localhost:8080")
-        )
+    val database = Database(
+        "jdbc:postgresql://localhost:5432/${environment.databaseName}",
+        environment.databaseUsername,
+        environment.databasePassword,
+    )
+    val lndClient = LndClient(
+        environment.cert,
+        environment.hostUrl,
+        environment.hostPort,
+        environment.readOnlyMacaroon,
+        environment.invoiceMacaroon,
+    )
+    val macaroonService = MacaroonService(environment.location, environment.macaroonGeneratorSecret)
+    val fetcher = ResourceFetcher(environment.kunstigUrl)
 
-        val database = Database(
-            "jdbc:postgresql://localhost:5432/${environment.databaseName}",
-            environment.databaseUsername,
-            environment.databasePassword,
-        )
-        val lndClient = LndClient(
-            environment.cert,
-            environment.hostUrl,
-            environment.hostPort,
-            environment.readOnlyMacaroon,
-            environment.invoiceMacaroon,
-        )
-        val macaroonService = MacaroonService(environment.location, environment.macaroonGeneratorSecret)
-        buildApplication(
-            dataSource = database.dataSource,
-            macaroonService = macaroonService,
-            lndClient = lndClient,
-            staticResourcesPath = environment.staticResourcesPath,
-            resourceFetcher = ResourceFetcher(environment.kunstigUrl)
-        )
-    }.start(wait = true)
+    try {
+        embeddedServer(Netty, port = 8020, host = "localhost") {
+            buildApplication(
+                dataSource = database.dataSource,
+                macaroonService = macaroonService,
+                lndClient = lndClient,
+                staticResourcesPath = environment.staticResourcesPath,
+                resourceFetcher = fetcher,
+            )
+        }.start(wait = true)
+    } finally {
+        fetcher.close()
+    }
 }
 
 internal fun Application.buildApplication(
