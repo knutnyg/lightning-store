@@ -76,6 +76,7 @@ fun Route.registerProducts(
     get("/bundle/{id}") {
         val bundleId = call.parameters["id"]?.toInt()
             ?: return@get call.respond(HttpStatusCode.BadRequest, "parameter 'id' is missing")
-        call.respond(productService.getProductIds(bundleId).shuffled())
+        val ids = productService.getProductIds(bundleId)
+        call.respond(ids.shuffled().take(15))
     }
 }
