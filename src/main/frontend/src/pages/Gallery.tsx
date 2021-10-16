@@ -12,9 +12,13 @@ export const Gallery = (pageProps: PageProps) => {
 
     const DOMImages = images
         .map((id, index) => {
-        return <img key={index} className={"carousel-image"} alt={'t'}
-                    src={`${baseUrl}/products/${id}/data`}/>
-    })
+            return <img key={index} className={"carousel-image"} alt={'t'}
+                        src={`${baseUrl}/products/${id}/data`}/>
+        })
+
+    // For local development:
+    // const DOMImages = [<img key={0} className={"carousel-image centered"} alt={'t'}
+    //                         src={`https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg`}/>]
 
     const refreshImages = () => {
         requestGalleryImages()
