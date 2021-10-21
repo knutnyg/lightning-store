@@ -70,7 +70,7 @@ export const PaywallView = (props: PageProps) => {
 
         {state.access === AccessState.PAYMENT_REQUIRED && <button onClick={createOrder}>Buy article</button>}
         {state.access === AccessState.PAYMENT_PENDING && state.invoice &&
-        <InvoiceView paymentReq={state.invoice.paymentRequest}/>}
+        <InvoiceView paymentReq={state.invoice.paymentRequest} description={""}/>}
         {state.access === AccessState.ACCESS && state.product &&
         <div className="block" dangerouslySetInnerHTML={{__html: state.product.payload}}/>}
         <Link to="/">Back</Link>

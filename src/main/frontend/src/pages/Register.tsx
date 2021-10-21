@@ -130,7 +130,7 @@ export const LSATView = (props: PageProps) => {
         <button onClick={handleRegister}>Register</button>}
 
         {state.state === AccessState.PAYMENT_PENDING && state.invoice && !state.invoice.settled && (
-            <InvoiceView paymentReq={state.invoice.paymentRequest}/>)}
+            <InvoiceView paymentReq={state.invoice.paymentRequest} description={""}/>)}
 
         <p>Want to learn more? Read about <a href="https://lsat.tech">LSAT</a> over at at Lightning Labs</p>
 

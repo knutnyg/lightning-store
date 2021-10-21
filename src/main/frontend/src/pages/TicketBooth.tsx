@@ -62,7 +62,8 @@ export const TicketBooth = (props: PageWithUserProps) => {
             {state.state === RegisterState.INITIAL &&
             <button className="button block-xl" onClick={buyAccess}>Kjøp billett</button>}
             {state.state === RegisterState.REGISTER_PENDING && state.register &&
-            <InvoiceView paymentReq={state.register.paymentRequest}/>}
+            <InvoiceView paymentReq={state.register.paymentRequest}
+                         description={"Få tilgang til Galleriet med å trykke på QR-koden og betal for billetten din med en ⚡️-wallet."}/>}
             {state.state === RegisterState.LOGGED_IN && <p>Takk! Velkommen inn ➡️</p>}
         </div>
         <Link to="/about">Om galleriet</Link>

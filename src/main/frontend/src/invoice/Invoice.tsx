@@ -10,7 +10,8 @@ type FormData = {
 };
 
 export interface InvoiceViewProps {
-    paymentReq: string
+    paymentReq: string,
+    description: string
 }
 
 export const InvoiceView = (props: InvoiceViewProps) => {
@@ -26,8 +27,7 @@ export const InvoiceView = (props: InvoiceViewProps) => {
                     })
             }}/>
         {success && <span>Kopiert!</span>}
-        {/*<div><FontAwesomeIcon icon={faCopy}/></div>*/}
-        <p>Kjøp et kunstverk ved å scanne denne QR-koden med mobilen din, det koster 1 satoshi (mindre enn 0,005 NOK) 🤑</p>
+        <p>{props.description}</p>
     </div>
 }
 

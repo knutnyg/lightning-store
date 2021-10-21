@@ -179,6 +179,8 @@ export const Workshop = (props: Props) => {
         }
     }, 2000)
 
+    const shopDescription = "Kjøp et kunstverk ved å scanne denne QR-koden med mobilen din, det koster 1 satoshi (mindre enn 0,005 NOK) 🤑"
+
     return (<div className="page">
         <div className={"flex-container grow"}>
             {(state.state === State.INITIAL || state.state === State.IN_PAYMENT) &&
@@ -187,7 +189,7 @@ export const Workshop = (props: Props) => {
             </p>
             }
             {state.state === State.INITIAL && <button className="button block-xxl" onClick={buyImage}>Kjøp</button>}
-            {state.state === State.IN_PAYMENT && <InvoiceView paymentReq={state.imageInvoice?.paymentRequest!!}/>}
+            {state.state === State.IN_PAYMENT && <InvoiceView paymentReq={state.imageInvoice?.paymentRequest!!} description={shopDescription}/>}
             {state.state === State.FETCHING_IMAGE && <div className={"flex-container"}>
                 <p>Kunstig jobber iherdig med å male et bilde til deg.</p>
                 <div className="centered">
