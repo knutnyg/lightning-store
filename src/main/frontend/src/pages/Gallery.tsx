@@ -39,7 +39,7 @@ export const Gallery = (pageProps: PageProps) => {
 
     useInterval(() => {
         refreshImages()
-    }, 600000)
+    }, 150000)
 
     useEffect(() => {
         if (!loaded) {
@@ -76,7 +76,7 @@ export const Gallery = (pageProps: PageProps) => {
                     ssr={true} // means to render carousel on server-side.
                     infinite={true}
                     autoPlay={true}
-                    autoPlaySpeed={30000}
+                    autoPlaySpeed={5000}
                     keyBoardControl={true}
                     customTransition="all .5"
                     transitionDuration={1000}
