@@ -81,8 +81,9 @@ h1 {
     margin-right: auto;
     margin-left: 1.5rem;
     flex-grow: 1;
-    font-size: 1.6rem;
+    font-size: 3.3rem;
     text-align: center;
+    font-family: 'Shadows Into Light', 'Verdana', cursive;
 }
 
 
@@ -90,6 +91,7 @@ h2 {
     font-size: 1.5rem;
     margin: 0;
     margin-bottom: 12px;
+    font-family: 'Shadows Into Light', 'Verdana', cursive;
 }
 
 .page {
@@ -260,6 +262,18 @@ textarea {
 .pagetext {
     margin:2px;
     text-align: center;
+}
+
+.ticketbooth {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.ticketbooth-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 @media screen and (min-width: 300px) {

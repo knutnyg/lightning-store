@@ -56,17 +56,15 @@ export const TicketBooth = (props: PageWithUserProps) => {
             })
     }
 
-    return <div>
-        <div className={"flex-container"}>
-            <div className="grow">
-                <p>Velkommen til galleriet! For å komme inn må du kjøpe en billett. Det kan du gjøre under.</p>
-                {state.state === RegisterState.INITIAL &&
-                <button className="block-xl" onClick={buyAccess}>Kjøp billett</button>}
-                {state.state === RegisterState.REGISTER_PENDING && state.register &&
-                <InvoiceView paymentReq={state.register.paymentRequest}/>}
-                {state.state === RegisterState.LOGGED_IN && <p>Takk! Velkommen inn ➡️</p>}
-            </div>
-            <Link to="/about">Om galleriet</Link>
+    return <div className="ticketbooth-container">
+        <div className="ticketbooth">
+            <p>Velkommen til galleriet! For å komme inn må du kjøpe en billett. Det kan du gjøre under.</p>
+            {state.state === RegisterState.INITIAL &&
+            <button className="button block-xl" onClick={buyAccess}>Kjøp billett</button>}
+            {state.state === RegisterState.REGISTER_PENDING && state.register &&
+            <InvoiceView paymentReq={state.register.paymentRequest}/>}
+            {state.state === RegisterState.LOGGED_IN && <p>Takk! Velkommen inn ➡️</p>}
         </div>
+        <Link to="/about">Om galleriet</Link>
     </div>
 }
