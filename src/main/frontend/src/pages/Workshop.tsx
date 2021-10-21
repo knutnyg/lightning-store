@@ -184,8 +184,7 @@ export const Workshop = (props: Props) => {
         <div className={"flex-container grow"}>
             {(state.state === State.INITIAL || state.state === State.IN_PAYMENT) &&
             <p>
-                Velkommen👋 Her kan du be Kunstig (vår AI-modell) male et bilde og donere det til galleriet vårt
-                👩‍🎨
+                Velkommen👋 Her kan du be Kunstig (vår AI-modell) male et bilde til galleriet vårt 👩‍🎨
             </p>
             }
             {state.state === State.INITIAL && <button className="button" onClick={buyImage}>Kjøp</button>}

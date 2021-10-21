@@ -22,6 +22,7 @@ export const MiniGallery = (props:Props) => {
 
     return (
         <div className="minigallery">
+            <p className="block">Her er Kunstigs siste verk</p>
             {DOMImages}
         </div>
     )
