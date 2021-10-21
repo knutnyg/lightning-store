@@ -13,8 +13,8 @@ import {Header} from "./Header";
 import {useEffect} from "react";
 import {Admin} from "./pages/Admin";
 import {Kunstig} from "./pages/Kunstig";
-import {Workshop} from "./pages/Workshop";
 import {WorkshopWrapper} from "./pages/WorkshopWrapper";
+import {About} from "./pages/About";
 
 const resolveBaseUrl = (host: string): string => {
     switch (host) {
@@ -64,7 +64,7 @@ function App() {
                         <Route path="/blog-paywall"><PaywallView onChange={newtitle}/></Route>
                         <Route path="/bitcoin-network"><Bitcoin onChange={newtitle}/></Route>
                         <Route path="/lightning-network"><Lightning onChange={newtitle}/></Route>
-                        <Route path="/about"><p>About</p><Link to="/kunstig">Back</Link></Route>
+                        <Route path="/about"><About onChange={newtitle}/></Route>
                         <Route path="/gallery"><Kunstig onChange={newtitle} updateUser={callbackUpdateUser}
                                                         user={user}/></Route>
                         <Route path="/kunstig"><WorkshopWrapper onChange={newtitle} updateUser={callbackUpdateUser}

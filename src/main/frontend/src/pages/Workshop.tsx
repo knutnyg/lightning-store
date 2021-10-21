@@ -8,6 +8,7 @@ import {Invoice, updateInvoice} from "../invoice/invoices";
 import {InvoiceView} from "../invoice/Invoice";
 import Loader from "react-loader-spinner";
 import {MiniGallery} from "./MiniGallery";
+import {Link} from "react-router-dom";
 
 enum State {
     INITIAL, IN_PAYMENT, PAYMENT_COMPLETE, FETCHING_IMAGE, IMAGE_READY
@@ -211,6 +212,7 @@ export const Workshop = (props: Props) => {
                 <button onClick={reset} className="button">Prøv igjen!</button>
             </div>}
             <MiniGallery images={images}/>
+            <Link to="/about">Om galleriet</Link>
         </div>
     </div>)
 }

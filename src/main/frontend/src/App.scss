@@ -1,5 +1,7 @@
 $primaryColor: #E76F51;
 $secondaryColor: #FFFFFF;
+$linkColor: #264653;
+$linkColor2: #2A9D8F;
 
 body {
     background-color: $primaryColor;
@@ -69,7 +71,13 @@ footer {
 
 a {
     color: $secondaryColor;
-    text-decoration: none;
+    text-decoration: underline;
+    font-weight: bolder;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: $linkColor2;
 }
 
 li {
