@@ -156,11 +156,13 @@ export const Workshop = (props: Props) => {
 
     return (<div className="page">
         <div className={"flex-container grow"}>
-            {state.state === State.INITIAL &&
-            <><p>Velkommen👋 Her kan du be Kunstig (vår AI-modell) male et bilde og donere det til galleriet vårt
-                👩‍🎨</p>
-                <button className="button" onClick={buyImage}>Kjøp</button>
-            </>}
+            {(state.state === State.INITIAL || state.state === State.IN_PAYMENT) &&
+            <p>
+                Velkommen👋 Her kan du be Kunstig (vår AI-modell) male et bilde og donere det til galleriet vårt
+                👩‍🎨
+            </p>
+            }
+            {state.state === State.INITIAL && <button className="button" onClick={buyImage}>Kjøp</button>}
             {state.state === State.IN_PAYMENT && <InvoiceView paymentReq={state.imageInvoice?.paymentRequest!!}/>}
             {state.state === State.FETCHING_IMAGE && <div className={"flex-container"}>
                 <p>Kunstig jobber iherdig med å male et bilde til deg.</p>
