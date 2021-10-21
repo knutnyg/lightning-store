@@ -242,6 +242,12 @@ textarea {
     padding: 1rem;
 }
 
+
+.pagetext {
+    margin:2px;
+    text-align: center;
+}
+
 @media screen and (min-width: 300px) {
     .carousel-container {
         width: 300px;

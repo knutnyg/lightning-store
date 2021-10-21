@@ -181,8 +181,10 @@ export const Workshop = (props: Props) => {
 
             </div>}
             {state.state === State.IMAGE_READY && <div className="flex-container">
-                <p>Kunstig har malt dette til deg ❤️</p>
-                <p>Kunstverket er lagt til i galleriet, tusen takk for bidraget 🙌</p>
+                <div className="block">
+                    <p className="pagetext">Kunstig har malt dette til deg ❤️</p>
+                    <p className="pagetext">Kunstverket er lagt til i galleriet, tusen takk for bidraget 🙌</p>
+                </div>
                 <img className={"centered"} src={state.customImage?.image?.objUrl} alt={'your special image'}/>
                 <button onClick={reset} className="button">Prøv igjen!</button>
             </div>}
