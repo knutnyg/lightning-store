@@ -176,7 +176,6 @@ export const Workshop = (props: Props) => {
                 <p>Bildet legges til kolleksjonen 🎨 Takk for ditt bidrag!</p>
             </div>}
         </div>
-        <Link to="/kunstig">Tilbake</Link>
     </div>)
 }
 
