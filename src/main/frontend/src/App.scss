@@ -6,6 +6,10 @@ $linkColor2: #2A9D8F;
 body {
     background-color: $primaryColor;
 }
+::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+}
 
 .main {
     font-size: 1.5rem;
