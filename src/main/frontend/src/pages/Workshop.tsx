@@ -185,7 +185,7 @@ export const Workshop = (props: Props) => {
                     <p className="pagetext">Kunstig har malt dette til deg ❤️</p>
                     <p className="pagetext">Kunstverket er lagt til i galleriet, tusen takk for bidraget 🙌</p>
                 </div>
-                <img className={"centered"} src={state.customImage?.image?.objUrl} alt={'your special image'}/>
+                <img className={"centered block"} src={state.customImage?.image?.objUrl} alt={'your special image'}/>
                 <button onClick={reset} className="button">Prøv igjen!</button>
             </div>}
             <PreviewGallery/>
