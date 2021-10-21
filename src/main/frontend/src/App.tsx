@@ -1,4 +1,4 @@
-import './App.css';
+import './App.scss';
 import {LSATView} from './pages/Register';
 import {updateUser, useTitle, useUser} from "./hooks/useUser";
 import {
@@ -10,7 +10,6 @@ import {PaywallView} from "./pages/Blog";
 import {Bitcoin} from "./pages/Bitcoin";
 import {Lightning} from "./pages/Lightning";
 import {Header} from "./Header";
-import {Home} from './pages/Home';
 import {useEffect} from "react";
 import {Admin} from "./pages/Admin";
 import {Kunstig} from "./pages/Kunstig";

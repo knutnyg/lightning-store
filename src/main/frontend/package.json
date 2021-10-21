@@ -5,6 +5,7 @@
   "dependencies": {
     "cacache": "^15.3.0",
     "install": "^0.13.0",
+    "node-sass": "^6.0.1",
     "npm": "^7.21.1",
     "qrcode.react": "^1.0.1",
     "react": "^17.0.2",

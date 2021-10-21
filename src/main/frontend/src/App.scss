@@ -1,10 +1,13 @@
+$primaryColor: #FFFFFF;
+$secondaryColor: #E76F51;
+
 body {
-    background-color: #282c34;
+    background-color: $primaryColor;
 }
 
 .main {
     font-size: 1.5rem;
-    color: white;
+    color: $secondaryColor;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -42,7 +45,7 @@ header .user {
 .content {
     justify-content: left;
     font-size: 1.5rem;
-    color: white;
+    color: $secondaryColor;
     margin-left: 1.5rem;
     margin-right: 1.5rem;
     flex-grow: 1; /* ensures that the container will take up the full height of the parent container */
@@ -65,7 +68,7 @@ footer {
 }
 
 a {
-    color: #76fd59;
+    color: $secondaryColor;
     text-decoration: none;
 }
 
@@ -110,7 +113,7 @@ h2 {
 
 .lsat-view .authenticated {
     text-align: center;
-    color: coral;
+    color: $secondaryColor;
 }
 
 .lsat-view button {
@@ -185,7 +188,7 @@ textarea {
 .button {
     background: none;
     color: inherit;
-    border: 2px solid white;
+    border: 2px solid $secondaryColor;
     padding: 10px;
     font: inherit;
     cursor: pointer;
