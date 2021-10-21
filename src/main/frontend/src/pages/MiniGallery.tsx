@@ -6,7 +6,7 @@ interface Props {
     images: GalleryImages[]
 }
 
-export const MiniGallery = (props:Props) => {
+export const MiniGallery = (props: Props) => {
 
     const DOMImages = props.images
         .map((id, index) => {
@@ -15,15 +15,16 @@ export const MiniGallery = (props:Props) => {
         })
 
     // For local development:
-    // const DOMImages = [0, 1, 2, 3, 4, 5, 6, 7].map((index) =>
+    // const DOMImages = [0, 1, 2].map((index) =>
     //     <img key={index} className={"carousel-image centered"} alt={'t'}
     //          src={`https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg`}/>
     // )
 
     return (
-        <div className="minigallery">
-            <p className="block">Her er Kunstigs siste verk</p>
-            {DOMImages}
+        <div className="minigallery-container">{DOMImages.length > 0 && <p className="block centered-text">Her er Kunstigs siste verk</p>}
+            <div className="minigallery">
+                {DOMImages}
+            </div>
         </div>
     )
 }

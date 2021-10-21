@@ -170,6 +170,10 @@ textarea {
     align-self: center;
 }
 
+.centered-text {
+    text-align: center;
+}
+
 .block {
     margin-bottom: 1rem;
 }
@@ -231,9 +235,12 @@ textarea {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
-    margin-top: 100px;
     margin-left: 80px;
     margin-right: 80px;
+}
+
+.minigallery-container {
+    margin-top: 100px;
 }
 
 .minigallery img {

@@ -7,7 +7,6 @@ import {User} from "../hooks/useUser";
 import {Invoice, updateInvoice} from "../invoice/invoices";
 import {InvoiceView} from "../invoice/Invoice";
 import Loader from "react-loader-spinner";
-import {Link} from "react-router-dom";
 import {MiniGallery} from "./MiniGallery";
 
 enum State {
