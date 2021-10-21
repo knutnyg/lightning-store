@@ -49,7 +49,6 @@ export const Gallery = (pageProps: PageProps) => {
 
     return (<div className="page">
         <div className={"flex-container grow"}>
-            <p>Voila og velkommen! Her henger all kunsten Kunstig har malt til nå.</p>
             <div className={"centered"}>
                 <Carousel
                     swipeable={true}
@@ -90,6 +89,5 @@ export const Gallery = (pageProps: PageProps) => {
                 </Carousel>
             </div>
         </div>
-        <Link to="/workshop">Til verkstedet</Link>
     </div>)
 }
