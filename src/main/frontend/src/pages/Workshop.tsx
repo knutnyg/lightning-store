@@ -1,5 +1,5 @@
 import {Image} from "./Admin";
-import {requestFreshlyPaintedPicture} from "../io/images";
+import {GalleryImages, requestFreshlyPaintedPicture, requestGalleryImages} from "../io/images";
 import {useEffect, useState} from "react";
 import {baseUrl} from "../App";
 import useInterval from "../hooks/useInterval";
@@ -8,7 +8,7 @@ import {Invoice, updateInvoice} from "../invoice/invoices";
 import {InvoiceView} from "../invoice/Invoice";
 import Loader from "react-loader-spinner";
 import {Link} from "react-router-dom";
-import {PreviewGallery} from "./PreviewGallery";
+import {MiniGallery} from "./MiniGallery";
 
 enum State {
     INITIAL, IN_PAYMENT, PAYMENT_COMPLETE, FETCHING_IMAGE, IMAGE_READY
@@ -80,6 +80,7 @@ interface Props {
 
 export const Workshop = (props: Props) => {
     const [state, setState] = useState<PageState>(initialState)
+    const [images, setImages] = useState<GalleryImages[]>([])
     const buyImage = () => {
         requestFreshlyPaintedPicture()
             .then(invoice => {
@@ -98,6 +99,25 @@ export const Workshop = (props: Props) => {
                 console.log(err)
             });
     }
+
+    useEffect(() => {
+        refreshMinigallery()
+    }, [])
+
+    const refreshMinigallery = () => {
+        requestGalleryImages('/minigallery')
+            .then(images => {
+                setImages(images)
+            })
+            .then(_ => {
+                console.log("updated images with:", images)
+            })
+            .catch(err => {
+                console.log("error", err)
+                setImages([])
+            })
+    }
+
     const getImage = (id: string) => {
         console.log('Fetching image:', id)
         return fetch(`${baseUrl}/products/${id}/data`, {
@@ -113,6 +133,7 @@ export const Workshop = (props: Props) => {
 
     const reset = () => {
         setState(initialState)
+        refreshMinigallery()
         window.scrollTo(0, 0);
     }
 
@@ -189,7 +210,7 @@ export const Workshop = (props: Props) => {
                 <img className={"centered block"} src={state.customImage?.image?.objUrl} alt={'your special image'}/>
                 <button onClick={reset} className="button">Prøv igjen!</button>
             </div>}
-            <PreviewGallery/>
+            <MiniGallery images={images}/>
         </div>
     </div>)
 }
