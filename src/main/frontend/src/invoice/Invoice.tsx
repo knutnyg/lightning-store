@@ -27,7 +27,7 @@ export const InvoiceView = (props: InvoiceViewProps) => {
             }}/>
         {success && <span>Kopiert!</span>}
         {/*<div><FontAwesomeIcon icon={faCopy}/></div>*/}
-        <p>Skann QR-koden med mobilen din eller klikk for å kopiere.</p>
+        <p>Kjøp et kunstverk ved å scanne denne QR-koden med mobilen din, det koster 1 satoshi (mindre enn 0,005 NOK) 🤑</p>
     </div>
 }
 
