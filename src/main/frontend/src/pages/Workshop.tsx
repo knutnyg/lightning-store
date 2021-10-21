@@ -132,8 +132,8 @@ export const Workshop = (props: Props) => {
 
     const reset = () => {
         setState(initialState)
-        refreshMinigallery()
         window.scrollTo(0, 0);
+        refreshMinigallery()
     }
 
     useEffect(() => {
