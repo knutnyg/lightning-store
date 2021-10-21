@@ -65,11 +65,11 @@ function App() {
                         <Route path="/bitcoin-network"><Bitcoin onChange={newtitle}/></Route>
                         <Route path="/lightning-network"><Lightning onChange={newtitle}/></Route>
                         <Route path="/about"><p>About</p><Link to="/kunstig">Back</Link></Route>
-                        <Route path="/kunstig"><Kunstig onChange={newtitle} updateUser={callbackUpdateUser}
+                        <Route path="/gallery"><Kunstig onChange={newtitle} updateUser={callbackUpdateUser}
                                                         user={user}/></Route>
-                        <Route path="/workshop"><Workshop onChange={newtitle}/></Route>
+                        <Route path="/kunstig"><Workshop onChange={newtitle}/></Route>
                         <Route path="/admin"><Admin onChange={newtitle}/></Route>
-                        <Route path="/"><Home onChange={newtitle}/></Route>
+                        <Route path="/"><Workshop onChange={newtitle}/></Route>
                     </Switch>
                 </Router>
             </div>
