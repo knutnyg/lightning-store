@@ -16,7 +16,7 @@ export interface InvoiceViewProps {
 export const InvoiceView = (props: InvoiceViewProps) => {
     const [success, setSuccess] = useState<boolean>(false)
     return <div className={"invoice-view"}>
-            <QRCode className={"centered qr-code"} value={props.paymentReq} onClick={() => {
+            <QRCode className={"centered qr-code"} value={`lightning:${props.paymentReq}`} onClick={() => {
                 navigator.clipboard.writeText(props.paymentReq)
                     .then(r => {
                         setSuccess(true)
