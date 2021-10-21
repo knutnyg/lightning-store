@@ -186,7 +186,7 @@ export const Workshop = (props: Props) => {
                 Velkommen👋 Her kan du be Kunstig (vår AI-modell) male et bilde til galleriet vårt 👩‍🎨
             </p>
             }
-            {state.state === State.INITIAL && <button className="button" onClick={buyImage}>Kjøp</button>}
+            {state.state === State.INITIAL && <button className="button block-xxl" onClick={buyImage}>Kjøp</button>}
             {state.state === State.IN_PAYMENT && <InvoiceView paymentReq={state.imageInvoice?.paymentRequest!!}/>}
             {state.state === State.FETCHING_IMAGE && <div className={"flex-container"}>
                 <p>Kunstig jobber iherdig med å male et bilde til deg.</p>

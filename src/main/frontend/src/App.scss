@@ -1,5 +1,5 @@
-$primaryColor: #FFFFFF;
-$secondaryColor: #E76F51;
+$primaryColor: #E76F51;
+$secondaryColor: #FFFFFF;
 
 body {
     background-color: $primaryColor;
@@ -185,6 +185,10 @@ textarea {
     margin-bottom: 2rem;
 }
 
+.block-xxl {
+    margin-top: 4rem;
+}
+
 .button {
     background: none;
     color: inherit;
@@ -243,7 +247,7 @@ textarea {
 }
 
 .minigallery-container {
-    margin-top: 100px;
+    margin-top: 4rem;
 }
 
 .minigallery img {
