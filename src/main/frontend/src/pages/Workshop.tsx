@@ -113,6 +113,7 @@ export const Workshop = (props: Props) => {
 
     const reset = () => {
         setState(initialState)
+        window.scrollTo(0, 0);
     }
 
     useEffect(() => {
