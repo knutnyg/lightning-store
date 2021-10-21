@@ -79,6 +79,7 @@ h1 {
     margin-left: 1.5rem;
     flex-grow: 1;
     font-size: 1.6rem;
+    text-align: center;
 }
 
 
@@ -178,9 +179,21 @@ textarea {
 }
 
 .page button {
-    font-size: 1.4rem;
-    align-self: center;
-    max-width: 12rem;
+    background: none;
+    color: inherit;
+    border: 2px solid white;
+    padding: 10px;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    width: 12rem;
+    border-radius: 10px;
+    transform: scale(1.0);
+    transition: transform 0.1s ease;
+}
+
+.page button:hover {
+    transform: scale(1.1)
 }
 
 .gallery-sample {
@@ -206,6 +219,7 @@ textarea {
 .flex-container {
     display: flex;
     flex-direction: column;
+    align-items: center;
 }
 
 @media screen and (min-width: 300px) {
