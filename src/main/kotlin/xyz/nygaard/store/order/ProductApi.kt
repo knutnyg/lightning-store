@@ -79,4 +79,9 @@ fun Route.registerProducts(
         val ids = productService.getProductIds(bundleId)
         call.respond(ids.shuffled().take(15))
     }
+
+    get("/minigallery") {
+        val ids = productService.getProductIds(2)
+        call.respond(ids.reversed().take(10))
+    }
 }

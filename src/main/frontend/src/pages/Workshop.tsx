@@ -8,6 +8,7 @@ import {Invoice, updateInvoice} from "../invoice/invoices";
 import {InvoiceView} from "../invoice/Invoice";
 import Loader from "react-loader-spinner";
 import {Link} from "react-router-dom";
+import {PreviewGallery} from "./PreviewGallery";
 
 enum State {
     INITIAL, IN_PAYMENT, PAYMENT_COMPLETE, FETCHING_IMAGE, IMAGE_READY
@@ -175,6 +176,7 @@ export const Workshop = (props: Props) => {
                 <img className={"centered"} src={state.customImage?.image?.objUrl} alt={'your special image'}/>
                 <p>Dette har kunstig malt til deg ❤️ Kunstverket er lagt til galleriet. Tusen takk for bidraget 🙌</p>
             </div>}
+            <PreviewGallery/>
         </div>
     </div>)
 }

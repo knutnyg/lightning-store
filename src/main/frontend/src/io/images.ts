@@ -18,9 +18,9 @@ export interface GalleryImages {
     id: string
 }
 
-export const requestGalleryImages = () => {
+export const requestGalleryImages = (uri:string = '/bundle/2') => {
     console.log("User requested gallery image ids")
-    return fetch(`${baseUrl}/bundle/2`, {
+    return fetch(baseUrl + uri, {
         method: 'GET',
         headers: {
             'Access-Control-Allow-Origin': '*',
