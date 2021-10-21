@@ -14,6 +14,7 @@ import {useEffect} from "react";
 import {Admin} from "./pages/Admin";
 import {Kunstig} from "./pages/Kunstig";
 import {Workshop} from "./pages/Workshop";
+import {WorkshopWrapper} from "./pages/WorkshopWrapper";
 
 const resolveBaseUrl = (host: string): string => {
     switch (host) {
@@ -66,9 +67,11 @@ function App() {
                         <Route path="/about"><p>About</p><Link to="/kunstig">Back</Link></Route>
                         <Route path="/gallery"><Kunstig onChange={newtitle} updateUser={callbackUpdateUser}
                                                         user={user}/></Route>
-                        <Route path="/kunstig"><Workshop onChange={newtitle}/></Route>
+                        <Route path="/kunstig"><WorkshopWrapper onChange={newtitle} updateUser={callbackUpdateUser}
+                                                                user={user}/></Route>
                         <Route path="/admin"><Admin onChange={newtitle}/></Route>
-                        <Route path="/"><Workshop onChange={newtitle}/></Route>
+                        <Route path="/"><WorkshopWrapper onChange={newtitle} updateUser={callbackUpdateUser}
+                                                         user={user}/></Route>
                     </Switch>
                 </Router>
             </div>
