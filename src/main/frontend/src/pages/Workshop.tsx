@@ -111,6 +111,10 @@ export const Workshop = (props: Props) => {
             .then(res => res.blob())
     }
 
+    const reset = () => {
+        setState(initialState)
+    }
+
     useEffect(() => {
         props.onChange("Verkstedet")
     })
@@ -177,8 +181,10 @@ export const Workshop = (props: Props) => {
 
             </div>}
             {state.state === State.IMAGE_READY && <div className="flex-container">
-                <p>Dette har kunstig malt til deg ❤️ Kunstverket er lagt til galleriet. Tusen takk for bidraget 🙌</p>
+                <p>Kunstig har malt dette til deg ❤️</p>
+                <p>Kunstverket er lagt til i galleriet, tusen takk for bidraget 🙌</p>
                 <img className={"centered"} src={state.customImage?.image?.objUrl} alt={'your special image'}/>
+                <button onClick={reset} className="button">Prøv igjen!</button>
             </div>}
             <PreviewGallery/>
         </div>
