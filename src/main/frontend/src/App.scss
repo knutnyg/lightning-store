@@ -311,13 +311,19 @@ textarea {
     }
 }
 
-@media screen and (min-width: 768px) {
+$gallery-size: 800px;
+
+@media screen and (min-width: $gallery-size) {
     .carousel-container {
-        width: 768px;
+        width: $gallery-size;
     }
 
     .carousel-image {
-        width: 768px;
-        height: 768px;
+        width: $gallery-size;
+        height: $gallery-size;
     }
+}
+
+.gallery-title {
+    font-size: 10rem;
 }

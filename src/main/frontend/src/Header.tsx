@@ -6,7 +6,7 @@ export interface HeaderProps {
 }
 
 export const Header = (props: HeaderProps) => <header>
-    <h1>️{props.title}</h1>
+    <h1 className={props.title === 'Galleriet' ? 'gallery-title' : ''}>️{props.title}</h1>
     {props.user && <span className="user"/>}
     {!props.user && <span className="user"/>}
 </header>
