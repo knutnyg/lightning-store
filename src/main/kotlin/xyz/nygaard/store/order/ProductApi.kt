@@ -32,8 +32,6 @@ fun Route.registerProducts(
     }
 
     get("/products/{id}/data") {
-        val authorization = call.attributes[AuthorizationKey]
-
         val productId =
             call.parameters["id"].let { UUID.fromString(it) } ?: return@get call.respond(HttpStatusCode.BadRequest)
 
