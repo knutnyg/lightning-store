@@ -3,10 +3,10 @@ package xyz.nygaard.store
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import xyz.nygaard.MacaroonService
 import xyz.nygaard.extractUserId
 import xyz.nygaard.store.user.TokenService
-import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class TokenServiceTest {

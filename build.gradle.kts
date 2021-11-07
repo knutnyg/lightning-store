@@ -1,13 +1,12 @@
-
-val ktorVersion = "1.5.1"
-val logbackVersion = "1.2.3"
-val logstashEncoderVersion = "5.1"
+val ktorVersion = "1.6.4"
+val logbackVersion = "1.2.6"
+val logstashEncoderVersion = "6.6"
 val kotlinVersion = "1.3.40"
-val jacksonVersion = "2.9.7"
-val postgresVersion = "42.2.5"
-val flywayVersion = "5.2.4"
-val hikariVersion = "3.3.0"
-val junitJupiterVersion = "5.6.2"
+val jacksonVersion = "2.13.0"
+val postgresVersion = "42.3.1"
+val flywayVersion = "8.0.2"
+val hikariVersion = "5.0.0"
+val junitJupiterVersion = "5.8.1"
 
 group = "xyz.nygaard"
 version = "1.1"
@@ -23,17 +22,16 @@ buildscript {
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
     implementation("org.lightningj:lightningj:0.13.0-Beta")
-    implementation("javax.xml.bind:jaxb-api:2.3.1")
-    runtimeOnly("javax.json:javax.json-api:1.1.2")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.0")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-jackson:$ktorVersion")
     implementation("io.ktor:ktor-jackson:$ktorVersion")
     implementation("io.ktor:ktor-auth:$ktorVersion")
