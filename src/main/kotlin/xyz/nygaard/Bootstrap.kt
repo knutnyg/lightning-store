@@ -4,13 +4,19 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.application.*
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.features.*
+import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.jackson.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import kotlinx.coroutines.runBlocking
 import org.lightningj.lnd.wrapper.MacaroonContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -24,15 +30,10 @@ import xyz.nygaard.store.auth.CookieBakery
 import xyz.nygaard.store.auth.CookieJar
 import xyz.nygaard.store.auth.installLsatInterceptor
 import xyz.nygaard.store.invoice.InvoiceService
-import xyz.nygaard.store.order.OrderService
-import xyz.nygaard.store.order.ProductService
-import xyz.nygaard.store.order.registerAdmin
-import xyz.nygaard.store.order.registerOrders
-import xyz.nygaard.store.order.registerProducts
+import xyz.nygaard.store.order.*
 import xyz.nygaard.store.register.registerRegisterApi
 import xyz.nygaard.store.user.TokenService
 import java.io.File
-import java.net.URI
 import java.util.*
 import javax.sql.DataSource
 import javax.xml.bind.DatatypeConverter
@@ -70,6 +71,12 @@ fun main() {
             environment.invoiceMacaroon,
         )
         val macaroonService = MacaroonService(environment.location, environment.macaroonGeneratorSecret)
+
+
+        // Ping Kunstig every 30 seconds
+        Timer("Pinger")
+            .scheduleAtFixedRate(Ping(HttpClient(CIO)), 2000, 30000)
+
         buildApplication(
             dataSource = database.dataSource,
             macaroonService = macaroonService,
@@ -178,4 +185,17 @@ class EnvironmentMacaroonContext(var currentMacaroonData: String) : MacaroonCont
 
 fun getEnvOrDefault(name: String, defaultValue: String): String {
     return System.getenv(name) ?: defaultValue
+}
+
+internal class Ping(val httpClient: HttpClient) : TimerTask() {
+    override fun run() {
+        runBlocking {
+            val response: HttpResponse = httpClient.get("https://glup-kunstig-api.azurewebsites.net/")
+            if (response.status.isSuccess()) {
+                log.info("Pinged kunstig. Wake up sleeping beauty 😴")
+            } else {
+                log.error("Failed to ping kunstig!")
+            }
+        }
+    }
 }
