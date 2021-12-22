@@ -9,6 +9,7 @@ build/
 
 # Generated sources
 src/generated
+node
 
 # OS specific
 .DS_Store
