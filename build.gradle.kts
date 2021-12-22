@@ -1,18 +1,12 @@
-val ktorVersion = "1.6.4"
-val logbackVersion = "1.2.6"
-val logstashEncoderVersion = "6.6"
-val kotlinVersion = "1.3.40"
+val ktorVersion = "1.6.7"
 val jacksonVersion = "2.13.0"
-val postgresVersion = "42.3.1"
-val flywayVersion = "8.0.2"
-val hikariVersion = "5.0.0"
-val junitJupiterVersion = "5.8.1"
+val junitJupiterVersion = "5.8.2"
 
 group = "xyz.nygaard"
 version = "1.1"
 
 plugins {
-    kotlin("jvm") version "1.5.0"
+    kotlin("jvm") version "1.6.10"
 }
 
 buildscript {
@@ -42,19 +36,16 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
 
-    implementation("ch.qos.logback:logback-classic:$logbackVersion")
-    implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
-
     implementation("com.github.nitram509:jmacaroons:0.4.1")
 
     //Database
-    implementation("org.postgresql:postgresql:$postgresVersion")
-    implementation("com.zaxxer:HikariCP:$hikariVersion")
-    implementation("org.flywaydb:flyway-core:$flywayVersion")
+    implementation("org.postgresql:postgresql:42.3.1")
+    implementation("com.zaxxer:HikariCP:5.0.0")
+    implementation("org.flywaydb:flyway-core:8.1.0")
 
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
-    testImplementation("io.mockk:mockk:1.12.0")
+    testImplementation("io.mockk:mockk:1.12.1")
     testImplementation("org.assertj:assertj-core:3.21.0")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty") // conflicts with WireMock
@@ -65,14 +56,14 @@ dependencies {
 
 tasks {
     compileKotlin {
-        kotlinOptions.jvmTarget = "16"
+        kotlinOptions.jvmTarget = "17"
     }
     compileTestKotlin {
-        kotlinOptions.jvmTarget = "16"
+        kotlinOptions.jvmTarget = "17"
     }
 
     named<Jar>("jar") {
-        archiveBaseName.set("app")
+        archiveBaseName.set("lightning-store")
 
         manifest {
             attributes["Main-Class"] = "xyz.nygaard.BootstrapKt"
@@ -98,6 +89,6 @@ tasks {
     }
 
     withType<Wrapper> {
-        gradleVersion = "7.1.1"
+        gradleVersion = "7.3.2"
     }
 }
