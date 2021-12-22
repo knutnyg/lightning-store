@@ -78,9 +78,8 @@ interface Props {
     user?: User
 }
 
-export const Workshop = (props: Props) => {
+export const ImageShop = (props: Props) => {
     const [state, setState] = useState<PageState>(initialState)
-    const [images, setImages] = useState<GalleryImages[]>([])
     const buyImage = () => {
         requestFreshlyPaintedPicture()
             .then(invoice => {
@@ -100,24 +99,6 @@ export const Workshop = (props: Props) => {
             });
     }
 
-    useEffect(() => {
-        refreshMinigallery()
-    }, [])
-
-    const refreshMinigallery = () => {
-        requestGalleryImages('/minigallery')
-            .then(images => {
-                setImages(images)
-            })
-            .then(_ => {
-                console.log("updated images with:", images)
-            })
-            .catch(err => {
-                console.log("error", err)
-                setImages([])
-            })
-    }
-
     const getImage = (id: string) => {
         console.log('Fetching image:', id)
         return fetch(`${baseUrl}/products/${id}/data`, {
@@ -134,7 +115,6 @@ export const Workshop = (props: Props) => {
     const reset = () => {
         setState(initialState)
         window.scrollTo(0, 0);
-        refreshMinigallery()
     }
 
     useEffect(() => {
@@ -180,19 +160,24 @@ export const Workshop = (props: Props) => {
         }
     }, 2000)
 
-    const shopDescription = "Kjøp et kunstverk ved å scanne denne QR-koden med mobilen din, det koster 1 satoshi (mindre enn 0,005 NOK) 🤑"
+    const shopDescription = "Buy a piece of art by scanning this QR code woth your phone. The price of an image is 1000 satoshis"
 
     return (<div className="page">
         <div className={"flex-container grow"}>
             {(state.state === State.INITIAL || state.state === State.IN_PAYMENT) &&
-            <p>
-                Velkommen👋 Her kan du be Kunstig (vår AI-modell) male et bilde til galleriet vårt 👩‍🎨
-            </p>
+                <p>
+                    In ephemeral mode the painting only exists in the moment. It is yours and
+                    will not be stored on Kunstig's servers or anywhere else. You can save it to you phone or computer
+                    or
+                    just enjoy it in the moment.
+                </p>
             }
-            {state.state === State.INITIAL && <button className="button block-xxl" onClick={buyImage}>Kjøp</button>}
-            {state.state === State.IN_PAYMENT && <InvoiceView paymentReq={state.imageInvoice?.paymentRequest!!} description={shopDescription}/>}
+            {state.state === State.INITIAL &&
+                <button className="button block-xxl" onClick={buyImage}>Paint me an image</button>}
+            {state.state === State.IN_PAYMENT &&
+                <InvoiceView paymentReq={state.imageInvoice?.paymentRequest!!} description={shopDescription}/>}
             {state.state === State.FETCHING_IMAGE && <div className={"flex-container"}>
-                <p>Kunstig jobber iherdig med å male et bilde til deg.</p>
+                <p>Kunstig is working very hard on your painting.</p>
                 <div className="centered">
                     <Loader
                         type="BallTriangle"
@@ -201,17 +186,15 @@ export const Workshop = (props: Props) => {
                         width={100}
                     />
                 </div>
-
             </div>}
             {state.state === State.IMAGE_READY && <div className="flex-container">
                 <div className="block">
-                    <p className="pagetext">Kunstig har malt dette til deg ❤️</p>
-                    <p className="pagetext">Kunstverket er lagt til i galleriet, tusen takk for bidraget 🙌</p>
+                    <p className="pagetext">Here is your painting ❤️</p>
+                    <p className="pagetext">Why not mint it as an NFT?</p>
                 </div>
                 <img className={"centered block"} src={state.customImage?.image?.objUrl} alt={'your special image'}/>
-                <button onClick={reset} className="button">Prøv igjen!</button>
+                <button onClick={reset} className="button">Try again!</button>
             </div>}
-            <MiniGallery images={images}/>
             <Link to="/about">Om galleriet</Link>
         </div>
     </div>)
