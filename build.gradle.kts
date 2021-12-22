@@ -7,17 +7,28 @@ version = "1.1"
 
 plugins {
     kotlin("jvm") version "1.6.10"
-}
-
-buildscript {
-    repositories {
-        mavenCentral()
-    }
+    id("org.siouan.frontend-jdk11") version "6.0.0"
 }
 
 repositories {
     mavenCentral()
+    gradlePluginPortal()
 }
+
+buildscript {
+    dependencies {
+        classpath("org.siouan:frontend-gradle-plugin-jdk11:6.0.0")
+    }
+}
+
+frontend {
+    nodeVersion.set("16.13.1")
+    assembleScript.set("run build")
+    cleanScript.set("run clean")
+    packageJsonDirectory.set(File("src/main/frontend"))
+}
+
+apply(plugin = "org.siouan.frontend-jdk11")
 
 dependencies {
     implementation("org.lightningj:lightningj:0.13.0-Beta")
