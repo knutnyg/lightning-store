@@ -1,31 +1,16 @@
 package xyz.nygaard.store
 
-import com.opentable.db.postgres.embedded.EmbeddedPostgres
-import org.flywaydb.core.Flyway
-import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import xyz.nygaard.MacaroonService
 import xyz.nygaard.extractUserId
-import xyz.nygaard.store.user.TokenService
+import xyz.nygaard.store.e2e.AbstractE2ETest
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-internal class TokenServiceTest {
+internal class TokenServiceTest : AbstractE2ETest() {
 
-    private val embeddedPostgres = EmbeddedPostgres.builder()
-        .setPort(5534).start()
-
-    private val tokenService: TokenService = TokenService(embeddedPostgres.postgresDatabase)
     private val macaroonService: MacaroonService = MacaroonService("localhost", "secret")
-
-    @BeforeAll
-    fun setup() {
-        Flyway.configure().dataSource(embeddedPostgres.postgresDatabase).load().migrate()
-    }
-
-    @AfterAll
-    fun tearDown() {
-        embeddedPostgres.close()
-    }
 
     @Test
     fun `create and fetch user`() {

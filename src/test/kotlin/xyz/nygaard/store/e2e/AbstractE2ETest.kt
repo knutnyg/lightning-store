@@ -1,14 +1,17 @@
 package xyz.nygaard.store.e2e
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.opentable.db.postgres.embedded.EmbeddedPostgres
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.flywaydb.core.Flyway
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
+import org.testcontainers.containers.PostgreSQLContainer
 import xyz.nygaard.MacaroonService
 import xyz.nygaard.buildApplication
 import xyz.nygaard.store.Fetcher
@@ -22,15 +25,30 @@ import java.io.FileInputStream
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class AbstractE2ETest {
 
-    protected val embeddedPostgres: EmbeddedPostgres = EmbeddedPostgres.builder()
-        .setPort(5534).start()
-
     protected val lndMock = LndClientMock()
 
+    private val postgres = PostgreSQLContainer<Nothing>("postgres:13").apply {
+        withReuse(true)
+        withLabel("app-navn", "lightning-store")
+        start()
+    }
+
+    protected val dataSource =
+        HikariDataSource(HikariConfig().apply {
+            jdbcUrl = postgres.jdbcUrl
+            username = postgres.username
+            password = postgres.password
+            maximumPoolSize = 5
+            minimumIdle = 1
+            idleTimeout = 500001
+            connectionTimeout = 10000
+            maxLifetime = 600001
+        })
+
     private val macaroonService = MacaroonService("localhost", "secret")
-    protected val tokenService = TokenService(embeddedPostgres.postgresDatabase)
-    protected val orderService = OrderService(embeddedPostgres.postgresDatabase)
-    private val productService = ProductService(embeddedPostgres.postgresDatabase)
+    protected val tokenService = TokenService(dataSource)
+    protected val orderService = OrderService(dataSource)
+    private val productService = ProductService(dataSource)
 
     protected val preimage = "1234"
     private val rhash = preimage.sha256()
@@ -40,16 +58,21 @@ abstract class AbstractE2ETest {
 
     @BeforeAll
     fun setup() {
-        Flyway.configure().dataSource(embeddedPostgres.postgresDatabase).load().migrate()
+        Flyway.configure().dataSource(dataSource).load().migrate()
     }
 
     @BeforeEach
     fun reset() {
-        embeddedPostgres.postgresDatabase.connection.use {
+        dataSource.connection.use {
             it.prepareStatement("DELETE FROM orders;").execute()
             it.prepareStatement("DELETE FROM token;").execute()
             it.prepareStatement("DELETE FROM invoices;").execute()
         }
+    }
+
+    @AfterAll
+    fun tearDown() {
+        postgres.close()
     }
 
     protected fun TestApplicationEngine.authenticated(method: HttpMethod, uri: String) =
@@ -60,7 +83,7 @@ abstract class AbstractE2ETest {
         }
 
     protected fun Application.setup() = buildApplication(
-        dataSource = embeddedPostgres.postgresDatabase,
+        dataSource = dataSource,
         macaroonService = macaroonService,
         productService = productService,
         lndClient = lndMock,

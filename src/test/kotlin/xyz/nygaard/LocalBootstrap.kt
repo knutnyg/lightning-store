@@ -1,6 +1,5 @@
 package xyz.nygaard
 
-import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.http.*
@@ -46,17 +45,14 @@ fun main() {
             kunstigUrl = "localhost"
         )
 
-        val useRealPostgres = true
         val useRealLnd = false
 
-        val dataSource = if (useRealPostgres) {
-            Database(
-                "jdbc:postgresql://localhost:5432/${environment.databaseName}",
-                environment.databaseUsername,
-                environment.databasePassword
-            ).dataSource
-        } else EmbeddedPostgres.builder()
-            .setPort(5534).start().postgresDatabase
+        val dataSource = Database(
+            "jdbc:postgresql://localhost:5432/${environment.databaseName}",
+            environment.databaseUsername,
+            environment.databasePassword
+        ).dataSource
+
 
         val macaroonService = MacaroonService(environment.location, environment.macaroonGeneratorSecret)
         val lndClient = if (useRealLnd) {
@@ -82,7 +78,7 @@ fun main() {
         ).apply {
             install(CORS) {
                 method(HttpMethod.Options)
-                    method(HttpMethod.Post)
+                method(HttpMethod.Post)
                 method(HttpMethod.Get)
                 method(HttpMethod.Put)
                 header(HttpHeaders.Authorization)

@@ -17,7 +17,6 @@ import java.util.*
 
 class StoreE2ETest : AbstractE2ETest() {
 
-
     @Test
     fun `sign up as new user`() {
         withTestApplication({
@@ -228,7 +227,7 @@ class StoreE2ETest : AbstractE2ETest() {
     }
 
     private fun assertImageAddedToBundle(memo: String) {
-        assertTrue(embeddedPostgres.postgresDatabase.connection.use { connection ->
+        assertTrue(dataSource.connection.use { connection ->
             connection.prepareStatement("SELECT * FROM bundle_product WHERE product_id = ?")
                 .use {
                     it.setString(1, memo)
