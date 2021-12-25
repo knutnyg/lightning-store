@@ -80,31 +80,6 @@ class StoreE2ETest : AbstractE2ETest() {
     }
 
     @Test
-    fun `purchase blogpost with balance`() {
-        tokenService.createToken(macaroon, 110)
-        withTestApplication({
-            setup()
-        }) {
-            with(handleRequest(HttpMethod.Post, "/api/orders/balance/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
-                addHeader(HttpHeaders.Accept, "application/json")
-                addHeader(HttpHeaders.XForwardedProto, "https")
-                addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
-            }) {
-                assertEquals(HttpStatusCode.OK, response.status())
-                assertEquals(109, tokenService.fetchToken(macaroon)?.balance)
-                assertEquals(1, orderService.getOrders(macaroon.extractUserId()).size)
-            }
-            with(handleRequest(HttpMethod.Get, "/api/products/261dd820-cfc4-4c3e-a2c8-59d41eb44dfc") {
-                addHeader(HttpHeaders.Accept, "application/json")
-                addHeader(HttpHeaders.XForwardedProto, "https")
-                addHeader(HttpHeaders.Authorization, "LSAT ${macaroon.serialize()}:${preimage}")
-            }) {
-                assertEquals(HttpStatusCode.OK, response.status())
-            }
-        }
-    }
-
-    @Test
     fun `purchase blogpost with invoice`() {
         tokenService.createToken(macaroon, 0)
         withTestApplication({

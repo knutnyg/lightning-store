@@ -72,18 +72,4 @@ fun Route.registerOrders(
         orderService.placeOrderWithBalance(authorization.macaroon, product)
         call.respond(HttpStatusCode.OK)
     }
-
-
-
-    get("/orders/{id}") {
-        val authorization = call.attributes[AuthorizationKey]
-        val orderId = call.parameters["id"].let { UUID.fromString(it) } ?: return@get call.respond(
-            HttpStatusCode.BadRequest,
-            "Missing order id"
-        )
-
-        orderService.getOrder(authorization.macaroon.extractUserId(), orderId)
-    }
-
-
 }

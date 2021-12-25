@@ -119,7 +119,7 @@ class InvoiceService(
 
     private fun updateSettled(invoice: Invoice, preimage: String): LocalDateTime {
         val settled = LocalDateTime.now()
-        dataSource.connection.apply { autoCommit = false }.use { connection ->
+        dataSource.connectionAutoCommit().use { connection ->
             try {
                 connection.prepareStatement(
                     """
@@ -133,17 +133,6 @@ class InvoiceService(
                     it.setString(3, preimage)
                     it.setString(4, invoice.id.toString())
                     it.executeUpdate()
-                }
-
-                connection.prepareStatement("UPDATE orders o SET settled = ? WHERE o.invoice_id = ?").use {
-                    it.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()))
-                    it.setString(2, invoice.id.toString())
-                    it.executeUpdate().run {
-                        if (this > 0) {
-                            log.info("Updated $this orders with settled = true")
-                        }
-                    }
-                    connection.commit()
                 }
             } catch (e: Exception) {
                 connection.rollback()
