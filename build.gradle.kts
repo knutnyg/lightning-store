@@ -1,5 +1,5 @@
 val ktorVersion = "1.6.7"
-val jacksonVersion = "2.13.0"
+val jacksonVersion = "2.13.1"
 val junitJupiterVersion = "5.8.2"
 
 group = "xyz.nygaard"
@@ -48,6 +48,9 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
 
     implementation("com.github.nitram509:jmacaroons:0.4.1")
+
+    implementation("ch.qos.logback:logback-classic:1.2.10")
+    implementation("net.logstash.logback:logstash-logback-encoder:7.0.1")
 
     //Database
     implementation("org.postgresql:postgresql:42.3.1")
