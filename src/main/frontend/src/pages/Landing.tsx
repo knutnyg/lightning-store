@@ -1,5 +1,5 @@
 import {Link} from "react-router-dom";
-import {ImageShop} from "./ImageShop";
+import {Workshop} from "./Workshop";
 
 export const Landing = () => {
     return <div>
@@ -20,7 +20,8 @@ export const Landing = () => {
 export const Ephemeral = () => {
     return <div>
         <h1>Kunstig</h1>
-        <ImageShop onChange={() => {
+        <p>Noe brødtekst som forklarer hva du skal gjøre</p>
+        <Workshop onChange={() => {
         }}/>
         <Link to={"/"}>Back</Link>
     </div>

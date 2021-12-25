@@ -3,8 +3,8 @@ import 'react-multi-carousel/lib/styles.css';
 import useInterval from "../hooks/useInterval";
 import {User} from "../hooks/useUser";
 import {TicketBooth} from "./TicketBooth";
-
-import {ImageShop} from "./ImageShop";
+import {Gallery} from "./Gallery";
+import {Workshop} from "./Workshop";
 
 export interface PageProps {
     onChange: (title: string) => void;
@@ -46,7 +46,7 @@ export const WorkshopWrapper = (props: PageWithUserProps) => {
 
     return <div className="page grow">
         {state.state === State.TICKET_REQUIRED &&
-            <TicketBooth onChange={props.onChange} updateUser={props.updateUser}/>}
-        {state.state === State.WORKSHOP && <ImageShop onChange={props.onChange} user={props.user}/>}
+        <TicketBooth onChange={props.onChange} updateUser={props.updateUser}/>}
+        {state.state === State.WORKSHOP && <Workshop onChange={props.onChange} user={props.user}/>}
     </div>
 }
