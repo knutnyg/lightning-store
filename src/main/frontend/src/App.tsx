@@ -9,7 +9,6 @@ import {Admin} from "./pages/Admin";
 import {Kunstig} from "./pages/Kunstig";
 import {WorkshopWrapper} from "./pages/WorkshopWrapper";
 import {About} from "./pages/About";
-import {Ephemeral, Landing} from './pages/Landing';
 
 const resolveBaseUrl = (host: string): string => {
     switch (host) {
@@ -51,11 +50,12 @@ function App() {
 
     return (
         <div className="main">
+            <Header title={title} user={user}/>
             <div className="content">
                 <BrowserRouter>
                     <Routes>
-                        {/*<Route path="/lsat" element={<LSATView onChange={newtitle}/>}/>*/}
-                        {/*<Route path="/blog-paywall" element={<PaywallView onChange={newtitle}/>}/>*/}
+                        <Route path="/lsat" element={<LSATView onChange={newtitle}/>}/>
+                        <Route path="/blog-paywall" element={<PaywallView onChange={newtitle}/>}/>
                         <Route path="/about" element={<About onChange={newtitle}/>}/>
                         <Route path="/gallery" element={<Kunstig onChange={newtitle} updateUser={callbackUpdateUser}
                                                                  user={user}/>}/>
@@ -63,8 +63,8 @@ function App() {
                                element={<WorkshopWrapper onChange={newtitle} updateUser={callbackUpdateUser}
                                                          user={user}/>}/>
                         <Route path="/admin" element={<Admin onChange={newtitle}/>}/>
-                        <Route path="/ephemeral" element={<Ephemeral/>}/>
-                        <Route path="/" element={<Landing/>}/>
+                        <Route path="/" element={<WorkshopWrapper onChange={newtitle} updateUser={callbackUpdateUser}
+                                                                  user={user}/>}/>
                     </Routes>
                 </BrowserRouter>
             </div>

@@ -15,14 +15,6 @@ const initialState = {
     register: undefined
 }
 
-const pendingState = {
-    state: RegisterState.REGISTER_PENDING,
-    register: {
-        paymentRequest: "awdawdawd",
-        macaroon: "awdawdawdawdd",
-    }
-}
-
 export const TicketBooth = (props: PageWithUserProps) => {
     const [state, setState] = useState<State>(initialState)
 
@@ -66,16 +58,14 @@ export const TicketBooth = (props: PageWithUserProps) => {
 
     return <div className="ticketbooth-container">
         <div className="ticketbooth">
-            <h1>Kunstig</h1>
-            <p>To remember you and your paintings Kunstig creates a momento using the Lightning Network ⚡️</p>
+            <p>Velkommen til galleriet! For å komme inn må du kjøpe en billett. Det kan du gjøre under 👇</p>
             {state.state === RegisterState.INITIAL &&
-                <button className="button block-xl" onClick={buyAccess}>Create momento</button>}
+            <button className="button block-xl" onClick={buyAccess}>Kjøp billett</button>}
             {state.state === RegisterState.REGISTER_PENDING && state.register &&
-                <InvoiceView paymentReq={state.register.paymentRequest}
-                             description={"Scan the QR-koden and pay using a ⚡️-wallet."}/>}
+            <InvoiceView paymentReq={state.register.paymentRequest}
+                         description={"Trykk på QR-koden og betal for billetten din i en ⚡️-wallet."}/>}
             {state.state === RegisterState.LOGGED_IN && <p>Takk! Velkommen inn ➡️</p>}
         </div>
-        <Link to="/about">About Kunstig</Link>
-        <Link to={"/"}>Back</Link>
+        <Link to="/about">Om galleriet</Link>
     </div>
 }
